@@ -15,20 +15,21 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
 # Database URI – Render-safe (fixes postgres:// → postgresql://)
+# Database config – Render-safe
 database_url = os.environ.get("DATABASE_URL")
 if database_url and database_url.startswith("postgres://"):
     database_url = "postgresql://" + database_url[11:]
-
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    database_url
-    or os.environ.get(
-        "LOCAL_DATABASE_URL",
-        "postgresql://postgres:YOUR_LOCAL_PASSWORD@localhost:5432/coaches_db"  # ← CHANGE THIS or use env var
-    )
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url or os.environ.get(
+    "LOCAL_DATABASE_URL",
+    "postgresql://postgres:your_password@localhost:5432/coaches_db"
 )
-
-# Disable modification tracking (removes warning + saves performance)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Force psycopg3 (psycopg[binary]) compatibility
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
+
+# Initialize db AFTER config
+db = SQLAlchemy(app)
 
 # Initialize extensions AFTER configuration
 db.init_app(app)  # ← only once, after config
