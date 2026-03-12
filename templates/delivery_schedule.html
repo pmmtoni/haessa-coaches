@@ -1,0 +1,290 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Mar  7 18:41:55 2026
+
+@author: pmmto
+"""
+
+{% extends "base.html" %}
+{% block title %}Delivery Schedule{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Delivery Schedule (as of {{ today }})</h2>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h5 class="text-success">On Schedule</h5>
+                    <h3 class="text-success">{{ on_schedule|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h5 class="text-warning">Completed Late</h5>
+                    <h3 class="text-warning">{{ completed_late|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h5 class="text-info">Approaching (8–21 days)</h5>
+                    <h3 class="text-info">{{ approaching|length }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h5 class="text-danger">Urgent / Overdue</h5>
+                    <h3 class="text-danger">{{ urgent|length }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- On Schedule -->
+    <div class="card mb-5 border-success">
+        <div class="card-header bg-success text-white">
+            <h5>On Schedule / Completed on Time</h5>
+        </div>
+        <div class="card-body">
+            {% if on_schedule %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Coach Number</th>
+                            <th>Type</th>
+                            <th>Completion Date</th>
+                            <th>Due Date</th>
+                            <th>Retention Due</th>
+                            <th>Retention Countdown</th>
+                            <th>Days Left / Overdue</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in on_schedule %}
+                            <tr class="table-success">
+                                <td><strong>{{ item.coach_number }}</strong></td>
+                                <td>{{ item.coach_type }}</td>
+                                <td>{{ item.completion_date }}</td>
+                                <td>{{ item.due_date }}</td>
+                                <td>{{ item.retention_due_date }}</td>
+                                <td><strong>{{ item.retention_countdown }}</strong></td>
+                                <td>{{ item.days_display }}</td>
+                                <td><strong>{{ item.status }}</strong></td>
+                                <td style="width: 250px;">
+                                    <div class="progress" style="height: 24px;">
+                                        {% for phase in item.progress_data.phases %}
+                                            {% set width = phase.progress %}
+                                            {% set color = 'bg-success' if width == 100 else 'bg-info' if width >= 50 else 'bg-warning' if width > 0 else 'bg-secondary' %}
+                                            {% if width > 0 %}
+                                                <div class="progress-bar {{ color }} progress-bar-striped" role="progressbar"
+                                                     style="width: {{ width }}%"
+                                                     aria-valuenow="{{ width }}" aria-valuemin="0" aria-valuemax="100"
+                                                     title="{{ phase.name }}: {{ width }}% ({{ phase.completed }} / {{ phase.total }})">
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted d-block text-center mt-1">
+                                        Overall: {{ item.progress_data.percentage | round(0) }}%
+                                    </small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No coaches completed on schedule yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Completed Late -->
+    <div class="card mb-5 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h5>Completed Late</h5>
+        </div>
+        <div class="card-body">
+            {% if completed_late %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Coach Number</th>
+                            <th>Type</th>
+                            <th>Completion Date</th>
+                            <th>Due Date</th>
+                            <th>Retention Due</th>
+                            <th>Retention Countdown</th>
+                            <th>Days Left / Overdue</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in completed_late %}
+                            <tr class="table-warning">
+                                <td><strong>{{ item.coach_number }}</strong></td>
+                                <td>{{ item.coach_type }}</td>
+                                <td>{{ item.completion_date }}</td>
+                                <td>{{ item.due_date }}</td>
+                                <td>{{ item.retention_due_date }}</td>
+                                <td><strong>{{ item.retention_countdown }}</strong></td>
+                                <td>{{ item.days_display }}</td>
+                                <td><strong>{{ item.status }}</strong></td>
+                                <td style="width: 250px;">
+                                    <div class="progress" style="height: 24px;">
+                                        {% for phase in item.progress_data.phases %}
+                                            {% set width = phase.progress %}
+                                            {% set color = 'bg-success' if width == 100 else 'bg-info' if width >= 50 else 'bg-warning' if width > 0 else 'bg-secondary' %}
+                                            {% if width > 0 %}
+                                                <div class="progress-bar {{ color }} progress-bar-striped" role="progressbar"
+                                                     style="width: {{ width }}%"
+                                                     aria-valuenow="{{ width }}" aria-valuemin="0" aria-valuemax="100"
+                                                     title="{{ phase.name }}: {{ width }}% ({{ phase.completed }} / {{ phase.total }})">
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted d-block text-center mt-1">
+                                        Overall: {{ item.progress_data.percentage | round(0) }}%
+                                    </small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No late completions.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Approaching -->
+    <div class="card mb-5 border-info">
+        <div class="card-header bg-info text-white">
+            <h5>Approaching Due Date (8–21 days)</h5>
+        </div>
+        <div class="card-body">
+            {% if approaching %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Coach Number</th>
+                            <th>Type</th>
+                            <th>Completion Date</th>
+                            <th>Due Date</th>
+                            <th>Retention Due</th>
+                            <th>Retention Countdown</th>
+                            <th>Days Left / Overdue</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in approaching %}
+                            <tr class="table-info">
+                                <td><strong>{{ item.coach_number }}</strong></td>
+                                <td>{{ item.coach_type }}</td>
+                                <td>{{ item.completion_date }}</td>
+                                <td>{{ item.due_date }}</td>
+                                <td>{{ item.retention_due_date }}</td>
+                                <td><strong>{{ item.retention_countdown }}</strong></td>
+                                <td><strong>{{ item.days_left }} days</strong></td>
+                                <td><strong>{{ item.status }}</strong></td>
+                                <td style="width: 250px;">
+                                    <div class="progress" style="height: 24px;">
+                                        {% for phase in item.progress_data.phases %}
+                                            {% set width = phase.progress %}
+                                            {% set color = 'bg-success' if width == 100 else 'bg-info' if width >= 50 else 'bg-warning' if width > 0 else 'bg-secondary' %}
+                                            {% if width > 0 %}
+                                                <div class="progress-bar {{ color }} progress-bar-striped" role="progressbar"
+                                                     style="width: {{ width }}%"
+                                                     aria-valuenow="{{ width }}" aria-valuemin="0" aria-valuemax="100"
+                                                     title="{{ phase.name }}: {{ width }}% ({{ phase.completed }} / {{ phase.total }})">
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted d-block text-center mt-1">
+                                        Overall: {{ item.progress_data.percentage | round(0) }}%
+                                    </small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No coaches approaching due date.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Urgent / Overdue -->
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5>Urgent / Overdue (≤7 days or past due)</h5>
+        </div>
+        <div class="card-body">
+            {% if urgent %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Coach Number</th>
+                            <th>Type</th>
+                            <th>Completion Date</th>
+                            <th>Due Date</th>
+                            <th>Retention Due</th>
+                            <th>Retention Countdown</th>
+                            <th>Days Left / Overdue</th>
+                            <th>Status</th>
+                            <th>Progress</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in urgent %}
+                            <tr class="table-danger">
+                                <td><strong>{{ item.coach_number }}</strong></td>
+                                <td>{{ item.coach_type }}</td>
+                                <td>{{ item.completion_date }}</td>
+                                <td>{{ item.due_date }}</td>
+                                <td>{{ item.retention_due_date }}</td>
+                                <td><strong>{{ item.retention_countdown }}</strong></td>
+                                <td>{{ item.days_display }}</td>
+                                <td><strong>{{ item.status }}</strong></td>
+                                <td style="width: 250px;">
+                                    <div class="progress" style="height: 24px;">
+                                        {% for phase in item.progress_data.phases %}
+                                            {% set width = phase.progress %}
+                                            {% set color = 'bg-success' if width == 100 else 'bg-info' if width >= 50 else 'bg-warning' if width > 0 else 'bg-secondary' %}
+                                            {% if width > 0 %}
+                                                <div class="progress-bar {{ color }} progress-bar-striped" role="progressbar"
+                                                     style="width: {{ width }}%"
+                                                     aria-valuenow="{{ width }}" aria-valuemin="0" aria-valuemax="100"
+                                                     title="{{ phase.name }}: {{ width }}% ({{ phase.completed }} / {{ phase.total }})">
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted d-block text-center mt-1">
+                                        Overall: {{ item.progress_data.percentage | round(0) }}%
+                                    </small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No urgent or overdue coaches.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

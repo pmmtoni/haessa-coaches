@@ -1,0 +1,182 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan 31 16:45:40 2026
+
+@author: Paul Mmtoni Barasa
+"""
+
+{% extends "base.html" %}
+{% block title %}Coaches Overview{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Coaches Overview (Total: {{ total }})</h2>
+
+{% if request.args.get('updated') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Success!</strong> Coach <strong>{{ request.args.get('updated') }}</strong> was updated successfully.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endif %}
+
+    <!-- Filter & Search Form -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <!-- Text search -->
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Search coach number or type..."
+                           value="{{ search_query or '' }}">
+                </div>
+
+                <!-- Coach type dropdown -->
+                <div class="col-md-3">
+                    <select name="coach_type" class="form-select">
+                        <option value="">All Types</option>
+                        {% for typ in all_types %}
+                            <option value="{{ typ }}" {% if typ == coach_type_filter %}selected{% endif %}>{{ typ }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Min progress % -->
+                <div class="col-md-3">
+                    <input type="number" name="min_progress" class="form-control" placeholder="Min progress %"
+                           value="{{ min_progress or '' }}" min="0" max="100" step="1">
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
+                    <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary flex-grow-1">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+ 
+
+    <!-- Coaches Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Coach Number</th>
+                    <th>Type</th>
+                    <th>Overall Progress</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coach in coaches %}
+                    {% set progress = coach.calculate_progress() %}
+                    <tr>
+                        <td class="fw-bold">{{ coach.coach_number }}</td>
+                        <td>{{ coach.coach_type }}</td>
+
+                        <!-- Overall Progress -->
+                        <td style="min-width: 380px;">
+                            <div class="d-flex flex-column gap-2 mb-3">
+                                {% for phase in progress.phases %}
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="fw-bold text-nowrap" style="min-width: 220px;">
+                                            {{ phase.name }} ({{ phase.completed }} / {{ phase.total }}):
+                                            <span class="fw-bold ms-1">
+                                                {{ phase.progress | round(0) }}%
+                                            </span>
+                                        </span>
+
+                                        <div class="progress flex-grow-1" style="height: 24px; background: #e9ecef; border-radius: 6px;">
+                                            <div class="progress-bar
+                                                 {% if phase.progress < 30 %}bg-danger
+                                                 {% elif phase.progress < 70 %}bg-warning
+                                                 {% else %}bg-success{% endif %}"
+                                                 role="progressbar"
+                                                 style="width: {{ phase.progress }}%;"
+                                                 aria-valuenow="{{ phase.progress }}" aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="text-center border-top pt-3 mt-2">
+                                <strong class="fs-5 text-primary">Overall: {{ progress.percentage | round(0) }}%</strong>
+                                <small class="d-block text-muted mt-1">
+                                    {{ progress.phases | length }} phases • Ends at {{ progress.final_stage }}
+                                </small>
+                            </div>
+                        </td>
+
+                        <td class="text-center align-middle">
+                            {% if current_user.role in ["admin", "editor"] %}
+                                <a href="{{ url_for('coaches_edit', id=coach.id) }}"
+                                   class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                                <a href="{{ url_for('coaches_delete', id=coach.id) }}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Delete {{ coach.coach_number }}?');">Delete</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            No coaches found.
+                            <a href="{{ url_for('coaches_add') }}" class="text-primary ms-2">Add one now</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Chart.js Pie Chart (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('statusPieChart')?.getContext('2d');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Stripping', 'Complete', 'Serviceworthy', 'Retention'],
+                    datasets: [{
+                        data: [{{ stripping_count }}, {{ complete_count }}, {{ serviceworthy_count }}, {{ retention_count }}],
+                        backgroundColor: ['#0d6efd', '#198754', '#0dcaf0', '#ffc107'],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let val = context.raw;
+                                    let total = {{ total }};
+                                    let pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                    return `${context.label}: ${val} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+    </script>
+
+    <style>
+        .progress-bar {
+            transition: width 0.6s ease;
+            min-width: 30px;
+        }
+        .progress {
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+    </style>
+</div>
+{% endblock %}
