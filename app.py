@@ -1,3 +1,4 @@
+# === Imports (keep these at the top) ===
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -6,22 +7,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
+# Import models AFTER app is created
 from models import db, User, Coach, CompletionTask
 
-# Create Flask app FIRST
+# === Create Flask app FIRST ===
 app = Flask(__name__)
 
-# Secret key – always use env var in production
+# Secret key (must be set early)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# Database URI – Render-safe (fixes postgres:// → postgresql://)
 # Database config – Render-safe
 database_url = os.environ.get("DATABASE_URL")
 if database_url and database_url.startswith("postgres://"):
     database_url = "postgresql://" + database_url[11:]
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url or os.environ.get(
     "LOCAL_DATABASE_URL",
-    "postgresql://postgres:your_password@localhost:5432/coaches_db"
+    "postgresql://postgres:YOUR_LOCAL_PASSWORD@localhost:5432/coaches_db"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -29,7 +30,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
 # Initialize db AFTER config
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 
 # Initialize extensions AFTER configuration
 db.init_app(app)  # ← only once, after config
@@ -451,18 +452,32 @@ def delivery_schedule():
 
 
 
-# Create tables & default admin user – ONLY when running the script directly
 if __name__ == "__main__":
+    # Local development only
+    # Create tables & default admin (safe inside context)
     with app.app_context():
         db.create_all()  # creates tables if they don't exist
         # Create default admin if not exists
         if not User.query.filter_by(username="admin").first():
             admin = User(username="admin", role="admin")
-            admin.set_password("Admin@123")  # change this in production!
+            admin.set_password("Admin@123")  # CHANGE THIS in production!
             db.session.add(admin)
             db.session.commit()
             print("Default admin created: username = admin, password = Admin@123")
-#    app.run(debug=True, host="0.0.0.0", port=8088)
 
-            port = int(os.environ.get("PORT", 8088))
-            app.run(debug=False, host="0.0.0.0", port=port)
+    # Run Flask dev server (local only)
+# === Local run block – at the VERY BOTTOM ===
+if __name__ == "__main__":
+    # Create tables & default admin (safe inside context)
+    with app.app_context():
+        db.create_all()
+        if not User.query.filter_by(username="admin").first():
+            admin = User(username="admin", role="admin")
+            admin.set_password("Admin@123")  # CHANGE THIS in production!
+            db.session.add(admin)
+            db.session.commit()
+            print("Default admin created: username = admin, password = Admin@123")
+
+    # Run Flask dev server
+    port = int(os.environ.get("PORT", 8088))
+    app.run(debug=True, host="0.0.0.0", port=port)
