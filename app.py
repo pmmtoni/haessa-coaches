@@ -1,4 +1,4 @@
-# === Imports (keep these at the top) ===
+# === Imports (keep at top) ===
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -7,37 +7,36 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# Import models AFTER app is created
+# Import models AFTER app creation
 from models import db, User, Coach, CompletionTask
 
 # === Create Flask app FIRST ===
 app = Flask(__name__)
 
-# Secret key (must be set early)
+# Secret key – always from env in production
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
 # Database config – Render-safe
 database_url = os.environ.get("DATABASE_URL")
 if database_url and database_url.startswith("postgres://"):
     database_url = "postgresql://" + database_url[11:]
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url or os.environ.get(
-    "LOCAL_DATABASE_URL",
-    "postgresql://postgres:YOUR_LOCAL_PASSWORD@localhost:5432/coaches_db"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    database_url
+    or os.environ.get("LOCAL_DATABASE_URL")
+    or "postgresql://postgres:your_local_password@localhost:5432/coaches_db"  # CHANGE or remove
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Force psycopg3 (psycopg[binary]) compatibility
+# Force modern psycopg3 compatibility (if using psycopg[binary])
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
-# Initialize db AFTER config
-#db = SQLAlchemy(app)
-
-# Initialize extensions AFTER configuration
-db.init_app(app)  # ← only once, after config
+# === Initialize extensions ONLY ONCE, here ===
+db.init_app(app)  # ← only this line – no duplicate db = SQLAlchemy(app)
 login_manager = LoginManager(app)
-login_manager.login_view = "login"  # your login route name
+login_manager.login_view = "login"
 
-# Role required decorator (keep this if you use it)
+# Role required decorator
 def role_required(*roles):
     def wrapper(fn):
         @wraps(fn)
@@ -50,11 +49,11 @@ def role_required(*roles):
         return decorated
     return wrapper
 
-# ... rest of your routes, models import, etc. below ...
 # User loader
 @login_manager.user_loader
 def load_user(uid):
     return User.query.get(int(uid))
+
 
 # Routes
 @app.route("/")
@@ -467,8 +466,8 @@ if __name__ == "__main__":
 
     # Run Flask dev server (local only)
 # === Local run block – at the VERY BOTTOM ===
+# === Local run block – at the VERY BOTTOM ===
 if __name__ == "__main__":
-    # Create tables & default admin (safe inside context)
     with app.app_context():
         db.create_all()
         if not User.query.filter_by(username="admin").first():
@@ -478,6 +477,5 @@ if __name__ == "__main__":
             db.session.commit()
             print("Default admin created: username = admin, password = Admin@123")
 
-    # Run Flask dev server
     port = int(os.environ.get("PORT", 8088))
     app.run(debug=True, host="0.0.0.0", port=port)
