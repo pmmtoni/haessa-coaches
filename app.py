@@ -461,4 +461,7 @@ if __name__ == "__main__":
             db.session.add(admin)
             db.session.commit()
             print("Default admin created: username = admin, password = Admin@123")
-    app.run(debug=True, host="0.0.0.0", port=8088)
+#    app.run(debug=True, host="0.0.0.0", port=8088)
+
+            port = int(os.environ.get("PORT", 8088))
+            app.run(debug=False, host="0.0.0.0", port=port)
