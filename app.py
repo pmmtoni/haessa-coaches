@@ -1,4 +1,6 @@
 # === Imports (keep at top) ===
+# === Imports (keep at top) ===
+# === Imports (keep at top) ===
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -16,23 +18,25 @@ app = Flask(__name__)
 # Secret key – always from env in production
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# Database config – Render-safe
+# Database config – Render-safe + force psycopg3 driver
 database_url = os.environ.get("DATABASE_URL")
-if database_url and database_url.startswith("postgres://"):
-    database_url = "postgresql://" + database_url[11:]
+if database_url:
+    if database_url.startswith("postgres://"):
+        database_url = "postgresql+psycopg://" + database_url[11:]
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    else:   # ← line 27
+    # Local fallback – username + password included
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(   # ← line 29 – not indentedapp.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+#app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    database_url
-    or os.environ.get("LOCAL_DATABASE_URL")
-    or "postgresql://postgres:your_local_password@localhost:5432/coaches_db"  # CHANGE or remove
-)
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# Safety check – fail fast if no valid URI
+if not app.config["SQLALCHEMY_DATABASE_URI"]:
+    raise RuntimeError("No valid DATABASE_URL or LOCAL_DATABASE_URL set")
 
-# Force modern psycopg3 compatibility (if using psycopg[binary])
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
+# Initialize db ONLY HERE – once
+db.init_app(app)
 
-# === Initialize extensions ONLY ONCE, here ===
-db.init_app(app)  # ← only this line – no duplicate db = SQLAlchemy(app)
+# Login manager
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
@@ -53,6 +57,9 @@ def role_required(*roles):
 @login_manager.user_loader
 def load_user(uid):
     return User.query.get(int(uid))
+
+# === Your routes go here ===
+# ... (all @app.route definitions below – keep them unchanged) ...
 
 
 # Routes
@@ -467,9 +474,13 @@ if __name__ == "__main__":
     # Run Flask dev server (local only)
 # === Local run block – at the VERY BOTTOM ===
 # === Local run block – at the VERY BOTTOM ===
+# === Local run block – ONLY at the VERY BOTTOM ===
+# === Local run block – ONLY at the VERY BOTTOM ===
+# === Local run block – ONLY at the VERY BOTTOM ===
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()
+        db.create_all()  # creates tables if they don't exist
+        # Create default admin if not exists
         if not User.query.filter_by(username="admin").first():
             admin = User(username="admin", role="admin")
             admin.set_password("Admin@123")  # CHANGE THIS in production!
