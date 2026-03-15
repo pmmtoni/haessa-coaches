@@ -19,22 +19,35 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
 # Database config – Render-safe + force psycopg3 driver
+
+# Database config – Render-safe + force psycopg3 driver
 database_url = os.environ.get("DATABASE_URL")
+
 if database_url:
     if database_url.startswith("postgres://"):
         database_url = "postgresql+psycopg://" + database_url[11:]
-        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-    else:   # ← line 27
-    # Local fallback – username + password included
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(   # ← line 29 – not indentedapp.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-#app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
-# Safety check – fail fast if no valid URI
+else:
+    # Local fallback – use env var if set, otherwise hardcoded
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+        "LOCAL_DATABASE_URL",
+        "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
+    )
+
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
+
+# Safety check – fail fast if no URI
 if not app.config["SQLALCHEMY_DATABASE_URI"]:
     raise RuntimeError("No valid DATABASE_URL or LOCAL_DATABASE_URL set")
 
 # Initialize db ONLY HERE – once
 db.init_app(app)
+
+
+
+
 
 # Login manager
 login_manager = LoginManager(app)
