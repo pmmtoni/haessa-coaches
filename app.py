@@ -1,6 +1,3 @@
-# === Imports (keep at top) ===
-# === Imports (keep at top) ===
-# === Imports (keep at top) ===
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -9,12 +6,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# Import models AFTER app creation
+# Force psycopg3 driver registration – must be here, early
+import sqlalchemy.dialects.postgresql
+sqlalchemy.dialects.postgresql.psycopg = sqlalchemy.dialects.postgresql.psycopg2
+
 from models import db, User, Coach, CompletionTask
-
-# === Create Flask app FIRST ===
-
-
 
 app = Flask(__name__)
 
