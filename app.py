@@ -15,8 +15,7 @@ from models import db, User, Coach, CompletionTask
 # === Create Flask app FIRST ===
 
 
-import sqlalchemy.dialects.postgresql
-sqlalchemy.dialects.postgresql.psycopg = sqlalchemy.dialects.postgresql.psycopg2
+
 app = Flask(__name__)
 
 # Secret key – always from env in production
@@ -27,8 +26,8 @@ app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_i
 # Database config – Render-safe + force psycopg3 driver
 # Database config – Render-safe + force psycopg3 driver
 # Database config – Render-safe + force psycopg3 driver
-print("Environment variables available:", list(os.environ.keys()))  # debug: see all env vars
-print("DATABASE_URL from env:", os.environ.get("DATABASE_URL", "NOT_SET"))
+#print("Environment variables available:", list(os.environ.keys()))  # debug: see all env vars
+#print("DATABASE_URL from env:", os.environ.get("DATABASE_URL", "NOT_SET"))
 
 database_url = os.environ.get("DATABASE_URL")
 
@@ -38,13 +37,13 @@ if database_url:
         database_url = "postgresql+psycopg://" + database_url[11:]
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 else:
-    print("No DATABASE_URL – falling back to local (should NOT happen on Render)")
+    #print("No DATABASE_URL – falling back to local (should NOT happen on Render)")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
         "LOCAL_DATABASE_URL",
         "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
     )
 
-print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"][:80] + "...")  # debug
+#print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"][:80] + "...")  # debug
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
