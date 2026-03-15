@@ -21,22 +21,31 @@ app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_i
 # Database config – Render-safe + force psycopg3 driver
 
 # Database config – Render-safe + force psycopg3 driver
+# Database config – Render-safe + force psycopg3 driver
 database_url = os.environ.get("DATABASE_URL")
 
 if database_url:
+    # Render's URL – fix scheme if needed
     if database_url.startswith("postgres://"):
         database_url = "postgresql+psycopg://" + database_url[11:]
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
 else:
-    # Local fallback – use env var if set, otherwise hardcoded
+    # Local fallback only – never used on Render
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
         "LOCAL_DATABASE_URL",
         "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
     )
 
+# Rest of config...
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
+
+# Debug print to confirm (add this temporarily)
+print("Using DB URI:", app.config["SQLALCHEMY_DATABASE_URI"][:60] + "...")
+
+
+
 
 # Safety check – fail fast if no URI
 if not app.config["SQLALCHEMY_DATABASE_URI"]:
