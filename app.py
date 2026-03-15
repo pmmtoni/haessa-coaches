@@ -13,6 +13,10 @@ from functools import wraps
 from models import db, User, Coach, CompletionTask
 
 # === Create Flask app FIRST ===
+
+
+import sqlalchemy.dialects.postgresql
+sqlalchemy.dialects.postgresql.psycopg = sqlalchemy.dialects.postgresql.psycopg2
 app = Flask(__name__)
 
 # Secret key – always from env in production
