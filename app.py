@@ -7,27 +7,27 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# Critical: Force SQLAlchemy to use psycopg3 instead of psycopg2
-# This must be here – early – before any SQLAlchemy usage
-import sqlalchemy.dialects.postgresql
-sqlalchemy.dialects.postgresql.psycopg = sqlalchemy.dialects.postgresql.psycopg2
+# Force SQLAlchemy to use psycopg3 (the modern psycopg) instead of psycopg2
+# This must be done BEFORE any SQLAlchemy code runs
+import sqlalchemy.dialects
+sqlalchemy.dialects.registry.register("postgresql+psycopg", "sqlalchemy.dialects.postgresql.psycopg.PGDialect_psycopg", "psycopg")
 
-# Import models AFTER the mapping
 from models import db, User, Coach, CompletionTask
 
-# === Create Flask app FIRST ===
 app = Flask(__name__)
 
 # Secret key
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# Database config – Render-safe + force psycopg3
+# Database config – Render-safe + force psycopg3 driver
 database_url = os.environ.get("DATABASE_URL")
 if database_url:
+    print("Render DATABASE_URL detected – using it")
     if database_url.startswith("postgres://"):
         database_url = "postgresql+psycopg://" + database_url[11:]
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 else:
+    print("No DATABASE_URL – using local fallback")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
         "LOCAL_DATABASE_URL",
         "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
@@ -36,13 +36,17 @@ else:
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
+if not app.config["SQLALCHEMY_DATABASE_URI"]:
+    raise RuntimeError("No valid DATABASE_URI set – check Render Environment")
+
+# Initialize db
 db.init_app(app)
-
-
 
 # Login manager
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
+
+
 
 # Role required decorator
 def role_required(*roles):
