@@ -7,14 +7,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# Force SQLAlchemy to use psycopg3 (the modern psycopg) instead of psycopg2
-# This must be done BEFORE any SQLAlchemy code runs
-import sqlalchemy.dialects
-sqlalchemy.dialects.registry.register("postgresql+psycopg", "sqlalchemy.dialects.postgresql.psycopg.PGDialect_psycopg", "psycopg")
+# STRONG FIX: Register psycopg3 dialect properly for SQLAlchemy 2.x
+# This must be executed BEFORE any SQLAlchemy usage (db.init_app, models import, etc.)
+from sqlalchemy.dialects import registry
 
+registry.register(
+    "postgresql+psycopg",
+    "sqlalchemy.dialects.postgresql.psycopg.PGDialect_psycopg",
+    "psycopg"
+)
+
+# Now safe to import models and proceed
 from models import db, User, Coach, CompletionTask
 
 app = Flask(__name__)
+
 
 # Secret key
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
