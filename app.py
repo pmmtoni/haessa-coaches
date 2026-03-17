@@ -7,17 +7,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# STRONG FIX: Register psycopg3 dialect properly for SQLAlchemy 2.x
-# This must be executed BEFORE any SQLAlchemy usage (db.init_app, models import, etc.)
-from sqlalchemy.dialects import registry
+# SUPER STRONG FIX: Monkey-patch SQLAlchemy to completely block psycopg2 import
+# This must be the first thing after imports — before ANY SQLAlchemy usage
+import sqlalchemy.dialects.postgresql.psycopg2
+def fake_import_psycopg2(*args, **kwargs):
+    raise ImportError("psycopg2 deliberately blocked – use psycopg3")
+sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = fake_import_psycopg2
 
-registry.register(
-    "postgresql+psycopg",
-    "sqlalchemy.dialects.postgresql.psycopg.PGDialect_psycopg",
-    "psycopg"
-)
-
-# Now safe to import models and proceed
 from models import db, User, Coach, CompletionTask
 
 app = Flask(__name__)
