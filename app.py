@@ -1,17 +1,20 @@
 # ================================================================
 # FORCE BLOCK: Prevent psycopg2 from ever loading
-# MUST BE THE VERY FIRST CODE IN THE FILE – before ANY import
+# MUST BE THE VERY FIRST LINES – BEFORE ANY OTHER IMPORT
 # ================================================================
 import sqlalchemy.dialects.postgresql
 
-def block_psycopg2(*args, **kwargs):
-    raise ImportError("psycopg2 blocked – use psycopg3 only")
+def block_psycopg2_import(*args, **kwargs):
+    raise ImportError(
+        "psycopg2 blocked deliberately. "
+        "Use psycopg[binary] + postgresql+psycopg:// only."
+    )
 
-sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2
+sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2_import
 
-# ================================================================
+# ────────────────────────────────────────────────────────────────
 # Now safe to import everything else
-# ================================================================
+# ────────────────────────────────────────────────────────────────
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -27,12 +30,12 @@ app = Flask(__name__)
 
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# Database config – Render-safe + psycopg3
+# Database config – Render-safe
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
     print("Render DATABASE_URL detected → using it")
     if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://")
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 else:
     print("No DATABASE_URL → using local fallback")
@@ -43,6 +46,8 @@ else:
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
+
+print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"])
 
 db.init_app(app)
 
