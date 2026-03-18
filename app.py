@@ -1,6 +1,16 @@
+# ================================================================
+# FORCE BLOCK: Prevent psycopg2 from ever loading
+# MUST BE THE VERY FIRST CODE IN THE FILE – before ANY import
+# ================================================================
+import sqlalchemy.dialects.postgresql
+
+def block_psycopg2(*args, **kwargs):
+    raise ImportError("psycopg2 blocked – use psycopg3 only")
+
+sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2
 
 # ================================================================
-# Imports – keep at the very top
+# Now safe to import everything else
 # ================================================================
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -10,60 +20,30 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# ================================================================
-# Force SQLAlchemy to use psycopg3 ONLY – block psycopg2
-# MUST be before ANY SQLAlchemy-related import or usage
-# ================================================================
-import sqlalchemy.dialects.postgresql
-
-def block_psycopg2_import(*args, **kwargs):
-    raise ImportError(
-        "psycopg2 is deliberately blocked. "
-        "Use psycopg[binary] + postgresql+psycopg:// URI only."
-    )
-
-sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2_import
-
-# Now safe to import models
+# Import models AFTER the block
 from models import db, User, Coach, CompletionTask
 
-# ================================================================
-# Flask app creation
-# ================================================================
 app = Flask(__name__)
 
-# Secret key – always prefer env var in production
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# ================================================================
-# Database configuration – Render-safe + SQLite fallback
-# (borrowed & adapted from your working analytics app)
-# ================================================================
-base_dir = os.path.abspath(os.path.dirname(__file__))
-sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
+# Database config – Render-safe + psycopg3
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    print("Render DATABASE_URL detected → using it")
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+else:
+    print("No DATABASE_URL → using local fallback")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+        "LOCAL_DATABASE_URL",
+        "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
+    )
 
-DATABASE_URL = os.environ.get("DATABASE_URL", sqlite_path)
-
-# Fix Render’s old scheme (postgres:// → postgresql+psycopg2://)
-# Note: we use psycopg2 here because it is what works reliably on Render for many users
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
-
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
-# SQLite needs this to avoid threading issues (common on Render)
-if DATABASE_URL.startswith("sqlite"):
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "connect_args": {"check_same_thread": False}
-    }
-
-# Debug print – shows immediately in logs which DB is used
-print(f"📌 Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
-
-# ================================================================
-# Initialize extensions AFTER config is complete
-# ================================================================
 db.init_app(app)
 
 login_manager = LoginManager(app)
