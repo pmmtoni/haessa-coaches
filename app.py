@@ -1,20 +1,6 @@
 # ================================================================
-# FORCE BLOCK – MUST BE THE VERY FIRST LINES IN THE FILE
-# Block psycopg2 BEFORE any SQLAlchemy import or model import
+# Imports – keep at the very top
 # ================================================================
-import sqlalchemy.dialects.postgresql
-
-def block_psycopg2_import(*args, **kwargs):
-    raise ImportError(
-        "psycopg2 deliberately blocked. "
-        "Use psycopg[binary] + postgresql+psycopg:// only."
-    )
-
-sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2_import
-
-# ────────────────────────────────────────────────────────────────
-# Now safe to import everything else
-# ────────────────────────────────────────────────────────────────
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -23,32 +9,43 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# Import models AFTER the block
+# Import models (no monkey-patch needed anymore)
 from models import db, User, Coach, CompletionTask
 
 app = Flask(__name__)
 
+# Secret key – always prefer env var in production
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# Database config – Render-safe
-DATABASE_URL = os.environ.get("DATABASE_URL")
-if DATABASE_URL:
-    print("Render DATABASE_URL detected → using it")
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
-else:
-    print("No DATABASE_URL → using local fallback")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-        "LOCAL_DATABASE_URL",
-        "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
-    )
+# ================================================================
+# Database configuration – Render-safe + SQLite fallback
+# (pattern borrowed from your working analytics app)
+# ================================================================
+base_dir = os.path.abspath(os.path.dirname(__file__))
+sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
 
+DATABASE_URL = os.environ.get("DATABASE_URL", sqlite_path)
+
+# Fix Render’s old scheme (postgres:// → postgresql+psycopg2://)
+# We use psycopg2 scheme because it is what works reliably on Render
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
-print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"])
+# SQLite needs this to avoid threading issues (common on Render)
+if DATABASE_URL.startswith("sqlite"):
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "connect_args": {"check_same_thread": False}
+    }
 
+# Debug print – shows immediately in logs which DB is used
+print(f"📌 Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
+
+# ================================================================
+# Initialize extensions AFTER config is complete
+# ================================================================
 db.init_app(app)
 
 login_manager = LoginManager(app)
