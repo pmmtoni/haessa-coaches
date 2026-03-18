@@ -61,33 +61,40 @@ from functools import wraps
 #   VERY IMPORTANT: Force SQLAlchemy to use psycopg3 (psycopg)
 #   This must come BEFORE importing models and BEFORE db.init_app
 # ────────────────────────────────────────────────────────────────
+# ================================================
+#   MUST BE THE VERY FIRST LINES IN THE FILE
+#   Block psycopg2 BEFORE any SQLAlchemy import
+# ================================================
 import sqlalchemy.dialects.postgresql
 
-# Monkey-patch to prevent accidental use of psycopg2
-def block_psycopg2_import(*args, **kwargs):
+def block_psycopg2(*args, **kwargs):
     raise ImportError(
         "psycopg2 is deliberately blocked. "
-        "Use psycopg[binary] + postgresql+psycopg:// URI only."
+        "Use psycopg[binary] + postgresql+psycopg:// only."
     )
 
-sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2_import
+sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2
 
-# Now safe to import models
+# Now safe to import everything else
+import os
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, timedelta
+from functools import wraps
+
 from models import db, User, Coach, CompletionTask
 
 app = Flask(__name__)
 
-# Secret key – always prefer environment variable in production
+# Secret key
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# ────────────────────────────────────────────────────────────────
-#   Database configuration – Render-safe + psycopg3 enforcement
-# ────────────────────────────────────────────────────────────────
+# Database config
 database_url = os.environ.get("DATABASE_URL")
-
 if database_url:
     print("Render DATABASE_URL detected → using it")
-    # Fix Render's old scheme (postgres:// → postgresql+psycopg://)
     if database_url.startswith("postgres://"):
         database_url = "postgresql+psycopg://" + database_url[11:]
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
@@ -101,21 +108,10 @@ else:
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
-# Fail fast if no URI is set
-if not app.config["SQLALCHEMY_DATABASE_URI"]:
-    raise RuntimeError(
-        "No valid DATABASE_URI set. "
-        "Check Render → Environment → DATABASE_URL variable."
-    )
-
-# ────────────────────────────────────────────────────────────────
-#   Initialize extensions (only after config is complete)
-# ────────────────────────────────────────────────────────────────
 db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-
 
 
 
