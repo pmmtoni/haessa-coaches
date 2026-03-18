@@ -1,12 +1,12 @@
 # ================================================================
-# FORCE BLOCK: Prevent psycopg2 from ever loading
-# MUST BE THE VERY FIRST LINES – BEFORE ANY OTHER IMPORT
+# FORCE BLOCK – MUST BE THE VERY FIRST LINES IN THE FILE
+# Block psycopg2 BEFORE any SQLAlchemy import or model import
 # ================================================================
 import sqlalchemy.dialects.postgresql
 
 def block_psycopg2_import(*args, **kwargs):
     raise ImportError(
-        "psycopg2 blocked deliberately. "
+        "psycopg2 deliberately blocked. "
         "Use psycopg[binary] + postgresql+psycopg:// only."
     )
 
@@ -35,7 +35,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
     print("Render DATABASE_URL detected → using it")
     if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://")
+        DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 else:
     print("No DATABASE_URL → using local fallback")
@@ -53,7 +53,6 @@ db.init_app(app)
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-
 
 
 # Role required decorator
