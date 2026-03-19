@@ -1,6 +1,19 @@
 # ================================================================
-# Imports – keep at the very top
+# FORCE BLOCK – MUST BE THE VERY FIRST LINES IN THE FILE
+# Block psycopg2 BEFORE any SQLAlchemy import or model import
 # ================================================================
+import sqlalchemy.dialects.postgresql
+
+def block_psycopg2_import(*args, **kwargs):
+    raise ImportError(
+        "psycopg2 deliberately blocked. Use psycopg[binary] only."
+    )
+
+sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2_import
+
+# ────────────────────────────────────────────────────────────────
+# Now safe to import everything else
+# ────────────────────────────────────────────────────────────────
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -9,38 +22,38 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from functools import wraps
 
-# Import models (no monkey-patch needed anymore)
 from models import db, User, Coach, CompletionTask
 
 app = Flask(__name__)
 
-# Secret key – always prefer env var in production
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# Database config – Render-safe + fallback to SQLite locally
-base_dir = os.path.abspath(os.path.dirname(__file__))
-sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
+# Database config – Render-safe + psycopg3
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    print("Render DATABASE_URL detected → using it")
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+else:
+    print("No DATABASE_URL → using local fallback")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+        "LOCAL_DATABASE_URL",
+        "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
+    )
 
-DATABASE_URL = os.environ.get("DATABASE_URL", sqlite_path)
-
-# Render uses postgres:// — we map it to the psycopg2 dialect
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
-
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
-# SQLite needs this to work in multi-threaded environments
-if DATABASE_URL.startswith("sqlite"):
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "connect_args": {"check_same_thread": False}
-    }
-
-print(f"📌 Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
+print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"])
 
 db.init_app(app)
+
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
+
+
+
 
 
 # Role required decorator
@@ -461,19 +474,6 @@ def delivery_schedule():
 
 
 
-if __name__ == "__main__":
-    # Local development only
-    # Create tables & default admin (safe inside context)
-    with app.app_context():
-        db.create_all()  # creates tables if they don't exist
-        # Create default admin if not exists
-        if not User.query.filter_by(username="admin").first():
-            admin = User(username="admin", role="admin")
-            admin.set_password("Admin@123")  # CHANGE THIS in production!
-            db.session.add(admin)
-            db.session.commit()
-            print("Default admin created: username = admin, password = Admin@123")
-
     # Run Flask dev server (local only)
 # === Local run block â€“ at the VERY BOTTOM ===
 # === Local run block â€“ at the VERY BOTTOM ===
@@ -492,4 +492,4 @@ if __name__ == "__main__":
             print("Default admin created: username = admin, password = Admin@123")
 
     port = int(os.environ.get("PORT", 8088))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=port, use_reloader=False)  # ← use_reloader=False helps SQLite locally
