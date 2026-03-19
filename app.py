@@ -21,33 +21,27 @@ app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_i
 # Database configuration – Render-safe + SQLite fallback
 # (pattern borrowed from your working analytics app)
 # ================================================================
+# Database config – Render-safe + SQLite fallback (proven from analytics)
 base_dir = os.path.abspath(os.path.dirname(__file__))
 sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", sqlite_path)
 
-# Fix Render’s old scheme (postgres:// → postgresql+psycopg2://)
-# We use psycopg2 scheme because it is what works reliably on Render
+# Fix Render’s old scheme
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# SQLite needs this to avoid threading issues (common on Render)
 if DATABASE_URL.startswith("sqlite"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "connect_args": {"check_same_thread": False}
     }
 
-# Debug print – shows immediately in logs which DB is used
 print(f"📌 Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
-# ================================================================
-# Initialize extensions AFTER config is complete
-# ================================================================
 db.init_app(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
