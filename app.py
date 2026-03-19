@@ -71,7 +71,7 @@ def load_user(uid):
     return User.query.get(int(uid))
 
 # === Your routes go here ===
-# ... (all @app.route definitions below – keep them unchanged) ...
+# ... (all @app.route definitions below â€“ keep them unchanged) ...
 
 
 # Routes
@@ -405,7 +405,7 @@ def delivery_schedule():
             else:
                 retention_countdown = f"Overdue by {-days_to_retention} days"
 
-        # Commissioned / Handed Over status – type-dependent
+        # Commissioned / Handed Over status â€“ type-dependent
         status = "In Progress"
         if coach.coach_type.lower() == 'trailer':
             if coach.serviceworthy_certificate:
@@ -484,11 +484,11 @@ if __name__ == "__main__":
             print("Default admin created: username = admin, password = Admin@123")
 
     # Run Flask dev server (local only)
-# === Local run block – at the VERY BOTTOM ===
-# === Local run block – at the VERY BOTTOM ===
-# === Local run block – ONLY at the VERY BOTTOM ===
-# === Local run block – ONLY at the VERY BOTTOM ===
-# === Local run block – ONLY at the VERY BOTTOM ===
+# === Local run block â€“ at the VERY BOTTOM ===
+# === Local run block â€“ at the VERY BOTTOM ===
+# === Local run block â€“ ONLY at the VERY BOTTOM ===
+# === Local run block â€“ ONLY at the VERY BOTTOM ===
+# === Local run block â€“ ONLY at the VERY BOTTOM ===
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # creates tables if they don't exist
