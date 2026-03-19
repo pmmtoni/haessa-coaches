@@ -17,25 +17,20 @@ app = Flask(__name__)
 # Secret key – always prefer env var in production
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# ================================================================
-# Database configuration – Render-safe + SQLite fallback
-# (pattern borrowed from your working analytics app)
-# ================================================================
-# Database config – Render-safe + SQLite fallback (proven from analytics)
-
-# Database config – Render-safe + SQLite fallback
+# Database config – Render-safe + fallback to SQLite locally
 base_dir = os.path.abspath(os.path.dirname(__file__))
 sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", sqlite_path)
 
-# Fix Render scheme – use psycopg2 dialect (matches what SQLAlchemy expects)
+# Render uses postgres:// — we map it to the psycopg2 dialect
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# SQLite needs this to work in multi-threaded environments
 if DATABASE_URL.startswith("sqlite"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "connect_args": {"check_same_thread": False}
@@ -44,7 +39,6 @@ if DATABASE_URL.startswith("sqlite"):
 print(f"📌 Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 db.init_app(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
