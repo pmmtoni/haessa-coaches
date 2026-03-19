@@ -22,12 +22,14 @@ app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_i
 # (pattern borrowed from your working analytics app)
 # ================================================================
 # Database config – Render-safe + SQLite fallback (proven from analytics)
+
+# Database config – Render-safe + SQLite fallback
 base_dir = os.path.abspath(os.path.dirname(__file__))
 sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
 
 DATABASE_URL = os.environ.get("DATABASE_URL", sqlite_path)
 
-# Fix Render’s old scheme
+# Fix Render scheme – use psycopg2 dialect (matches what SQLAlchemy expects)
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
 
@@ -42,6 +44,7 @@ if DATABASE_URL.startswith("sqlite"):
 print(f"📌 Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 db.init_app(app)
+
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
