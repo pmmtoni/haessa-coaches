@@ -1,19 +1,59 @@
-# ================================================================
-# FORCE BLOCK – MUST BE THE VERY FIRST LINES IN THE FILE
-# Block psycopg2 BEFORE any SQLAlchemy import or model import
-# ================================================================
-import sqlalchemy.dialects.postgresql
+# # ================================================================
+# # FORCE BLOCK – MUST BE THE VERY FIRST LINES IN THE FILE
+# # Block psycopg2 BEFORE any SQLAlchemy import or model import
+# # ================================================================
+# import sqlalchemy.dialects.postgresql
 
-def block_psycopg2_import(*args, **kwargs):
-    raise ImportError(
-        "psycopg2 deliberately blocked. Use psycopg[binary] only."
-    )
+# def block_psycopg2_import(*args, **kwargs):
+#     raise ImportError(
+#         "psycopg2 deliberately blocked. Use psycopg[binary] only."
+#     )
 
-sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2_import
+# sqlalchemy.dialects.postgresql.psycopg2.import_dbapi = block_psycopg2_import
 
-# ────────────────────────────────────────────────────────────────
-# Now safe to import everything else
-# ────────────────────────────────────────────────────────────────
+# # ────────────────────────────────────────────────────────────────
+# # Now safe to import everything else
+# # ────────────────────────────────────────────────────────────────
+# import os
+# from flask import Flask, render_template, request, redirect, url_for, flash
+# from flask_sqlalchemy import SQLAlchemy
+# from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+# from werkzeug.security import generate_password_hash, check_password_hash
+# from datetime import datetime, timedelta
+# from functools import wraps
+
+# from models import db, User, Coach, CompletionTask
+
+# app = Flask(__name__)
+
+# app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
+
+# # Database config – Render-safe + psycopg3
+# # Database config – Render-safe + force priority
+# # Database config – Render-safe + aggressive priority
+# DATABASE_URL = os.environ.get("DATABASE_URL")
+
+# if "DATABASE_URL" in os.environ:  # ← check the KEY exists, not the value
+#     print("Render DATABASE_URL key exists → using it (value = %s)" % (DATABASE_URL or "[empty]"))
+#     if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+#         DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
+#     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or ""
+# else:
+#     print("DATABASE_URL key missing → using local fallback")
+#     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+#         "LOCAL_DATABASE_URL",
+#         "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
+#     )
+
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
+
+# print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"])
+
+# db.init_app(app)
+# login_manager = LoginManager(app)
+# login_manager.login_view = "login"
+
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -25,34 +65,32 @@ from functools import wraps
 from models import db, User, Coach, CompletionTask
 
 app = Flask(__name__)
-
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-# Database config – Render-safe + psycopg3
-# Database config – Render-safe + force priority
-# Database config – Render-safe + aggressive priority
-DATABASE_URL = os.environ.get("DATABASE_URL")
+# ────────────────────────────────────────────────────────────────
+# Database config – force Neon (temporary hard-code to break loop)
+# ────────────────────────────────────────────────────────────────
+DATABASE_URL = "postgresql://neondb_owner:npg_DAtphFl8X9zI@ep-muddy-wave-anl937xk-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
-if "DATABASE_URL" in os.environ:  # ← check the KEY exists, not the value
-    print("Render DATABASE_URL key exists → using it (value = %s)" % (DATABASE_URL or "[empty]"))
-    if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
-    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or ""
-else:
-    print("DATABASE_URL key missing → using local fallback")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-        "LOCAL_DATABASE_URL",
-        "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
-    )
+print("Using hard-coded Neon DB URL (temporary - Render env var unstable)")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
 
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 
 print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"])
 
 db.init_app(app)
+
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
+
+
+
+
+
 
 
 # Role required decorator
