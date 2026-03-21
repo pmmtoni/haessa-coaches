@@ -471,7 +471,13 @@ def delivery_schedule():
     )
 
 
-
+@app.route("/debug-env")
+def debug_env():
+    return {
+        "DATABASE_URL in os.environ": "DATABASE_URL" in os.environ,
+        "DATABASE_URL value": os.environ.get("DATABASE_URL", "[missing]"),
+        "All env keys (first 20)": list(os.environ.keys())[:20]
+    }
 
     # Run Flask dev server (local only)
 # === Local run block â€“ at the VERY BOTTOM ===
