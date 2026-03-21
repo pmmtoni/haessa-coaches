@@ -29,14 +29,16 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
 # Database config – Render-safe + psycopg3
+# Database config – Render-safe + force priority
 DATABASE_URL = os.environ.get("DATABASE_URL")
+
 if DATABASE_URL:
     print("Render DATABASE_URL detected → using it")
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = "postgresql+psycopg://" + DATABASE_URL[11:]
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 else:
-    print("No DATABASE_URL → using local fallback")
+    print("No DATABASE_URL found → using local fallback (should NOT happen on Render)")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
         "LOCAL_DATABASE_URL",
         "postgresql+psycopg://postgres:PMmtoni#@localhost:5432/coaches_db"
@@ -48,10 +50,8 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"future": True}
 print("Final DB URI:", app.config["SQLALCHEMY_DATABASE_URI"])
 
 db.init_app(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
-
 
 
 
