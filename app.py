@@ -16,10 +16,10 @@ base_dir = os.path.abspath(os.path.dirname(__file__))
 sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
 
 
-database_url = os.environ.get("DATABASE_URL")
+database_url = os.environ.get("database_url")
 
 if not database_url:
-    raise ValueError("DATABASE_URL is not set on Render!")
+    raise ValueError("database_url is not set on Render!")
 
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
@@ -33,13 +33,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 
 
 # Fix Render’s postgres:// scheme
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://")
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg2://")
 
-app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-if DATABASE_URL.startswith("sqlite"):
+if database_url.startswith("sqlite"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "connect_args": {"check_same_thread": False}
     }
@@ -51,13 +51,13 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-    # Create default admin (safe guard)
+    # Seed admin user
     if not User.query.filter_by(username="admin").first():
         admin = User(username="admin", role="admin")
         admin.set_password("Admin@123")
         db.session.add(admin)
         db.session.commit()
-
+        print("✅ Admin user created")
 
 
 
@@ -487,8 +487,8 @@ def delivery_schedule():
 @app.route("/debug-env")
 def debug_env():
     return {
-        "DATABASE_URL in os.environ": "DATABASE_URL" in os.environ,
-        "DATABASE_URL value": os.environ.get("DATABASE_URL", "[missing]"),
+        "database_url in os.environ": "database_url" in os.environ,
+        "database_url value": os.environ.get("database_url", "[missing]"),
         "All env keys (first 20)": list(os.environ.keys())[:20]
     }
 
