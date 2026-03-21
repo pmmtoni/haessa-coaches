@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: cted-coaches
+    env: python
+    plan: free
+    branch: main
+    region: oregon  # matches your current Oregon selection
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    pythonVersion: 3.12.3               # ← this pins Python 3.12
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cted-coaches-db           # ← change if your DB service name is different
+          property: connectionString
