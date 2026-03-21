@@ -15,7 +15,22 @@ app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_i
 base_dir = os.path.abspath(os.path.dirname(__file__))
 sqlite_path = f"sqlite:///{os.path.join(base_dir, 'coaches.db')}"
 
-DATABASE_URL = os.environ.get("DATABASE_URL", sqlite_path)
+
+database_url = os.environ.get("DATABASE_URL")
+
+if not database_url:
+    raise ValueError("DATABASE_URL is not set on Render!")
+
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
+
+
+
+
+
 
 # Fix Render’s postgres:// scheme
 if DATABASE_URL.startswith("postgres://"):
@@ -32,6 +47,19 @@ if DATABASE_URL.startswith("sqlite"):
 print(f"Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
 db.init_app(app)
+
+with app.app_context():
+    db.create_all()
+
+    # Create default admin (safe guard)
+    if not User.query.filter_by(username="admin").first():
+        admin = User(username="admin", role="admin")
+        admin.set_password("Admin@123")
+        db.session.add(admin)
+        db.session.commit()
+
+
+
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
