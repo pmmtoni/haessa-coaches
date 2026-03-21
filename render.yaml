@@ -4,10 +4,10 @@ services:
     env: python
     plan: free
     branch: main
-    region: oregon  # matches your current Oregon selection
+    region: oregon
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
-    pythonVersion: 3.12.3               # ← this pins Python 3.12
+    pythonVersion: 3.12.3               # ← forces Python 3.12
     healthCheckPath: /
     autoDeploy: true
     envVars:
@@ -15,5 +15,5 @@ services:
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: cted-coaches-db           # ← change if your DB service name is different
+          name: cted-coaches-db         # ← your actual DB service name
           property: connectionString
