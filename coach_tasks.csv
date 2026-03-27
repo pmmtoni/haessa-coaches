@@ -207,3 +207,10 @@ Trailer,Completion,Coach Build,14.1 Marley or carpet - Apply contact adhesive ev
 Sleeper (Premier),Completion,Coach Build,14.1 Marley or carpet - Apply contact adhesive evenly on both marley & floorboards,
 Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Static test (110v),8
 Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Dynamic test (3kV),8
+Trailer,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Motor,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Kitchen,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Sitter,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Sleeper,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Locomotive (Electric),Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8

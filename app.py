@@ -19,9 +19,15 @@ from models import db, User, Coach, CompletionTask
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
+#database_url = os.environ.get("DATABASE_URL")
+#if not database_url:
+#    raise ValueError("DATABASE_URL is not set")
+
 database_url = os.environ.get("DATABASE_URL")
+
 if not database_url:
-    raise ValueError("DATABASE_URL is not set")
+    database_url = "postgresql://neondb_owner:npg_DAtphFl8X9zI@ep-muddy-wave-anl937xk-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
 
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
@@ -38,6 +44,15 @@ db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
+with app.app_context():
+    db.create_all()
+
+    if not User.query.filter_by(username="admin").first():
+        admin = User(username="admin", role="admin")
+        admin.set_password("Admin@123")
+        db.session.add(admin)
+        db.session.commit()
+        print("✅ Admin user created")
 
 def role_required(*roles):
     def wrapper(fn):
