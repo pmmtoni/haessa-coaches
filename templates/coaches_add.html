@@ -19,121 +19,112 @@ Created on Sat Jan 31 16:28:59 2026
 
                 <div class="card-body p-4">
                     <form method="POST" class="row g-4">
+
                         <!-- Basic Info -->
                         <div class="col-md-6">
                             <label for="coach_number" class="form-label fw-bold required">Coach Number</label>
-                            <input type="text" class="form-control" id="coach_number" name="coach_number" required autofocus>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="coach_number"
+                                name="coach_number"
+                                required
+                                autofocus
+                            >
                         </div>
 
                         <div class="col-md-6">
                             <label for="coach_type" class="form-label fw-bold required">Coach Type</label>
-                            <input type="text" class="form-control" id="coach_type" name="coach_type" required>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="coach_type"
+                                name="coach_type"
+                                required
+                            >
+                            <small class="text-muted">
+                                Use the exact coach type name that matches your CSV task templates.
+                            </small>
                         </div>
 
-                        <!-- Stripping Phase -->
+                        <!-- Milestone Dates -->
                         <div class="col-12 mt-4">
-                            <h5 class="mb-3 border-bottom pb-2">Stripping Phase</h5>
+                            <h5 class="mb-3 border-bottom pb-2">Key Dates</h5>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Stripping</label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="stripping" name="stripping">
-                                <label class="form-check-label" for="stripping">Completed</label>
-                            </div>
-                            <small class="form-text text-muted">Auto-calculated from sub-tasks</small>
-                        </div>
+
                         <div class="col-md-4">
                             <label for="stripping_date" class="form-label fw-bold">Stripping Date</label>
-                            <input type="date" class="form-control" id="stripping_date" name="stripping_date">
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="stripping_date"
+                                name="stripping_date"
+                            >
                         </div>
 
-                        <!-- Stripping Sub-tasks -->
+                        <div class="col-md-4">
+                            <label for="completion_date" class="form-label fw-bold">Completion Date</label>
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="completion_date"
+                                name="completion_date"
+                            >
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="due_date" class="form-label fw-bold">Due Date</label>
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="due_date"
+                                name="due_date"
+                            >
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="serviceworthy_date" class="form-label fw-bold">Serviceworthy Date</label>
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="serviceworthy_date"
+                                name="serviceworthy_date"
+                            >
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="retention_date" class="form-label fw-bold">Retention Date</label>
+                            <input
+                                type="date"
+                                class="form-control"
+                                id="retention_date"
+                                name="retention_date"
+                            >
+                        </div>
+
+                        <!-- Status Info -->
+                        <div class="col-12 mt-4">
+                            <h5 class="mb-3 border-bottom pb-2">Task Setup</h5>
+                        </div>
+
                         <div class="col-12">
-                            <h6 class="text-muted mb-3">Required tasks for Stripping Completed status:</h6>
-                            <div class="row g-3">
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_bogie" id="st_bogie">
-                                        <label class="form-check-label" for="st_bogie">Bogie</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_underframe" id="st_underframe">
-                                        <label class="form-check-label" for="st_underframe">Underframe</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_plumbing_piping" id="st_plumbing">
-                                        <label class="form-check-label" for="st_plumbing">Plumbing & Piping</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_interior" id="st_interior">
-                                        <label class="form-check-label" for="st_interior">Interior</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_exterior" id="st_exterior">
-                                        <label class="form-check-label" for="st_exterior">Exterior</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_roof" id="st_roof">
-                                        <label class="form-check-label" for="st_roof">Roof</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_components" id="st_components">
-                                        <label class="form-check-label" for="st_components">Components</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_wiring" id="st_wiring">
-                                        <label class="form-check-label" for="st_wiring">Wiring</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_sole_bar" id="st_solebar">
-                                        <label class="form-check-label" for="st_solebar">Coach Sole bar</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_bogie_frame" id="st_bogieframe">
-                                        <label class="form-check-label" for="st_bogieframe">Bogie Frame</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="stripping_task_loose_components" id="st_loose">
-                                        <label class="form-check-label" for="st_loose">Loose Components</label>
-                                    </div>
-                                </div>
+                            <div class="alert alert-info mb-0">
+                                <strong>Task creation is automatic.</strong><br>
+                                Stripping, Completion, Serviceworthy, and Retention tasks will be generated
+                                from your <code>coach_tasks.csv</code> template after this coach is saved.
+                                No hard-coded task checklist is required on this page.
                             </div>
-                        </div>
-
-                        <!-- Completion Phase Placeholder -->
-                        <div class="col-12 mt-5">
-                            <h5 class="mb-4 border-bottom pb-2">Completion Phase</h5>
-                            <div class="alert alert-warning">
-                                Completion tasks will be automatically assigned after saving this coach (based on coach type).
-                                You can edit them after creation.
-                            </div>
-                            <p class="text-muted">No tasks yet (will be loaded from database after save)</p>
                         </div>
 
                         <!-- Notes -->
                         <div class="col-12 mt-4">
                             <label for="notes" class="form-label fw-bold">Notes / Remarks</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
+                            <textarea
+                                class="form-control"
+                                id="notes"
+                                name="notes"
+                                rows="4"
+                            ></textarea>
                         </div>
 
                         <!-- Buttons -->
@@ -145,6 +136,7 @@ Created on Sat Jan 31 16:28:59 2026
                                 <i class="bi bi-arrow-left me-2"></i>Cancel
                             </a>
                         </div>
+
                     </form>
                 </div>
             </div>

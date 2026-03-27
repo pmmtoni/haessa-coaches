@@ -1,0 +1,31 @@
+===========
+TERMINAL
+===========
+
+set DATABASE_URL=postgresql://postgres:password@localhost:5432/my_new_db
+
+"C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -d my_new_db
+
+
+findstr /spin /c:"delivery_schedule" *.py
+
+netstat -ano | findstr :8088
+
+app.run(host="0.0.0.0", port=8088, debug=False, use_reloader=False)
+
+
+netstat -ano | findstr :8088
+
+taskkill /PID <PID> /F
+
+set DATABASE_URL=postgresql://postgres:password@localhost:5432/my_new_db
+
+python -u app.py
+
+==============================================
+TO RENDER
+==============================================
+
+git add .
+
+git commit -m "Clean add_coach form + fix DB config + production setup"

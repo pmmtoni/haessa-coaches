@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "password": "scrypt:32768:8:1$p2m3YLjarnfRymAs$063cea8a6034d50234dabb61d7488fe9d72053cfb81b9feb7793486ec72aa876ace346b84e3c98f616e36f8e82d5f27e205bad99b875516ecf348e0a49adf82f",
+      "role": "admin"
+    }
+  ],
+  "coaches": []
+}
