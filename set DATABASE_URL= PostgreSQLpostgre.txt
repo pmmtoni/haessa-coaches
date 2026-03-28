@@ -4,6 +4,10 @@ TERMINAL
 cd /d "G:\My Drive\haessa-coaches"
 set DATABASE_URL=postgresql://postgres:password@localhost:5432/my_new_db
 git status
+git add .
+git commit -m "Clean templates and coach milestone workflow"
+git push origin main
+
 
 "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -d my_new_db
 
