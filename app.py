@@ -313,7 +313,6 @@ def coaches_edit(id):
     progress = coach.calculate_progress()
     return render_template("coaches_edit.html", coach=coach, progress=progress)
 
-
 @app.route("/delivery-schedule")
 @login_required
 def delivery_schedule():
@@ -334,7 +333,12 @@ def delivery_schedule():
 
         due_date = coach.due_date
         completion_date = coach.completion_date
-        days_left = (due_date - today).days if due_date else None
+
+        # Stop countdown once coach is completed
+        if completion_date:
+            days_left = None
+        else:
+            days_left = (due_date - today).days if due_date else None
 
         if coach.coach_type and coach.coach_type.lower() == "trailer":
             retention_due_date = "Not applicable (Trailer)"
@@ -358,6 +362,8 @@ def delivery_schedule():
             status = "Commissioned / Handed Over to Client"
         elif coach.serviceworthy:
             status = "Serviceworthy"
+        elif completion_date:
+            status = "Completed"
         else:
             status = "In Progress"
 
@@ -412,6 +418,10 @@ def delivery_schedule():
         approaching=approaching,
         urgent=urgent,
     )
+
+
+
+
 
 
 @app.route("/debug-env")
