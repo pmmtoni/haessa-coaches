@@ -1,8 +1,9 @@
 ===========
 TERMINAL
 ===========
-
+cd /d "G:\My Drive\haessa-coaches"
 set DATABASE_URL=postgresql://postgres:password@localhost:5432/my_new_db
+git status
 
 "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -d my_new_db
 
@@ -26,6 +27,26 @@ python -u app.py
 TO RENDER
 ==============================================
 
+LOCAL COMMIT
+------------
+
 git add .
 
 git commit -m "Clean add_coach form + fix DB config + production setup"
+
+TO RENDER
+---------
+
+git push origin main
+
+
+https://github.com/pmmtoni/haessa-coaches
+
+
+postgresql://neondb_owner:npg_DAtphFl8X9zI@ep-muddy-wave-anl937xk-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+git status
+git add app.py models.py templates\coaches_add.html
+git commit -m "Fix Render database config and clean add coach template"
+git push 
+

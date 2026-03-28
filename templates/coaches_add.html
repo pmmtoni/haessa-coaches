@@ -20,89 +20,59 @@ Created on Sat Jan 31 16:28:59 2026
                 <div class="card-body p-4">
                     <form method="POST" class="row g-4">
 
-                        <!-- Basic Info -->
                         <div class="col-md-6">
                             <label for="coach_number" class="form-label fw-bold required">Coach Number</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="coach_number"
-                                name="coach_number"
-                                required
-                                autofocus
-                            >
+                            <input type="text" class="form-control" id="coach_number" name="coach_number" required autofocus>
                         </div>
 
                         <div class="col-md-6">
                             <label for="coach_type" class="form-label fw-bold required">Coach Type</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="coach_type"
-                                name="coach_type"
-                                required
-                            >
+                            <input type="text" class="form-control" id="coach_type" name="coach_type" required>
                             <small class="text-muted">
                                 Use the exact coach type name that matches your CSV task templates.
                             </small>
                         </div>
 
-                        <!-- Milestone Dates -->
                         <div class="col-12 mt-4">
                             <h5 class="mb-3 border-bottom pb-2">Key Dates</h5>
                         </div>
 
                         <div class="col-md-4">
+                            <label class="form-label fw-bold">Stripping Certificate Issued?</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="stripping_certificate_issued" name="stripping_certificate_issued">
+                                <label class="form-check-label" for="stripping_certificate_issued">Yes</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
                             <label for="stripping_date" class="form-label fw-bold">Stripping Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="stripping_date"
-                                name="stripping_date"
-                            >
+                            <input type="date" class="form-control" id="stripping_date" name="stripping_date">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Completion Certificate Issued?</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="completion_certificate_issued" name="completion_certificate_issued">
+                                <label class="form-check-label" for="completion_certificate_issued">Yes</label>
+                            </div>
                         </div>
 
                         <div class="col-md-4">
                             <label for="completion_date" class="form-label fw-bold">Completion Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="completion_date"
-                                name="completion_date"
-                            >
-                        </div>
-
-                        <div class="col-md-4">
-                            <label for="due_date" class="form-label fw-bold">Due Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="due_date"
-                                name="due_date"
-                            >
+                            <input type="date" class="form-control" id="completion_date" name="completion_date">
                         </div>
 
                         <div class="col-md-4">
                             <label for="serviceworthy_date" class="form-label fw-bold">Serviceworthy Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="serviceworthy_date"
-                                name="serviceworthy_date"
-                            >
+                            <input type="date" class="form-control" id="serviceworthy_date" name="serviceworthy_date">
                         </div>
 
                         <div class="col-md-4">
-                            <label for="retention_date" class="form-label fw-bold">Retention Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="retention_date"
-                                name="retention_date"
-                            >
+                            <label for="due_date" class="form-label fw-bold">Due Date</label>
+                            <input type="date" class="form-control" id="due_date" name="due_date">
                         </div>
 
-                        <!-- Status Info -->
                         <div class="col-12 mt-4">
                             <h5 class="mb-3 border-bottom pb-2">Task Setup</h5>
                         </div>
@@ -112,29 +82,17 @@ Created on Sat Jan 31 16:28:59 2026
                                 <strong>Task creation is automatic.</strong><br>
                                 Stripping, Completion, Serviceworthy, and Retention tasks will be generated
                                 from your <code>coach_tasks.csv</code> template after this coach is saved.
-                                No hard-coded task checklist is required on this page.
                             </div>
                         </div>
 
-                        <!-- Notes -->
                         <div class="col-12 mt-4">
                             <label for="notes" class="form-label fw-bold">Notes / Remarks</label>
-                            <textarea
-                                class="form-control"
-                                id="notes"
-                                name="notes"
-                                rows="4"
-                            ></textarea>
+                            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
                         </div>
 
-                        <!-- Buttons -->
                         <div class="col-12 mt-5 d-flex gap-3 justify-content-end">
-                            <button type="submit" class="btn btn-success btn-lg px-5">
-                                <i class="bi bi-plus-circle me-2"></i>Add Coach
-                            </button>
-                            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary btn-lg px-5">
-                                <i class="bi bi-arrow-left me-2"></i>Cancel
-                            </a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">Add Coach</button>
+                            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary btn-lg px-5">Cancel</a>
                         </div>
 
                     </form>

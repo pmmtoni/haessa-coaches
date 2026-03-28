@@ -3,18 +3,18 @@ from datetime import datetime, timedelta
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
 
-class User(UserMixin, db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    role = db.Column(db.String(20), default="viewer", nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default="viewer")
 
     def set_password(self, raw_password):
         self.password = generate_password_hash(raw_password)
@@ -33,31 +33,30 @@ class Coach(db.Model):
     coach_number = db.Column(db.String(50), unique=True, nullable=False)
     coach_type = db.Column(db.String(100), nullable=False)
 
-    # Active phase summary flags
+    # Milestone flags
     stripping = db.Column(db.Boolean, default=False)
+    complete = db.Column(db.Boolean, default=False)
+    serviceworthy = db.Column(db.Boolean, default=False)
+    retention = db.Column(db.Boolean, default=False)
+
+    # Manual milestone/certificate fields
+    stripping_certificate_issued = db.Column(db.Boolean, default=False)
     stripping_date = db.Column(db.Date, nullable=True)
 
-    complete = db.Column(db.Boolean, default=False)
+    completion_certificate_issued = db.Column(db.Boolean, default=False)
     completion_date = db.Column(db.Date, nullable=True)
 
-    # Passive / milestone fields
-    completion_certificate_issued = db.Column(db.Boolean, default=False)
-    ncr = db.Column(db.Boolean, default=False)
-    gc = db.Column(db.Boolean, default=False)
-    ncr_gc_cleared_date = db.Column(db.Date, nullable=True)
-
-    serviceworthy = db.Column(db.Boolean, default=False)
     serviceworthy_date = db.Column(db.Date, nullable=True)
-
-    retention = db.Column(db.Boolean, default=False)
     retention_date = db.Column(db.Date, nullable=True)
 
     due_date = db.Column(db.Date, nullable=True)
 
-    # ------------------------------------------------------------------
-    # Legacy hard-coded fields kept ONLY for DB compatibility.
-    # They are no longer used to drive workflow logic.
-    # ------------------------------------------------------------------
+    # NCR / GC
+    ncr = db.Column(db.Boolean, default=False)
+    gc = db.Column(db.Boolean, default=False)
+    ncr_gc_cleared_date = db.Column(db.Date, nullable=True)
+
+    # Legacy fields kept for DB compatibility
     stripping_task_bogie = db.Column(db.Boolean, default=False)
     stripping_task_underframe = db.Column(db.Boolean, default=False)
     stripping_task_plumbing_piping = db.Column(db.Boolean, default=False)
@@ -86,7 +85,7 @@ class Coach(db.Model):
     retention_ncr_gc = db.Column(db.Boolean, default=False)
     retention_certificate = db.Column(db.Boolean, default=False)
 
-    # Invoicing confirmation
+    # Invoicing
     invoice_stripping = db.Column(db.Boolean, default=False)
     invoice_completion = db.Column(db.Boolean, default=False)
     invoice_serviceworthy = db.Column(db.Boolean, default=False)
@@ -106,66 +105,55 @@ class Coach(db.Model):
     def __repr__(self):
         return f"<Coach {self.coach_number}>"
 
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
     def _tasks_for_phase(self, phase_name):
         phase_key = (phase_name or "").strip().lower()
         return [
-            task for task in self.completion_tasks
+            task
+            for task in self.completion_tasks
             if (task.phase or "").strip().lower() == phase_key
         ]
 
     def _is_trailer(self):
         return (self.coach_type or "").strip().lower() == "trailer"
 
-    # ------------------------------------------------------------------
-    # Status sync methods
-    # ------------------------------------------------------------------
     def sync_active_phase_status(self):
         """
-        Active phases are derived ONLY from CompletionTask rows.
-        Legacy boolean task fields must not drive these flags anymore.
+        Active phases are based on task completion, but manual certificate/date
+        milestones can also preserve milestone status.
         """
         today = datetime.now().date()
 
         stripping_tasks = self._tasks_for_phase("Stripping")
         completion_tasks = self._tasks_for_phase("Completion")
 
-        # Stripping summary
         if stripping_tasks:
-            self.stripping = all(task.completed for task in stripping_tasks)
-            self.stripping_date = today if self.stripping else None
+            stripping_complete = all(task.completed for task in stripping_tasks)
+            self.stripping = stripping_complete or bool(self.stripping_certificate_issued)
         else:
-            self.stripping = False
-            self.stripping_date = None
+            self.stripping = bool(self.stripping_certificate_issued)
 
-        # Completion summary
+        if self.stripping and not self.stripping_date:
+            self.stripping_date = today
+
         if completion_tasks:
-            self.complete = all(task.completed for task in completion_tasks)
+            completion_complete = all(task.completed for task in completion_tasks)
+            self.complete = completion_complete or bool(self.completion_certificate_issued)
         else:
-            self.complete = False
+            self.complete = bool(self.completion_certificate_issued)
 
-        # Only auto-clear completion_date if no certificate has been issued.
-        # This protects a manually recorded completion milestone.
-        if not self.complete and not self.completion_certificate_issued:
-            self.completion_date = None
+        if self.complete and not self.completion_date:
+            self.completion_date = today
 
     def sync_passive_status(self):
         """
-        Passive milestones:
-        - Serviceworthy depends on completion certificate + completion date
-        - Retention depends on serviceworthy date + 14 days
-        - If NCR/GC is open, retention waits for ncr_gc_cleared_date
+        Serviceworthy is manual and independent from completion.
+        Retention is triggered by serviceworthy_date + 14 days, except for trailers.
+        If NCR/GC is open, retention waits for ncr_gc_cleared_date.
         """
-        if self.completion_certificate_issued and self.completion_date:
-            self.serviceworthy = True
-            self.serviceworthy_date = self.completion_date
-        else:
-            self.serviceworthy = False
-            self.serviceworthy_date = None
+        today = datetime.now().date()
 
-        # Trailer coaches do not use retention
+        self.serviceworthy = bool(self.serviceworthy_date)
+
         if self._is_trailer():
             self.retention = False
             self.retention_date = None
@@ -181,27 +169,20 @@ class Coach(db.Model):
         if self.ncr or self.gc:
             if self.ncr_gc_cleared_date:
                 self.retention_date = max(base_retention_date, self.ncr_gc_cleared_date)
-                self.retention = True
+                self.retention = self.retention_date <= today
             else:
                 self.retention = False
                 self.retention_date = None
         else:
-            self.retention = True
             self.retention_date = base_retention_date
+            self.retention = self.retention_date <= today
 
     def sync_all_status(self):
         self.sync_active_phase_status()
         self.sync_passive_status()
 
-    # ------------------------------------------------------------------
-    # Progress calculation
-    # ------------------------------------------------------------------
     def calculate_progress(self):
-        """
-        Uses ALL phases from CompletionTask rows.
-        Returns both 'overall_percent' and 'percentage'
-        for backward compatibility with older routes/templates.
-        """
+        self.sync_all_status()
         tasks = self.completion_tasks or []
 
         if not tasks:
@@ -265,22 +246,26 @@ class Coach(db.Model):
                 section_progress = round((section_completed / section_total) * 100, 1) if section_total else 0.0
                 section_hours_total = round(sum((task.hours or 0.0) for task in section_tasks), 1)
 
-                section_rows.append({
-                    "name": section_name,
-                    "completed": section_completed,
-                    "total": section_total,
-                    "progress": section_progress,
-                    "hours_total": section_hours_total,
-                })
+                section_rows.append(
+                    {
+                        "name": section_name,
+                        "completed": section_completed,
+                        "total": section_total,
+                        "progress": section_progress,
+                        "hours_total": section_hours_total,
+                    }
+                )
 
-            phases_output.append({
-                "name": phase_name,
-                "completed": phase_completed,
-                "total": phase_total,
-                "progress": phase_progress,
-                "hours_total": phase_hours_total,
-                "sections": section_rows,
-            })
+            phases_output.append(
+                {
+                    "name": phase_name,
+                    "completed": phase_completed,
+                    "total": phase_total,
+                    "progress": phase_progress,
+                    "hours_total": phase_hours_total,
+                    "sections": section_rows,
+                }
+            )
 
             total_completed += phase_completed
             total_tasks += phase_total

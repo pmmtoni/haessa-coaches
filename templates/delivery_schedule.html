@@ -1,128 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Delivery Schedule{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1">Delivery Schedule</h2>
-            <p class="text-muted mb-0">As of {{ today }}</p>
-            <small class="text-danger d-block">Route version: {{ route_version }}</small>
-        </div>
+{% macro render_coach_table(title, items, section_class, section_badge_class, card_class) %}
+<div class="card shadow-sm border-0 rounded-4 mb-4 {{ card_class }}">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 {{ section_class }}">{{ title }}</h5>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-2">
-            <div class="card border-success shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h6 class="text-success mb-2">On Schedule</h6>
-                    <h3 class="text-success mb-0">{{ on_schedule|length }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-2">
-            <div class="card border-warning shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h6 class="text-warning mb-2">Completed Late</h6>
-                    <h3 class="text-warning mb-0">{{ completed_late|length }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-2">
-            <div class="card border-secondary shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h6 class="text-secondary mb-2">Work in Progress</h6>
-                    <h3 class="text-secondary mb-0">{{ work_in_progress|length }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-info shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h6 class="text-info mb-2">Approaching (8–21 days)</h6>
-                    <h3 class="text-info mb-0">{{ approaching|length }}</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card border-danger shadow-sm h-100">
-                <div class="card-body text-center">
-                    <h6 class="text-danger mb-2">Urgent / Overdue</h6>
-                    <h3 class="text-danger mb-0">{{ urgent|length }}</h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% macro progress_cell(progress_data) %}
-        <div style="min-width: 250px;">
-            <div class="progress" style="height: 22px;">
-                {% for phase in progress_data.phases %}
-                    {% set width = phase.progress %}
-                    {% if width > 0 %}
-                        {% if width == 100 %}
-                            {% set color = "bg-success" %}
-                        {% elif width >= 50 %}
-                            {% set color = "bg-info" %}
-                        {% else %}
-                            {% set color = "bg-warning" %}
-                        {% endif %}
-
-                        <div class="progress-bar {{ color }} progress-bar-striped"
-                             role="progressbar"
-                             style="width: {{ width }}%;"
-                             aria-valuenow="{{ width }}"
-                             aria-valuemin="0"
-                             aria-valuemax="100"
-                             title="{{ phase.name }}: {{ phase.progress }}% ({{ phase.completed }} / {{ phase.total }})">
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <small class="text-muted d-block text-center mt-1">
-                Overall: {{ progress_data.percentage | round(1) }}%
-            </small>
-        </div>
-    {% endmacro %}
-
-    {% macro date_or_dash(value) %}
-        {% if value %}
-            {{ value.strftime('%d %b %Y') }}
-        {% else %}
-            —
-        {% endif %}
-    {% endmacro %}
-
-    {% macro days_display(value) %}
-        {% if value is none %}
-            No due date
-        {% elif value < 0 %}
-            {{ (value | abs) }} days overdue
-        {% elif value == 0 %}
-            Due today
-        {% elif value == 1 %}
-            1 day
-        {% else %}
-            {{ value }} days
-        {% endif %}
-    {% endmacro %}
-
-    {% macro schedule_table(items, row_class) %}
+    <div class="card-body p-0">
+        {% if items %}
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th>Coach Number</th>
                         <th>Type</th>
                         <th>Completion Date</th>
                         <th>Due Date</th>
+                        <th>Days Left / Overdue</th>
+                        <th>Serviceworthy Date</th>
                         <th>Retention Due</th>
                         <th>Retention Countdown</th>
-                        <th>Days Left / Overdue</th>
                         <th>Status</th>
                         <th>Progress</th>
                         <th>Classification Reason</th>
@@ -130,87 +28,173 @@
                 </thead>
                 <tbody>
                     {% for item in items %}
-                        <tr class="{{ row_class }}">
-                            <td><strong>{{ item.coach.coach_number }}</strong></td>
-                            <td>{{ item.coach.coach_type }}</td>
-                            <td>{{ date_or_dash(item.coach.completion_date) }}</td>
-                            <td>{{ date_or_dash(item.coach.due_date) }}</td>
-                            <td>{{ item.retention_due_date }}</td>
-                            <td><strong>{{ item.retention_countdown }}</strong></td>
-                            <td>{{ days_display(item.days_left) }}</td>
-                            <td><strong>{{ item.status }}</strong></td>
-                            <td>{{ progress_cell(item.progress_data) }}</td>
-                            <td><small>{{ item.classification_reason }}</small></td>
-                        </tr>
+                    {% set coach = item.coach %}
+                    {% set progress = item.progress_data.percentage %}
+                    <tr>
+                        <td class="fw-semibold">{{ coach.coach_number }}</td>
+                        <td>{{ coach.coach_type }}</td>
+
+                        <td>
+                            {{ coach.completion_date.strftime('%d %b %Y') if coach.completion_date else '—' }}
+                        </td>
+
+                        <td>
+                            {{ coach.due_date.strftime('%d %b %Y') if coach.due_date else '—' }}
+                        </td>
+
+                        <td>
+                            {% if item.days_left is none %}
+                                <span class="status-badge status-grey">N/A</span>
+                            {% elif item.days_left < 0 %}
+                                <span class="status-badge status-red">
+                                    Overdue by {{ item.days_left | abs }} days
+                                </span>
+                            {% elif item.days_left <= 7 %}
+                                <span class="status-badge status-red">
+                                    {{ item.days_left }} days left
+                                </span>
+                            {% elif item.days_left <= 21 %}
+                                <span class="status-badge status-orange">
+                                    {{ item.days_left }} days left
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-green">
+                                    {{ item.days_left }} days left
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ coach.serviceworthy_date.strftime('%d %b %Y') if coach.serviceworthy_date else '—' }}
+                        </td>
+
+                        <td>{{ item.retention_due_date }}</td>
+                        <td>{{ item.retention_countdown }}</td>
+
+                        <td>
+                            <span class="status-badge {{ section_badge_class }}">
+                                {{ item.status }}
+                            </span>
+                        </td>
+
+                        <td style="min-width: 220px;">
+                            <div class="small fw-semibold mb-1">{{ progress }}%</div>
+                            <div class="progress" style="height: 10px;">
+                                <div
+                                    class="progress-bar"
+                                    role="progressbar"
+                                    style="width: {{ progress }}%;"
+                                    aria-valuenow="{{ progress }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                ></div>
+                            </div>
+
+                            {% if item.progress_data.phases %}
+                            <div class="mt-2 small text-muted">
+                                {% for phase in item.progress_data.phases %}
+                                    <div>
+                                        {{ phase.name }}: {{ phase.completed }}/{{ phase.total }} ({{ phase.progress }}%)
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ item.classification_reason }}</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    {% endmacro %}
+        {% else %}
+        <div class="p-4 text-muted">No coaches in this category.</div>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
 
-    <div class="card mb-4 border-success shadow-sm">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">On Schedule / Completed on Time</h5>
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+        <div>
+            <h2 class="mb-1">Delivery Schedule</h2>
+            <div class="text-muted">
+                As of {{ today }}
+                {% if route_version %}
+                    <span class="ms-2 badge bg-light text-dark border">{{ route_version }}</span>
+                {% endif %}
+            </div>
         </div>
-        <div class="card-body">
-            {% if on_schedule %}
-                {{ schedule_table(on_schedule, "table-success") }}
-            {% else %}
-                <p class="text-muted mb-0">No coaches completed on schedule yet.</p>
-            {% endif %}
+
+        <div class="mt-3 mt-lg-0">
+            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-primary">Back to Coaches</a>
         </div>
     </div>
 
-    <div class="card mb-4 border-warning shadow-sm">
-        <div class="card-header bg-warning text-dark">
-            <h5 class="mb-0">Completed Late</h5>
+    <!-- Strong color summary tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 h-100 summary-tile-green">
+                <div class="card-body">
+                    <div class="small">On Schedule</div>
+                    <div class="display-6 fw-bold">{{ on_schedule|length }}</div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            {% if completed_late %}
-                {{ schedule_table(completed_late, "table-warning") }}
-            {% else %}
-                <p class="text-muted mb-0">No late completions.</p>
-            {% endif %}
+
+        <div class="col-md-6 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 h-100 summary-tile-blue">
+                <div class="card-body">
+                    <div class="small">Completed Late</div>
+                    <div class="display-6 fw-bold">{{ completed_late|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 h-100 summary-tile-grey">
+                <div class="card-body">
+                    <div class="small">Work in Progress</div>
+                    <div class="display-6 fw-bold">{{ work_in_progress|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 h-100 summary-tile-orange">
+                <div class="card-body">
+                    <div class="small">Approaching</div>
+                    <div class="display-6 fw-bold">{{ approaching|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 h-100 summary-tile-red">
+                <div class="card-body">
+                    <div class="small">Urgent / Overdue</div>
+                    <div class="display-6 fw-bold">{{ urgent|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-2">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Total Tracked</div>
+                    <div class="display-6 fw-bold">
+                        {{ on_schedule|length + completed_late|length + work_in_progress|length + approaching|length + urgent|length }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card mb-4 border-secondary shadow-sm">
-        <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">Work in Progress</h5>
-        </div>
-        <div class="card-body">
-            {% if work_in_progress %}
-                {{ schedule_table(work_in_progress, "table-secondary") }}
-            {% else %}
-                <p class="text-muted mb-0">No coaches currently in work in progress.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="card mb-4 border-info shadow-sm">
-        <div class="card-header bg-info text-white">
-            <h5 class="mb-0">Approaching Due Date (8–21 days)</h5>
-        </div>
-        <div class="card-body">
-            {% if approaching %}
-                {{ schedule_table(approaching, "table-info") }}
-            {% else %}
-                <p class="text-muted mb-0">No coaches approaching due date.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="card border-danger shadow-sm">
-        <div class="card-header bg-danger text-white">
-            <h5 class="mb-0">Urgent / Overdue (≤7 days or past due)</h5>
-        </div>
-        <div class="card-body">
-            {% if urgent %}
-                {{ schedule_table(urgent, "table-danger") }}
-            {% else %}
-                <p class="text-muted mb-0">No urgent or overdue coaches.</p>
-            {% endif %}
-        </div>
-    </div>
+    {{ render_coach_table("On Schedule / Completed on Time", on_schedule, "section-title-green", "status-green", "schedule-card-green") }}
+    {{ render_coach_table("Completed Late", completed_late, "section-title-blue", "status-blue", "schedule-card-blue") }}
+    {{ render_coach_table("Work in Progress", work_in_progress, "section-title-grey", "status-grey", "schedule-card-grey") }}
+    {{ render_coach_table("Approaching Due Date (8–21 days)", approaching, "section-title-orange", "status-orange", "schedule-card-orange") }}
+    {{ render_coach_table("Urgent / Overdue (≤7 days or past due)", urgent, "section-title-red", "status-red", "schedule-card-red") }}
 </div>
 {% endblock %}

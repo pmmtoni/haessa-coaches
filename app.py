@@ -15,28 +15,23 @@ from flask_login import (
 
 from models import db, User, Coach, CompletionTask
 
-
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
-#database_url = os.environ.get("DATABASE_URL")
-#if not database_url:
-#    raise ValueError("DATABASE_URL is not set")
-
 database_url = os.environ.get("DATABASE_URL")
-
 if not database_url:
-    database_url = "postgresql://neondb_owner:npg_DAtphFl8X9zI@ep-muddy-wave-anl937xk-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+    print("⚠️ DATABASE_URL missing — falling back to SQLite")
+    database_url = "sqlite:///coaches.db"
 
+database_url = database_url.strip()
 
 if database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
-elif database_url.startswith("postgresql://"):
-    database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+print("RAW DATABASE_URL repr:", repr(database_url))
 print("Using database:", app.config["SQLALCHEMY_DATABASE_URI"])
 
 db.init_app(app)
@@ -53,6 +48,7 @@ with app.app_context():
         db.session.add(admin)
         db.session.commit()
         print("✅ Admin user created")
+
 
 def role_required(*roles):
     def wrapper(fn):
@@ -107,13 +103,15 @@ def load_task_templates(coach_type):
             except (TypeError, ValueError):
                 hours_value = 0.0
 
-            tasks.append({
-                "coach_type": row_coach_type,
-                "phase": row_phase,
-                "section": row_section,
-                "task": row_task,
-                "hours": hours_value,
-            })
+            tasks.append(
+                {
+                    "coach_type": row_coach_type,
+                    "phase": row_phase,
+                    "section": row_section,
+                    "task": row_task,
+                    "hours": hours_value,
+                }
+            )
 
     print(f"Loaded {len(tasks)} template tasks for coach type '{coach_type}'")
     return tasks
@@ -168,16 +166,18 @@ def coaches_list():
     coach_progress_data = []
     for coach in coaches:
         progress = coach.calculate_progress()
-        coach_progress_data.append({
-            "coach_id": coach.id,
-            "coach_number": coach.coach_number,
-            "coach_type": coach.coach_type,
-            "progress": progress,
-            "stripping_date": coach.stripping_date,
-            "completion_date": coach.completion_date,
-            "serviceworthy_date": coach.serviceworthy_date,
-            "retention_date": coach.retention_date,
-        })
+        coach_progress_data.append(
+            {
+                "coach_id": coach.id,
+                "coach_number": coach.coach_number,
+                "coach_type": coach.coach_type,
+                "progress": progress,
+                "stripping_date": coach.stripping_date,
+                "completion_date": coach.completion_date,
+                "serviceworthy_date": coach.serviceworthy_date,
+                "retention_date": coach.retention_date,
+            }
+        )
 
     all_types = sorted({c.coach_type for c in coaches})
 
@@ -202,8 +202,10 @@ def coaches_add():
             coach_type=request.form.get("coach_type", "").strip(),
             notes=request.form.get("notes") or None,
             stripping=False,
+            stripping_certificate_issued="stripping_certificate_issued" in request.form,
             stripping_date=parse_date(request.form.get("stripping_date")),
             complete=False,
+            completion_certificate_issued="completion_certificate_issued" in request.form,
             completion_date=parse_date(request.form.get("completion_date")),
             serviceworthy=False,
             serviceworthy_date=parse_date(request.form.get("serviceworthy_date")),
@@ -226,20 +228,21 @@ def coaches_add():
             flash(f"No task template found for coach type '{coach.coach_type}'.", "warning")
         else:
             for item in template_tasks:
-                db.session.add(CompletionTask(
-                    coach_id=coach.id,
-                    coach_no=coach.coach_number,
-                    coach_type=coach.coach_type,
-                    phase=item["phase"],
-                    section=item["section"],
-                    task=item["task"],
-                    hours=item["hours"],
-                    completed=False,
-                    completed_date=None,
-                ))
+                db.session.add(
+                    CompletionTask(
+                        coach_id=coach.id,
+                        coach_no=coach.coach_number,
+                        coach_type=coach.coach_type,
+                        phase=item["phase"],
+                        section=item["section"],
+                        task=item["task"],
+                        hours=item["hours"],
+                        completed=False,
+                        completed_date=None,
+                    )
+                )
 
-        coach.sync_active_phase_status()
-        coach.sync_passive_status()
+        coach.sync_all_status()
 
         db.session.commit()
         flash("Coach added successfully", "success")
@@ -248,16 +251,16 @@ def coaches_add():
     return render_template("coaches_add.html")
 
 
-
 @app.route("/coaches/delete/<int:id>")
 @login_required
 @role_required("admin")
 def coaches_delete(id):
     coach = Coach.query.get_or_404(id)
+    coach_number = coach.coach_number
     db.session.delete(coach)
     db.session.commit()
     flash("Coach deleted successfully", "info")
-    return redirect(url_for("coaches_list", updated=coach.coach_number))
+    return redirect(url_for("coaches_list", updated=coach_number))
 
 
 @app.route("/coaches/edit/<int:id>", methods=["GET", "POST"])
@@ -278,8 +281,14 @@ def coaches_edit(id):
             task.completed = checked
             task.completed_date = datetime.now().date() if checked else None
 
+        coach.stripping_certificate_issued = "stripping_certificate_issued" in request.form
+        coach.stripping_date = parse_date(request.form.get("stripping_date"))
+
         coach.completion_certificate_issued = "completion_certificate_issued" in request.form
         coach.completion_date = parse_date(request.form.get("completion_date"))
+
+        coach.serviceworthy_date = parse_date(request.form.get("serviceworthy_date"))
+
         coach.ncr = "ncr" in request.form
         coach.gc = "gc" in request.form
         coach.ncr_gc_cleared_date = parse_date(request.form.get("ncr_gc_cleared_date"))
@@ -290,8 +299,7 @@ def coaches_edit(id):
         coach.invoice_retention = "invoice_retention" in request.form
         coach.invoice_current_escalation = "invoice_current_escalation" in request.form
 
-        coach.sync_active_phase_status()
-        coach.sync_passive_status()
+        coach.sync_all_status()
 
         db.session.commit()
         flash("Coach updated successfully", "success")
@@ -299,6 +307,7 @@ def coaches_edit(id):
 
     progress = coach.calculate_progress()
     return render_template("coaches_edit.html", coach=coach, progress=progress)
+
 
 @app.route("/delivery-schedule")
 @login_required
@@ -320,12 +329,8 @@ def delivery_schedule():
 
         due_date = coach.due_date
         completion_date = coach.completion_date
-
         days_left = (due_date - today).days if due_date else None
 
-        # -----------------------------
-        # Retention countdown
-        # -----------------------------
         if coach.coach_type and coach.coach_type.lower() == "trailer":
             retention_due_date = "Not applicable (Trailer)"
             retention_countdown = "Not applicable (Trailer)"
@@ -344,9 +349,6 @@ def delivery_schedule():
             retention_due_date = "Not set"
             retention_countdown = "Serviceworthy not set yet"
 
-        # -----------------------------
-        # Status text
-        # -----------------------------
         if coach.retention:
             status = "Commissioned / Handed Over to Client"
         elif coach.serviceworthy:
@@ -362,16 +364,11 @@ def delivery_schedule():
             "status": status,
             "progress_data": {
                 "percentage": progress.get("overall_percent", progress.get("percentage", 0)),
-                "phases": progress.get("phases", [])
+                "phases": progress.get("phases", []),
             },
-            "classification_reason": ""
+            "classification_reason": "",
         }
 
-        # =========================================
-        # ✅ CORRECT CLASSIFICATION LOGIC
-        # =========================================
-
-        # 1. Completed coaches ONLY
         if completion_date:
             if due_date:
                 if completion_date <= due_date:
@@ -383,25 +380,19 @@ def delivery_schedule():
             else:
                 item["classification_reason"] = "Completed (no due date)"
                 on_schedule.append(item)
-
-        # 2. NOT completed
         else:
             if due_date is None:
                 item["classification_reason"] = "No due date set"
                 work_in_progress.append(item)
-
             elif days_left < 0:
                 item["classification_reason"] = "Overdue and not completed"
                 urgent.append(item)
-
             elif 0 <= days_left <= 7:
                 item["classification_reason"] = "Due within 7 days and not completed"
                 urgent.append(item)
-
             elif 8 <= days_left <= 21:
                 item["classification_reason"] = "Due within 8–21 days and not completed"
                 approaching.append(item)
-
             else:
                 item["classification_reason"] = "More than 21 days remaining"
                 work_in_progress.append(item)
@@ -414,11 +405,8 @@ def delivery_schedule():
         completed_late=completed_late,
         work_in_progress=work_in_progress,
         approaching=approaching,
-        urgent=urgent
+        urgent=urgent,
     )
-
-
-
 
 
 @app.route("/debug-env")
@@ -433,16 +421,6 @@ def debug_env():
 if __name__ == "__main__":
     print("ACTIVE APP FILE:", __file__)
     print("ACTIVE PROCESS STARTED")
-
-    with app.app_context():
-        db.create_all()
-
-        if not User.query.filter_by(username="admin").first():
-            admin = User(username="admin", role="admin")
-            admin.set_password("Admin@123")
-            db.session.add(admin)
-            db.session.commit()
-            print("Default admin created: username = admin, password = Admin@123")
 
     port = int(os.environ.get("PORT", 8088))
     app.run(

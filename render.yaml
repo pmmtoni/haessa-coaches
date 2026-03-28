@@ -8,10 +8,10 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     pythonVersion: 3.12.3
-    healthCheckPath: /
+    healthCheckPath: /login
     autoDeploy: true
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: postgresql://neondb_owner:npg_DAtphFl8X9zI@ep-muddy-wave-anl937xk-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+        sync: false

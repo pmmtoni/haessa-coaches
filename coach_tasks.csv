@@ -207,10 +207,33 @@ Trailer,Completion,Coach Build,14.1 Marley or carpet - Apply contact adhesive ev
 Sleeper (Premier),Completion,Coach Build,14.1 Marley or carpet - Apply contact adhesive evenly on both marley & floorboards,
 Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Static test (110v),8
 Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Dynamic test (3kV),8
-Trailer,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
-Motor,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
-Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
-Kitchen,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
-Sitter,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Trailer,Testing & Commissioning,BUP,PRASA snags,8
+Motor,Testing & Commissioning,Structural,PRASA snags,8
+Locomotive (Diesel),Testing & Commissioning,Paint Works,PRASA snags,8
+Kitchen,Testing & Commissioning,Coach Build,PRASA snags,8
+Sitter,Testing & Commissioning,Electrical,PRASA snags,8
 Sleeper,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
 Locomotive (Electric),Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
+Trailer,Completion,PRASA,Issue Service Worthy Certificate,8
+Sleeper (Premier),Completion,PRASA,Issue Completion Certificate,8
+Sleeper,Completion,PRASA,Issue Completion Certificate,8
+Sitter,Completion,PRASA,Issue Completion Certificate,8
+Motor,Completion,PRASA,Issue Completion Certificate,8
+Locomotive (Electric),Completion,PRASA,Issue Completion Certificate,8
+Locomotive (Diesel),Completion,PRASA,Issue Completion Certificate,8
+Kitchen,Completion,PRASA,Issue Completion Certificate,8
+Trailer,Service worthy,PRASA,Issue Service Worthy Certificate,8
+Sleeper (Premier),Service worthy,PRASA,Issue Service Worthy Certificate,8
+Sleeper,Service worthy,PRASA,Issue Service Worthy Certificate,8
+Sitter,Service worthy,PRASA,Issue Service Worthy Certificate,8
+Motor,Service worthy,PRASA,Issue Service Worthy Certificate,8
+Locomotive (Electric),Service worthy,PRASA,Issue Service Worthy Certificate,8
+Locomotive (Diesel),Service worthy,PRASA,Issue Service Worthy Certificate,8
+Kitchen,Service worthy,PRASA,Issue Service Worthy Certificate,8
+Sleeper (Premier),Retention,PRASA,Issue Retention Certificate,8
+Sleeper,Retention,PRASA,Issue Retention Certificate,8
+Sitter,Retention,PRASA,Issue Retention Certificate,8
+Motor,Retention,PRASA,Issue Retention Certificate,8
+Locomotive (Electric),Retention,PRASA,Issue Retention Certificate,8
+Locomotive (Diesel),Retention,PRASA,Issue Retention Certificate,8
+Kitchen,Retention,PRASA,Issue Retention Certificate,8
