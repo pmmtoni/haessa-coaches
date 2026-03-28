@@ -30,17 +30,17 @@ if database_url.startswith("postgres://"):
 elif database_url.startswith("postgresql://"):
     database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
 
-
-
-
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+}
 
 print("RAW DATABASE_URL repr:", repr(database_url))
 print("Using database:", app.config["SQLALCHEMY_DATABASE_URI"])
 
 db.init_app(app)
-
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
