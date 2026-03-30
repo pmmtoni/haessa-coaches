@@ -7,50 +7,57 @@ git status
 git add .
 git commit -m "Clean templates and coach milestone workflow"
 git push origin main
+git status
+git branch
+git remote -v
+git pull origin main
+
+git fetch origin
+git status
+git rev-parse HEAD
+git rev-parse origin/main
+
+git tag v1.0-stable
+git push origin v1.0-stable
+
+git rev-parse HEAD
+
+
+
+
 
 
 "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -d my_new_db
-
+=========================
+CONNECT TO THE CORRECT DB
+=========================
+psql.exe -U postgres -d my_new_db
+\dt
+\q
+\d "user" [Fieldname]
 
 findstr /spin /c:"delivery_schedule" *.py
-
 netstat -ano | findstr :8088
-
 app.run(host="0.0.0.0", port=8088, debug=False, use_reloader=False)
-
-
 netstat -ano | findstr :8088
-
 taskkill /PID <PID> /F
 
 set DATABASE_URL=postgresql://postgres:password@localhost:5432/my_new_db
-
 python -u app.py
-
 ==============================================
 TO RENDER
 ==============================================
-
 LOCAL COMMIT
 ------------
-
 git add .
-
 git commit -m "Clean add_coach form + fix DB config + production setup"
-
 TO RENDER
 ---------
-
 git push origin main
-
-
 https://github.com/pmmtoni/haessa-coaches
-
-
 postgresql://neondb_owner:npg_DAtphFl8X9zI@ep-muddy-wave-anl937xk-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 
 git status
 git add app.py models.py templates\coaches_add.html
 git commit -m "Fix Render database config and clean add coach template"
-git push 
-
+git push
