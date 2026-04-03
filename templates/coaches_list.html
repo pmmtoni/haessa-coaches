@@ -1,17 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 31 16:45:40 2026
-
-@author: Paul Mmtoni Barasa
-"""
-
 {% extends "base.html" %}
 {% block title %}Coaches List{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
 
-    <!-- Header -->
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
         <div>
             <h2 class="mb-1">Coaches Dashboard</h2>
@@ -27,7 +19,6 @@ Created on Sat Jan 31 16:45:40 2026
         {% endif %}
     </div>
 
-    <!-- Filters -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-body">
             <form method="GET" action="{{ url_for('coaches_list') }}" class="row g-3 align-items-end">
@@ -62,7 +53,6 @@ Created on Sat Jan 31 16:45:40 2026
         </div>
     </div>
 
-    <!-- Summary Cards -->
     <div class="row g-3 mb-4">
         {% set ns = namespace(stripping_count=0, completion_count=0, serviceworthy_count=0, retention_count=0) %}
         {% for coach in coaches %}
@@ -109,7 +99,6 @@ Created on Sat Jan 31 16:45:40 2026
         </div>
     </div>
 
-    <!-- Coaches Table -->
     <div class="card shadow-sm border-0 rounded-4">
         <div class="card-header bg-white py-3 border-bottom">
             <h5 class="mb-0">Coach Records</h5>
@@ -139,7 +128,13 @@ Created on Sat Jan 31 16:45:40 2026
                             {% set progress = coach.calculate_progress() %}
                             {% set percent = progress.overall_percent %}
                             <tr>
-                                <td class="fw-semibold">{{ coach.coach_number }}</td>
+                                <td class="fw-semibold">
+                                    {{ coach.coach_number }}
+                                    {% if coach.archived %}
+                                        <span class="badge bg-dark ms-2">Archived</span>
+                                    {% endif %}
+                                </td>
+
                                 <td>{{ coach.coach_type }}</td>
 
                                 <td style="min-width: 240px;">
@@ -204,18 +199,42 @@ Created on Sat Jan 31 16:45:40 2026
 
                                 <td>
                                     <div class="d-flex flex-column gap-2">
-                                        <a href="{{ url_for('coaches_edit', id=coach.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ url_for('coaches_edit', id=coach.id) }}"
+                                           class="btn btn-sm btn-outline-primary">
                                             Edit
                                         </a>
 
                                         {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                                        <a
-                                            href="{{ url_for('coaches_delete', id=coach.id) }}"
-                                            class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Delete coach {{ coach.coach_number }}?');"
-                                        >
-                                            Delete
-                                        </a>
+
+                                            {% if coach.archived %}
+                                                <form method="post"
+                                                      action="{{ url_for('coaches_unarchive', id=coach.id) }}">
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-success w-100"
+                                                            onclick="return confirm('Restore coach {{ coach.coach_number }}?');">
+                                                        Restore
+                                                    </button>
+                                                </form>
+
+                                                <form method="post"
+                                                      action="{{ url_for('coaches_delete', id=coach.id) }}">
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-danger w-100"
+                                                            onclick="return confirm('Permanently delete archived coach {{ coach.coach_number }}? This cannot be undone.');">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <form method="post"
+                                                      action="{{ url_for('coaches_archive', id=coach.id) }}">
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-outline-warning w-100"
+                                                            onclick="return confirm('Archive coach {{ coach.coach_number }}?');">
+                                                        Archive
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+
                                         {% endif %}
                                     </div>
                                 </td>

@@ -8,13 +8,26 @@ from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 
+
 class User(db.Model, UserMixin):
     __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+
+    # 🔑 Roles MUST stay lowercase everywhere
     role = db.Column(db.String(20), nullable=False, default="viewer")
+
+    # ✅ NEW: activation control
+    is_active_user = db.Column(db.Boolean, nullable=False, default=True)
+
+    # ✅ OPTIONAL (recommended for audit)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.String(80), nullable=True)
+
+    updated_at = db.Column(db.DateTime, nullable=True)
+    updated_by = db.Column(db.String(80), nullable=True)
 
     def set_password(self, raw_password):
         self.password = generate_password_hash(raw_password)
@@ -22,9 +35,14 @@ class User(db.Model, UserMixin):
     def check_password(self, raw_password):
         return check_password_hash(self.password, raw_password)
 
+    # 🔥 Critical: Flask-Login uses this
+    def is_active(self):
+        return self.is_active_user
+
     def __repr__(self):
         return f"<User {self.username}>"
-
+    
+    
 
 class Coach(db.Model):
     __tablename__ = "coach"
@@ -93,6 +111,14 @@ class Coach(db.Model):
     invoice_current_escalation = db.Column(db.Boolean, default=False)
 
     notes = db.Column(db.Text, nullable=True)
+
+    # 🔴 ARCHIVING
+    archived = db.Column(db.Boolean, default=False, nullable=False)
+    archived_at = db.Column(db.DateTime, nullable=True)
+    archived_by = db.Column(db.String(120), nullable=True)
+
+
+
 
     completion_tasks = db.relationship(
         "CompletionTask",
@@ -307,3 +333,17 @@ class CompletionTask(db.Model):
 
     def __repr__(self):
         return f"<CompletionTask {self.coach_no} - {self.phase} - {self.section} - {self.task}>"
+    
+class CoachAudit(db.Model):
+    __tablename__ = "coach_audit"
+
+    id = db.Column(db.Integer, primary_key=True)
+    coach_id = db.Column(db.Integer, nullable=True)
+    coach_number = db.Column(db.String(120), nullable=False)
+    action = db.Column(db.String(100), nullable=False)
+    changed_by = db.Column(db.String(120), nullable=True)
+    details = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def __repr__(self):
+        return f"<CoachAudit {self.action} coach={self.coach_number}>"    

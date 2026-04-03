@@ -158,27 +158,45 @@
 
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('coaches_list') }}">Coaches</a>
-                        </li>
+    {% if current_user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('coaches_list') }}">Coaches</a>
+        </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('delivery_schedule') }}">Delivery Schedule</a>
-                        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('delivery_schedule') }}">Delivery Schedule</a>
+        </li>
 
-                        {% if current_user.role in ['admin', 'editor'] %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('coaches_add') }}">Add Coach</a>
-                            </li>
-                        {% endif %}
-                    {% endif %}
-                </ul>
+        {% if (current_user.role or '').lower() in ['admin', 'editor'] %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('coaches_add') }}">Add Coach</a>
+            </li>
+        {% endif %}
 
+        {% if (current_user.role or '').lower() == 'admin' %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('manage_users') }}">Manage Users</a>
+            </li>
+        {% endif %}
+
+        {% if (current_user.role or '').lower() == 'admin' %}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('coach_audits') }}">Record Audits</a>
+            </li>
+        {% endif %}
+
+
+
+    {% endif %}
+
+
+
+
+</ul>
                 <div class="d-flex align-items-center gap-2">
                     {% if current_user.is_authenticated %}
                         <span class="navbar-text text-white-50">
-                            Logged in as <strong class="text-white">{{ current_user.username }}</strong>
+                            Logged in as <strong class="text-white">{{ current_user.username }}</strong> | role={{ current_user.role }} | BASE_TEST_123
                         </span>
                         <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
                     {% endif %}
