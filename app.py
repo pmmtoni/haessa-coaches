@@ -402,16 +402,22 @@ def reactivate_user(id):
     return redirect(url_for("manage_users"))
 
 
-
-
-
 @app.route("/coaches", methods=["GET"])
 @login_required
 def coaches_list():
+    from datetime import date
+
     search_query = request.args.get("search", "").strip()
-    coach_type_filter = request.args.get("coach_type", "")
+    coach_type_filter = request.args.get("coach_type", "").strip()
+    status_filter = request.args.get("status", "").strip().lower()
+    show_archived = request.args.get("show_archived", "false").lower() == "true"
+
+    today = date.today()
 
     query = Coach.query
+
+    if not show_archived:
+        query = query.filter(Coach.archived.is_(False))
 
     if search_query:
         query = query.filter(
@@ -424,10 +430,72 @@ def coaches_list():
     if coach_type_filter:
         query = query.filter(Coach.coach_type == coach_type_filter)
 
-    coaches = query.order_by(Coach.coach_number).all()
+    # Full result set before status filtering
+    all_matching_coaches = query.order_by(Coach.coach_number).all()
+
+    # Global counts for quick status cards
+    counts = {
+        "all": len(all_matching_coaches),
+        "overdue": 0,
+        "due_soon": 0,
+        "complete": 0,
+        "in_progress": 0,
+        "not_started": 0,
+    }
+
+    for coach in all_matching_coaches:
+        is_complete = bool(coach.complete)
+        is_overdue = bool(coach.due_date and not coach.complete and coach.due_date < today)
+        is_due_soon = bool(
+            coach.due_date
+            and not coach.complete
+            and 0 <= (coach.due_date - today).days <= 7
+        )
+        is_not_started = bool(not coach.stripping and not coach.complete)
+        is_in_progress = bool(
+            not is_complete and not is_overdue and not is_due_soon and not is_not_started
+        )
+
+        if is_complete:
+            counts["complete"] += 1
+        elif is_overdue:
+            counts["overdue"] += 1
+        elif is_due_soon:
+            counts["due_soon"] += 1
+        elif is_not_started:
+            counts["not_started"] += 1
+        elif is_in_progress:
+            counts["in_progress"] += 1
+
+    # Apply status filter for displayed rows
+    filtered_coaches = []
+    for coach in all_matching_coaches:
+        is_complete = bool(coach.complete)
+        is_overdue = bool(coach.due_date and not coach.complete and coach.due_date < today)
+        is_due_soon = bool(
+            coach.due_date
+            and not coach.complete
+            and 0 <= (coach.due_date - today).days <= 7
+        )
+        is_not_started = bool(not coach.stripping and not coach.complete)
+        is_in_progress = bool(
+            not is_complete and not is_overdue and not is_due_soon and not is_not_started
+        )
+
+        include = (
+            status_filter in ["", "all"]
+            or (status_filter == "complete" and is_complete)
+            or (status_filter == "overdue" and is_overdue)
+            or (status_filter == "due_soon" and is_due_soon)
+            or (status_filter == "not_started" and is_not_started)
+            or (status_filter == "in_progress" and is_in_progress)
+        )
+
+        if include:
+            filtered_coaches.append(coach)
 
     coach_progress_data = []
-    for coach in coaches:
+    for coach in filtered_coaches:
         progress = coach.calculate_progress()
         coach_progress_data.append(
             {
@@ -442,17 +510,31 @@ def coaches_list():
             }
         )
 
-    all_types = sorted({c.coach_type for c in coaches})
+    all_types = sorted(
+        {
+            c.coach_type
+            for c in Coach.query.order_by(Coach.coach_type).all()
+            if c.coach_type
+        }
+    )
 
     return render_template(
         "coaches_list.html",
-        coaches=coaches,
+        coaches=filtered_coaches,
         coach_progress_data=coach_progress_data,
-        total=len(coaches),
+        total=len(filtered_coaches),
         search_query=search_query,
         coach_type_filter=coach_type_filter,
+        status_filter=status_filter,
         all_types=all_types,
+        show_archived=show_archived,
+        today=today,
+        status_counts=counts,
     )
+
+
+
+
 
 
 @app.route("/coaches/add", methods=["GET", "POST"])
@@ -736,8 +818,14 @@ def coaches_edit(id):
 @login_required
 def delivery_schedule():
     today = datetime.now().date()
+    status_filter = request.args.get("status", "all").strip().lower()
 
-    coaches = Coach.query.order_by(Coach.due_date.asc()).all()
+    coaches = (
+        Coach.query
+        .filter(Coach.archived.is_(False))
+        .order_by(Coach.due_date.asc())
+        .all()
+    )
 
     on_schedule = []
     completed_late = []
@@ -745,7 +833,7 @@ def delivery_schedule():
     approaching = []
     urgent = []
 
-    route_version = "v2-clean-classification"
+    route_version = "v4-quick-filter-global-counts"
 
     for coach in coaches:
         progress = coach.calculate_progress()
@@ -753,7 +841,6 @@ def delivery_schedule():
         due_date = coach.due_date
         completion_date = coach.completion_date
 
-        # Stop countdown once coach is completed
         if completion_date:
             days_left = None
         else:
@@ -827,16 +914,72 @@ def delivery_schedule():
                 item["classification_reason"] = "More than 21 days remaining"
                 work_in_progress.append(item)
 
+    # Global counts before applying view filter
+    on_schedule_count = len(on_schedule)
+    completed_late_count = len(completed_late)
+    work_in_progress_count = len(work_in_progress)
+    approaching_count = len(approaching)
+    urgent_count = len(urgent)
+
+    # Apply display filter
+    if status_filter == "on_schedule":
+        on_schedule_view = on_schedule
+        completed_late_view = []
+        work_in_progress_view = []
+        approaching_view = []
+        urgent_view = []
+    elif status_filter == "completed_late":
+        on_schedule_view = []
+        completed_late_view = completed_late
+        work_in_progress_view = []
+        approaching_view = []
+        urgent_view = []
+    elif status_filter == "work_in_progress":
+        on_schedule_view = []
+        completed_late_view = []
+        work_in_progress_view = work_in_progress
+        approaching_view = []
+        urgent_view = []
+    elif status_filter == "approaching":
+        on_schedule_view = []
+        completed_late_view = []
+        work_in_progress_view = []
+        approaching_view = approaching
+        urgent_view = []
+    elif status_filter == "urgent":
+        on_schedule_view = []
+        completed_late_view = []
+        work_in_progress_view = []
+        approaching_view = []
+        urgent_view = urgent
+    else:
+        status_filter = "all"
+        on_schedule_view = on_schedule
+        completed_late_view = completed_late
+        work_in_progress_view = work_in_progress
+        approaching_view = approaching
+        urgent_view = urgent
+
     return render_template(
         "delivery_schedule.html",
         today=today.strftime("%d %b %Y"),
         route_version=route_version,
-        on_schedule=on_schedule,
-        completed_late=completed_late,
-        work_in_progress=work_in_progress,
-        approaching=approaching,
-        urgent=urgent,
+        status_filter=status_filter,
+        on_schedule=on_schedule_view,
+        completed_late=completed_late_view,
+        work_in_progress=work_in_progress_view,
+        approaching=approaching_view,
+        urgent=urgent_view,
+        on_schedule_count=on_schedule_count,
+        completed_late_count=completed_late_count,
+        work_in_progress_count=work_in_progress_count,
+        approaching_count=approaching_count,
+        urgent_count=urgent_count,
     )
+
+
+
+
 
 @app.route("/coach-audits", strict_slashes=False)
 @login_required

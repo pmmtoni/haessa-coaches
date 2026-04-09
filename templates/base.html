@@ -16,7 +16,8 @@
         }
 
         .navbar-brand {
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
 
         .card {
@@ -37,6 +38,29 @@
             box-shadow: none;
         }
 
+        .navbar .nav-link {
+            border-radius: 0.5rem;
+            padding: 0.45rem 0.75rem;
+        }
+
+        .navbar .nav-link.active-link {
+            background-color: rgba(255, 255, 255, 0.12);
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-weight: 700;
+        }
+
+        .flash-area .alert {
+            border-radius: 0.75rem;
+        }
+
+        .content-shell {
+            min-height: calc(100vh - 72px);
+        }
+
         .status-badge {
             display: inline-block;
             padding: 0.35rem 0.65rem;
@@ -45,96 +69,9 @@
             font-weight: 600;
         }
 
-        /* Final color map */
-        .status-green {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-blue {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .status-orange {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .status-red {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-grey {
-            background-color: #e2e3e5;
-            color: #383d41;
-        }
-
-        .section-title-green {
-            color: #155724;
-        }
-
-        .section-title-blue {
-            color: #0c5460;
-        }
-
-        .section-title-orange {
-            color: #856404;
-        }
-
-        .section-title-red {
-            color: #721c24;
-        }
-
-        .section-title-grey {
-            color: #383d41;
-        }
-
-        /* stronger section visuals */
-        .schedule-card-green {
-            border-left: 6px solid #28a745 !important;
-        }
-
-        .schedule-card-blue {
-            border-left: 6px solid #17a2b8 !important;
-        }
-
-        .schedule-card-orange {
-            border-left: 6px solid #ffc107 !important;
-        }
-
-        .schedule-card-red {
-            border-left: 6px solid #dc3545 !important;
-        }
-
-        .schedule-card-grey {
-            border-left: 6px solid #6c757d !important;
-        }
-
-        .summary-tile-green {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .summary-tile-blue {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .summary-tile-orange {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .summary-tile-red {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .summary-tile-grey {
-            background-color: #e2e3e5;
-            color: #383d41;
+        .footer-note {
+            font-size: 0.85rem;
+            color: #6c757d;
         }
     </style>
 </head>
@@ -157,46 +94,60 @@
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
+                {% if current_user.is_authenticated %}
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-    {% if current_user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('coaches_list') }}">Coaches</a>
-        </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('delivery_schedule') }}">Delivery Schedule</a>
-        </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'coaches_list' %}active-link{% endif %}"
+                           href="{{ url_for('coaches_list') }}">
+                            Coaches
+                        </a>
+                    </li>
 
-        {% if (current_user.role or '').lower() in ['admin', 'editor'] %}
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('coaches_add') }}">Add Coach</a>
-            </li>
-        {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'delivery_schedule' %}active-link{% endif %}"
+                           href="{{ url_for('delivery_schedule') }}">
+                            Delivery Schedule
+                        </a>
+                    </li>
 
-        {% if (current_user.role or '').lower() == 'admin' %}
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('manage_users') }}">Manage Users</a>
-            </li>
-        {% endif %}
+                    {% if current_user.role in ['admin', 'editor'] %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'coach_audits' %}active-link{% endif %}"
+                           href="{{ url_for('coach_audits') }}">
+                            Record Audits
+                        </a>
+                    </li>
+                    {% endif %}
 
-        {% if (current_user.role or '').lower() == 'admin' %}
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('coach_audits') }}">Record Audits</a>
-            </li>
-        {% endif %}
+                    {% if current_user.role in ['admin', 'editor'] %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'coaches_add' %}active-link{% endif %}"
+                           href="{{ url_for('coaches_add') }}">
+                            Add Coach
+                        </a>
+                    </li>
+                    {% endif %}
 
+                    {% if current_user.role == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ['manage_users', 'add_user', 'edit_user'] %}active-link{% endif %}"
+                           href="{{ url_for('manage_users') }}">
+                            Manage Users
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                {% endif %}
 
-
-    {% endif %}
-
-
-
-
-</ul>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     {% if current_user.is_authenticated %}
                         <span class="navbar-text text-white-50">
-                            Logged in as <strong class="text-white">{{ current_user.username }}</strong> | role={{ current_user.role }} | BASE_TEST_123
+                            Logged in as
+                            <strong class="text-white">{{ current_user.username }}</strong>
+                            {% if current_user.role %}
+                                | role={{ current_user.role }}
+                            {% endif %}
                         </span>
                         <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
                     {% endif %}
@@ -205,19 +156,25 @@
         </div>
     </nav>
 
-    <main class="container mt-4 mb-5">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <main class="container mt-4 mb-5 content-shell">
+        <div class="flash-area">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
 
         {% block content %}{% endblock %}
+
+        <div class="mt-4 footer-note text-center">
+            CTE Durban Coaches Management System
+        </div>
     </main>
 
     <script

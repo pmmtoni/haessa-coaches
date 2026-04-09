@@ -1,4 +1,15 @@
 coach_type,phase,section,task,hours
+Kitchen,Stripping,BUP,Bogie,8
+Kitchen,Stripping,BUP,Underframe,8
+Kitchen,Stripping,Coach Build,Exterior,8
+Kitchen,Stripping,Electrical,Components,8
+Kitchen,Stripping,BUP,Coach Sole bar,8
+Kitchen,Stripping,BUP,Loose Components,8
+Kitchen,Stripping,Coach Build,Interior,8
+Kitchen,Stripping,Coach Build,Roof,8
+Kitchen,Stripping,Electrical,Wiring,8
+Kitchen,Stripping,BUP,Bogie Frame,8
+Kitchen,Stripping,QC,Documentation,8
 Motor,Completion,Structural,3.1 Cut and replace old end step,8
 Motor,Completion,Structural,3.2 Straighten interior floor channels,8
 Motor,Completion,Structural,3.3 Remove all screws on the floor channels,8
@@ -92,7 +103,6 @@ Motor,Completion,BUP,18.15 Fit the flexible rubber pipe,8
 Motor,Completion,BUP,18.16 Install handbrake,8
 Motor,Completion,BUP,19.1 Bogies - Crack checks done on the bogie frames,8
 Motor,Completion,BUP,19.2 Diagonal checks done on the bogie frames,8
-Sitter,Completion,BUP,19.3 Fit bolster,8
 Motor,Completion,BUP,19.3 Fit bolster,8
 Motor,Completion,BUP,19.4 Fit equalizing beam,8
 Motor,Completion,BUP,19.5 Fit bolster and equalizing spring,8
@@ -157,28 +167,6 @@ Motor,Completion,Testing & Commissioning,41.6 Invite PRASA QC for Coach Inspecti
 Motor,Completion,Testing & Commissioning,41.7 Attend to PRASA snags,8
 Motor,Completion,Testing & Commissioning,41.8 Invite PRASA QC for Verification,8
 Motor,Completion,PRASA,42.1 Issue Completion Certificate,8
-Sleeper,Stripping,BUP,Bogie,8
-Sleeper,Stripping,BUP,Underframe,8
-Sleeper,Stripping,Coach Build,Exterior,8
-Sleeper,Stripping,Electrical,Components,8
-Sleeper,Stripping,BUP,Coach Sole bar,8
-Sleeper,Stripping,BUP,Loose Components,8
-Sleeper,Stripping,Coach Build,Interior,8
-Sleeper,Stripping,Coach Build,Roof,8
-Sleeper,Stripping,Electrical,Wiring,8
-Sleeper,Stripping,BUP,Bogie Frame,8
-Sleeper,Stripping,QC,Documentation,8
-Sitter,Stripping,BUP,Bogie,8
-Sitter,Stripping,BUP,Underframe,8
-Sitter,Stripping,Coach Build,Exterior,8
-Sitter,Stripping,Electrical,Components,8
-Sitter,Stripping,BUP,Coach Sole bar,8
-Sitter,Stripping,BUP,Loose Components,8
-Sitter,Stripping,Coach Build,Interior,8
-Sitter,Stripping,Coach Build,Roof,8
-Sitter,Stripping,Electrical,Wiring,8
-Sitter,Stripping,BUP,Bogie Frame,8
-Sitter,Stripping,QC,Documentation,8
 Motor,Stripping,BUP,Bogie,8
 Motor,Stripping,BUP,Underframe,8
 Motor,Stripping,Coach Build,Exterior,8
@@ -190,63 +178,34 @@ Motor,Stripping,Coach Build,Roof,8
 Motor,Stripping,Electrical,Wiring,8
 Motor,Stripping,BUP,Bogie Frame,8
 Motor,Stripping,QC,Documentation,8
-Kitchen,Stripping,BUP,Bogie,8
-Kitchen,Stripping,BUP,Underframe,8
-Kitchen,Stripping,Coach Build,Exterior,8
-Kitchen,Stripping,Electrical,Components,8
-Kitchen,Stripping,BUP,Coach Sole bar,8
-Kitchen,Stripping,BUP,Loose Components,8
-Kitchen,Stripping,Coach Build,Interior,8
-Kitchen,Stripping,Coach Build,Roof,8
-Kitchen,Stripping,Electrical,Wiring,8
-Kitchen,Stripping,BUP,Bogie Frame,8
-Kitchen,Stripping,QC,Documentation,8
+Sitter,Completion,BUP,19.3 Fit bolster,8
+Sitter,Stripping,BUP,Bogie,8
+Sitter,Stripping,BUP,Underframe,8
+Sitter,Stripping,Coach Build,Exterior,8
+Sitter,Stripping,Electrical,Components,8
+Sitter,Stripping,BUP,Coach Sole bar,8
+Sitter,Stripping,BUP,Loose Components,8
+Sitter,Stripping,Coach Build,Interior,8
+Sitter,Stripping,Coach Build,Roof,8
+Sitter,Stripping,Electrical,Wiring,8
+Sitter,Stripping,BUP,Bogie Frame,8
+Sitter,Stripping,QC,Documentation,8
+Sleeper,Stripping,BUP,Bogie,8
+Sleeper,Stripping,BUP,Underframe,8
+Sleeper,Stripping,Coach Build,Exterior,8
+Sleeper,Stripping,Electrical,Components,8
+Sleeper,Stripping,BUP,Coach Sole bar,8
+Sleeper,Stripping,BUP,Loose Components,8
+Sleeper,Stripping,Coach Build,Interior,8
+Sleeper,Stripping,Coach Build,Roof,8
+Sleeper,Stripping,Electrical,Wiring,8
+Sleeper,Stripping,BUP,Bogie Frame,8
+Sleeper,Stripping,QC,Documentation,8
 Trailer,Service worthy,PRASA,Issue Service Worthy Certificate,8
 Trailer,Stripping,Electrical,Components,8
-Trailer,Completion,Coach Build,14.1 Marley or carpet - Apply contact adhesive evenly on both marley & floorboards,
-Sleeper (Premier),Completion,Coach Build,14.1 Marley or carpet - Apply contact adhesive evenly on both marley & floorboards,
-Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Static test (110v),8
-Locomotive (Diesel),Testing & Commissioning,Testing & Commissioning,Dynamic test (3kV),8
-Trailer,Testing & Commissioning,BUP,PRASA snags,8
-Motor,Testing & Commissioning,Structural,PRASA snags,8
-Locomotive (Diesel),Testing & Commissioning,Paint Works,PRASA snags,8
-Kitchen,Testing & Commissioning,Coach Build,PRASA snags,8
-Sitter,Testing & Commissioning,Electrical,PRASA snags,8
-Sleeper,Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
-Locomotive (Electric),Testing & Commissioning,Testing & Commissioning,Brake testing & certification,8
-Trailer,Completion,PRASA,Issue Service Worthy Certificate,8
-Sleeper (Premier),Completion,PRASA,Issue Completion Certificate,8
-Sleeper,Completion,PRASA,Issue Completion Certificate,8
-Sitter,Completion,PRASA,Issue Completion Certificate,8
-Motor,Completion,PRASA,Issue Completion Certificate,8
-Locomotive (Electric),Completion,PRASA,Issue Completion Certificate,8
-Locomotive (Diesel),Completion,PRASA,Issue Completion Certificate,8
-Kitchen,Completion,PRASA,Issue Completion Certificate,8
-Trailer,Service worthy,PRASA,Issue Service Worthy Certificate,8
-Sleeper (Premier),Service worthy,PRASA,Issue Service Worthy Certificate,8
-Sleeper,Service worthy,PRASA,Issue Service Worthy Certificate,8
-Sitter,Service worthy,PRASA,Issue Service Worthy Certificate,8
-Motor,Service worthy,PRASA,Issue Service Worthy Certificate,8
-Locomotive (Electric),Service worthy,PRASA,Issue Service Worthy Certificate,8
-Locomotive (Diesel),Service worthy,PRASA,Issue Service Worthy Certificate,8
-Kitchen,Service worthy,PRASA,Issue Service Worthy Certificate,8
-Sleeper (Premier),Retention,PRASA,Issue Retention Certificate,8
-Sleeper,Retention,PRASA,Issue Retention Certificate,8
-Sitter,Retention,PRASA,Issue Retention Certificate,8
-Motor,Retention,PRASA,Issue Retention Certificate,8
-Locomotive (Electric),Retention,PRASA,Issue Retention Certificate,8
-Locomotive (Diesel),Retention,PRASA,Issue Retention Certificate,8
-Kitchen,Retention,PRASA,Issue Retention Certificate,8
-Motor,Completion,QC,QSA x2 (Certificate),8
-Motor,Completion,QC,Vaccum Chambers (Certificate),8
-Motor,Completion,QC,Vaccum cylinders (Certificate),8
-Motor,Completion,QC,Slack adjusters (Certificate),8
-Motor,Completion,QC,Air reservior (Certificate),8
-Motor,Completion,QC,Power supply (Certificate),8
-Motor,Completion,QC,Vacuum Tanks & Compressor (Certificate),8
-Motor,Completion,QC,Vacuum brake system (Certificate),8
-Motor,Completion,QC,Micro cards (Certificate),8
-Motor,Completion,QC,Door Mechanisims X6 (Certificate),8
-Motor,Completion,QC,Wheels (Certificate),8
-Motor,Completion,QC,Snubbers X12 (Certificate),8
-Motor,Completion,QC,Boslter springs (Certificate),8
+Sitter,Completion,QC,Has the coach under frame been blasted thoroughly?,8
+Sitter,Completion,QC,Has the pantograph area been blasted?,8
+Sitter,Completion,QC,"Have all corners, gussets and cavities been blasted?",8
+Sitter,Completion,QC,Are all surfaces clean and smooth?,8
+Sitter,Completion,QC,"Are there any noticeable cracks, corrosion and deformities?",8
+Sitter,Completion,QC,Is the excess grit below the acceptable percentage?,8
