@@ -15,6 +15,8 @@ from flask_login import (
 
 from models import db, User, Coach, CompletionTask, CoachAudit
 
+
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
@@ -434,7 +436,7 @@ def coaches_list():
     all_matching_coaches = query.order_by(Coach.coach_number).all()
 
     # Global counts for quick status cards
-    counts = {
+    status_counts = {
         "all": len(all_matching_coaches),
         "overdue": 0,
         "due_soon": 0,
@@ -457,15 +459,15 @@ def coaches_list():
         )
 
         if is_complete:
-            counts["complete"] += 1
+            status_counts["complete"] += 1
         elif is_overdue:
-            counts["overdue"] += 1
+            status_counts["overdue"] += 1
         elif is_due_soon:
-            counts["due_soon"] += 1
+            status_counts["due_soon"] += 1
         elif is_not_started:
-            counts["not_started"] += 1
+            status_counts["not_started"] += 1
         elif is_in_progress:
-            counts["in_progress"] += 1
+            status_counts["in_progress"] += 1
 
     # Apply status filter for displayed rows
     filtered_coaches = []
@@ -493,6 +495,56 @@ def coaches_list():
 
         if include:
             filtered_coaches.append(coach)
+
+    # KPI cards
+    kpis = {
+        "active_total": 0,
+        "archived_total": 0,
+        "overdue_total": 0,
+        "due_soon_total": 0,
+        "complete_total": 0,
+        "in_progress_total": 0,
+        "avg_progress": 0.0,
+    }
+
+    progress_values = []
+
+    for coach in Coach.query.order_by(Coach.coach_number).all():
+        is_archived = bool(getattr(coach, "archived", False))
+        is_complete = bool(coach.complete)
+        is_overdue = bool(coach.due_date and not coach.complete and coach.due_date < today)
+        is_due_soon = bool(
+            coach.due_date
+            and not coach.complete
+            and 0 <= (coach.due_date - today).days <= 7
+        )
+        is_not_started = bool(not coach.stripping and not coach.complete)
+        is_in_progress = bool(
+            not is_complete and not is_overdue and not is_due_soon and not is_not_started
+        )
+
+        if is_archived:
+            kpis["archived_total"] += 1
+        else:
+            kpis["active_total"] += 1
+
+        if is_complete:
+            kpis["complete_total"] += 1
+        if is_overdue:
+            kpis["overdue_total"] += 1
+        if is_due_soon:
+            kpis["due_soon_total"] += 1
+        if is_in_progress:
+            kpis["in_progress_total"] += 1
+
+        try:
+            progress = coach.calculate_progress()
+            progress_values.append(float(progress.get("overall_percent", 0)))
+        except Exception:
+            pass
+
+    if progress_values:
+        kpis["avg_progress"] = round(sum(progress_values) / len(progress_values), 1)
 
     coach_progress_data = []
     for coach in filtered_coaches:
@@ -529,9 +581,9 @@ def coaches_list():
         all_types=all_types,
         show_archived=show_archived,
         today=today,
-        status_counts=counts,
+        status_counts=status_counts,
+        kpis=kpis,
     )
-
 
 
 
