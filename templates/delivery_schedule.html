@@ -21,9 +21,9 @@
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('delivery_schedule', status='all') }}" class="text-decoration-none">
                 <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'all' %}border border-2 border-dark{% endif %}">
-                    <div class="card-body">
+                    <div class="card-body bg-light rounded-4">
                         <div class="text-muted small">All</div>
-                        <div class="fs-4 fw-bold">
+                        <div class="fs-4 fw-bold text-dark">
                             {{ on_schedule_count + completed_late_count + work_in_progress_count + approaching_count + urgent_count }}
                         </div>
                     </div>
@@ -33,9 +33,9 @@
 
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('delivery_schedule', status='on_schedule') }}" class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'on_schedule' %}border border-2 border-success{% endif %}" style="background-color: #d4edda;">
-                    <div class="card-body">
-                        <div class="text-muted small">On Schedule</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'on_schedule' %}border border-2 border-success{% endif %}">
+                    <div class="card-body bg-success text-white rounded-4">
+                        <div class="small">On Schedule</div>
                         <div class="fs-4 fw-bold">{{ on_schedule_count }}</div>
                     </div>
                 </div>
@@ -44,9 +44,9 @@
 
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('delivery_schedule', status='completed_late') }}" class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'completed_late' %}border border-2 border-info{% endif %}" style="background-color: #d1ecf1;">
-                    <div class="card-body">
-                        <div class="text-muted small">Completed Late</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'completed_late' %}border border-2 border-info{% endif %}">
+                    <div class="card-body bg-info text-dark rounded-4">
+                        <div class="small">Completed Late</div>
                         <div class="fs-4 fw-bold">{{ completed_late_count }}</div>
                     </div>
                 </div>
@@ -55,9 +55,9 @@
 
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('delivery_schedule', status='work_in_progress') }}" class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'work_in_progress' %}border border-2 border-secondary{% endif %}" style="background-color: #f1f3f5;">
-                    <div class="card-body">
-                        <div class="text-muted small">Work in Progress</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'work_in_progress' %}border border-2 border-secondary{% endif %}">
+                    <div class="card-body bg-secondary text-white rounded-4">
+                        <div class="small">Work in Progress</div>
                         <div class="fs-4 fw-bold">{{ work_in_progress_count }}</div>
                     </div>
                 </div>
@@ -66,9 +66,9 @@
 
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('delivery_schedule', status='approaching') }}" class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'approaching' %}border border-2 border-warning{% endif %}" style="background-color: #fff3cd;">
-                    <div class="card-body">
-                        <div class="text-muted small">Approaching</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'approaching' %}border border-2 border-warning{% endif %}">
+                    <div class="card-body bg-warning text-dark rounded-4">
+                        <div class="small">Approaching</div>
                         <div class="fs-4 fw-bold">{{ approaching_count }}</div>
                     </div>
                 </div>
@@ -77,9 +77,9 @@
 
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('delivery_schedule', status='urgent') }}" class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'urgent' %}border border-2 border-danger{% endif %}" style="background-color: #f8d7da;">
-                    <div class="card-body">
-                        <div class="text-muted small">Urgent / Overdue</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'urgent' %}border border-2 border-danger{% endif %}">
+                    <div class="card-body bg-danger text-white rounded-4">
+                        <div class="small">Urgent / Overdue</div>
                         <div class="fs-4 fw-bold">{{ urgent_count }}</div>
                     </div>
                 </div>
@@ -110,7 +110,7 @@
         </div>
     </div>
 
-    {% macro schedule_table(title, items, badge_class, empty_text) %}
+    {% macro schedule_table(title, items, badge_class, row_class, empty_text) %}
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-header bg-white py-3 border-bottom">
             <h5 class="mb-0">{{ title }}</h5>
@@ -137,19 +137,7 @@
                     <tbody>
                         {% for item in items %}
                         {% set progress_percent = item.progress_data.percentage %}
-                        <tr
-                            {% if badge_class == 'bg-success' %}
-                                style="background-color: #f3fbf5;"
-                            {% elif badge_class == 'bg-info text-dark' %}
-                                style="background-color: #f2fbfd;"
-                            {% elif badge_class == 'bg-warning text-dark' %}
-                                style="background-color: #fffdf5;"
-                            {% elif badge_class == 'bg-danger' %}
-                                style="background-color: #fff5f5;"
-                            {% else %}
-                                style="background-color: #f8f9fa;"
-                            {% endif %}
-                        >
+                        <tr class="{{ row_class }}">
                             <td class="fw-semibold">{{ item.coach.coach_number }}</td>
                             <td>{{ item.coach.coach_type }}</td>
 
@@ -235,6 +223,7 @@
         "On Schedule / Completed on Time",
         on_schedule,
         "bg-success",
+        "table-success",
         "No coaches currently on schedule."
     ) }}
 
@@ -242,6 +231,7 @@
         "Completed Late",
         completed_late,
         "bg-info text-dark",
+        "table-info",
         "No coaches completed late."
     ) }}
 
@@ -249,6 +239,7 @@
         "Work in Progress",
         work_in_progress,
         "bg-secondary",
+        "table-secondary",
         "No coaches currently in work in progress."
     ) }}
 
@@ -256,6 +247,7 @@
         "Approaching Due Date (8–21 days)",
         approaching,
         "bg-warning text-dark",
+        "table-warning",
         "No coaches approaching due date."
     ) }}
 
@@ -263,6 +255,7 @@
         "Urgent / Overdue (≤7 days or past due)",
         urgent,
         "bg-danger",
+        "table-danger",
         "No coaches in the urgent / overdue category."
     ) }}
 

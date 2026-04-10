@@ -27,9 +27,9 @@
             <a href="{{ url_for('coaches_list', search=search_query, coach_type=coach_type_filter, status='all', show_archived='true' if show_archived else 'false') }}"
                class="text-decoration-none">
                 <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter in ['', 'all'] %}border border-2 border-dark{% endif %}">
-                    <div class="card-body">
+                    <div class="card-body bg-light rounded-4">
                         <div class="text-muted small">All</div>
-                        <div class="fs-4 fw-bold">{{ status_counts.all }}</div>
+                        <div class="fs-4 fw-bold text-dark">{{ status_counts.all }}</div>
                     </div>
                 </div>
             </a>
@@ -38,9 +38,9 @@
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('coaches_list', search=search_query, coach_type=coach_type_filter, status='overdue', show_archived='true' if show_archived else 'false') }}"
                class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'overdue' %}border border-2 border-danger{% endif %}" style="background-color: #f8d7da;">
-                    <div class="card-body">
-                        <div class="text-muted small">Overdue</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'overdue' %}border border-2 border-danger{% endif %}">
+                    <div class="card-body bg-danger text-white rounded-4">
+                        <div class="small">Overdue</div>
                         <div class="fs-4 fw-bold">{{ status_counts.overdue }}</div>
                     </div>
                 </div>
@@ -50,9 +50,9 @@
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('coaches_list', search=search_query, coach_type=coach_type_filter, status='due_soon', show_archived='true' if show_archived else 'false') }}"
                class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'due_soon' %}border border-2 border-warning{% endif %}" style="background-color: #fff3cd;">
-                    <div class="card-body">
-                        <div class="text-muted small">Due Soon</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'due_soon' %}border border-2 border-warning{% endif %}">
+                    <div class="card-body bg-warning text-dark rounded-4">
+                        <div class="small">Due Soon</div>
                         <div class="fs-4 fw-bold">{{ status_counts.due_soon }}</div>
                     </div>
                 </div>
@@ -62,9 +62,9 @@
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('coaches_list', search=search_query, coach_type=coach_type_filter, status='complete', show_archived='true' if show_archived else 'false') }}"
                class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'complete' %}border border-2 border-success{% endif %}" style="background-color: #d4edda;">
-                    <div class="card-body">
-                        <div class="text-muted small">Complete</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'complete' %}border border-2 border-success{% endif %}">
+                    <div class="card-body bg-success text-white rounded-4">
+                        <div class="small">Complete</div>
                         <div class="fs-4 fw-bold">{{ status_counts.complete }}</div>
                     </div>
                 </div>
@@ -74,9 +74,9 @@
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('coaches_list', search=search_query, coach_type=coach_type_filter, status='in_progress', show_archived='true' if show_archived else 'false') }}"
                class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'in_progress' %}border border-2 border-primary{% endif %}" style="background-color: #d1ecf1;">
-                    <div class="card-body">
-                        <div class="text-muted small">In Progress</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'in_progress' %}border border-2 border-primary{% endif %}">
+                    <div class="card-body bg-primary text-white rounded-4">
+                        <div class="small">In Progress</div>
                         <div class="fs-4 fw-bold">{{ status_counts.in_progress }}</div>
                     </div>
                 </div>
@@ -86,9 +86,9 @@
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('coaches_list', search=search_query, coach_type=coach_type_filter, status='not_started', show_archived='true' if show_archived else 'false') }}"
                class="text-decoration-none">
-                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'not_started' %}border border-2 border-secondary{% endif %}" style="background-color: #f1f3f5;">
-                    <div class="card-body">
-                        <div class="text-muted small">Not Started</div>
+                <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'not_started' %}border border-2 border-secondary{% endif %}">
+                    <div class="card-body bg-secondary text-white rounded-4">
+                        <div class="small">Not Started</div>
                         <div class="fs-4 fw-bold">{{ status_counts.not_started }}</div>
                     </div>
                 </div>
@@ -233,17 +233,13 @@
                             {% set is_due_soon = coach.due_date and not coach.complete and (coach.due_date - today).days >= 0 and (coach.due_date - today).days <= 7 %}
                             {% set is_not_started = not coach.stripping and not coach.complete %}
 
-                            <tr
-                                {% if is_complete %}
-                                    style="background-color: #d4edda;"
-                                {% elif is_overdue %}
-                                    style="background-color: #f8d7da;"
-                                {% elif is_due_soon %}
-                                    style="background-color: #fff3cd;"
-                                {% elif is_not_started %}
-                                    style="background-color: #f1f3f5;"
+                            <tr class="
+                                {% if is_complete %}table-success
+                                {% elif is_overdue %}table-danger
+                                {% elif is_due_soon %}table-warning
+                                {% elif is_not_started %}table-secondary
                                 {% endif %}
-                            >
+                            ">
                                 <td class="fw-semibold">
                                     {{ coach.coach_number }}
 
