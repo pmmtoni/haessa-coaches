@@ -451,7 +451,7 @@ def coaches_list():
         is_due_soon = bool(
             coach.due_date
             and not coach.complete
-            and 0 <= (coach.due_date - today).days <= 7
+            and 0 <= (coach.due_date - today).days <= 10
         )
         is_not_started = bool(not coach.stripping and not coach.complete)
         is_in_progress = bool(
@@ -477,7 +477,7 @@ def coaches_list():
         is_due_soon = bool(
             coach.due_date
             and not coach.complete
-            and 0 <= (coach.due_date - today).days <= 7
+            and 0 <= (coach.due_date - today).days <= 10
         )
         is_not_started = bool(not coach.stripping and not coach.complete)
         is_in_progress = bool(
@@ -516,7 +516,7 @@ def coaches_list():
         is_due_soon = bool(
             coach.due_date
             and not coach.complete
-            and 0 <= (coach.due_date - today).days <= 7
+            and 0 <= (coach.due_date - today).days <= 10
         )
         is_not_started = bool(not coach.stripping and not coach.complete)
         is_in_progress = bool(
@@ -956,10 +956,10 @@ def delivery_schedule():
             elif days_left < 0:
                 item["classification_reason"] = "Overdue and not completed"
                 urgent.append(item)
-            elif 0 <= days_left <= 7:
+            elif 0 <= days_left <= 10:
                 item["classification_reason"] = "Due within 7 days and not completed"
                 urgent.append(item)
-            elif 8 <= days_left <= 21:
+            elif 11 <= days_left <= 21:
                 item["classification_reason"] = "Due within 8–21 days and not completed"
                 approaching.append(item)
             else:
