@@ -16,6 +16,16 @@
 
     {% include "_legend.html" %}
 
+    {% if alerts %}
+    <div class="mb-4">
+        {% for alert in alerts %}
+        <div class="alert alert-{{ alert.level }} shadow-sm rounded-4 mb-2" role="alert">
+            {{ alert.text }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Quick Status Filters -->
     <div class="row g-3 mb-4">
         <div class="col-md-6 col-xl-2">
@@ -98,8 +108,8 @@
                         <option value="on_schedule" {% if status_filter == 'on_schedule' %}selected{% endif %}>On Schedule</option>
                         <option value="completed_late" {% if status_filter == 'completed_late' %}selected{% endif %}>Completed Late</option>
                         <option value="work_in_progress" {% if status_filter == 'work_in_progress' %}selected{% endif %}>Work in Progress</option>
-                        <option value="approaching" {% if status_filter == 'approaching' %}selected{% endif %}>Approaching (8–21 days)</option>
-                        <option value="urgent" {% if status_filter == 'urgent' %}selected{% endif %}>Urgent / Overdue</option>
+                        <option value="approaching" {% if status_filter == 'approaching' %}selected{% endif %}>Approaching Inspection (8–14 days)</option>
+                        <option value="urgent" {% if status_filter == 'urgent' %}selected{% endif %}>Urgent / Overdue Inspection</option>
                     </select>
                 </div>
 
@@ -126,9 +136,10 @@
                             <th>Type</th>
                             <th>Completion Date</th>
                             <th>Due Date</th>
+                            <th>Inspection Date</th>
                             <th>Retention Due</th>
                             <th>Retention Countdown</th>
-                            <th>Days Left / Overdue</th>
+                            <th>Days to Inspection / Overdue</th>
                             <th>Status</th>
                             <th>Progress</th>
                             <th>Classification Reason</th>
@@ -145,9 +156,9 @@
                                 {{ item.coach.completion_date.strftime('%d %b %Y') if item.coach.completion_date else '—' }}
                             </td>
 
-                            <td>
-                                {{ item.coach.due_date.strftime('%d %b %Y') if item.coach.due_date else '—' }}
-                            </td>
+                            <td>{{ item.due_date }}</td>
+
+                            <td>{{ item.inspection_date }}</td>
 
                             <td>{{ item.retention_due_date }}</td>
 
@@ -159,7 +170,7 @@
                                 {% elif item.days_left < 0 %}
                                     <span class="text-danger fw-semibold">Overdue by {{ item.days_left | abs }} days</span>
                                 {% elif item.days_left == 0 %}
-                                    <span class="text-warning fw-semibold">Due today</span>
+                                    <span class="text-warning fw-semibold">Inspection today</span>
                                 {% else %}
                                     <span>{{ item.days_left }} days</span>
                                 {% endif %}
@@ -220,7 +231,7 @@
     {% endmacro %}
 
     {{ schedule_table(
-        "On Schedule / Completed on Time",
+        "On Schedule / Ready by Inspection Date",
         on_schedule,
         "bg-success",
         "table-success",
@@ -228,7 +239,7 @@
     ) }}
 
     {{ schedule_table(
-        "Completed Late",
+        "Completed Late (After Inspection Date)",
         completed_late,
         "bg-info text-dark",
         "table-info",
@@ -244,19 +255,19 @@
     ) }}
 
     {{ schedule_table(
-        "Approaching Due Date (8–21 days)",
+        "Approaching Inspection (8–14 days)",
         approaching,
         "bg-warning text-dark",
         "table-warning",
-        "No coaches approaching due date."
+        "No coaches approaching inspection date."
     ) }}
 
     {{ schedule_table(
-        "Urgent / Overdue (≤7 days or past due)",
+        "Urgent / Overdue Inspection (0–7 days or past due)",
         urgent,
         "bg-danger",
         "table-danger",
-        "No coaches in the urgent / overdue category."
+        "No coaches in the urgent / overdue inspection category."
     ) }}
 
 </div>

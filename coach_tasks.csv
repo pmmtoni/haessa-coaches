@@ -1,4 +1,4 @@
-coach_type,phase,section,task,hours
+﻿coach_type,phase,section,task,hours
 Kitchen,Stripping,BUP,Bogie,8
 Kitchen,Stripping,BUP,Underframe,8
 Kitchen,Stripping,Coach Build,Exterior,8
@@ -21,20 +21,20 @@ Motor,Completion,Structural,3.8 Weld gutter holes,8
 Motor,Completion,Structural,3.9 Weld and grind rust affected areas on the sole bar ,8
 Motor,Completion,Structural,3.10 Weld or replace all damaged small components,8
 Motor,Completion,Structural,3.11 Modify seat frames,8
-Motor,Completion,Paint Works,4.1 Shot blast coach sole bar,8
-Motor,Completion,Paint Works,4.2 Clean the shot blast surface with air,8
-Motor,Completion,Paint Works,4.3 Shot blast BUP small components,8
-Motor,Completion,Paint Works,4.4 Shot blast Coachbuild small components,8
-Motor,Completion,Paint Works,5.1 Clean dirt/dust inside the coach,8
-Motor,Completion,Paint Works,5.2 Auto coat interior,8
-Motor,Completion,Paint Works,5.3 Wash the underframe,8
-Motor,Completion,Paint Works,5.4 Auto coat under frame,8
+Motor,Completion,Paint,4.1 Shot blast coach sole bar,8
+Motor,Completion,Paint,4.2 Clean the shot blast surface with air,8
+Motor,Completion,Paint,4.3 Shot blast BUP small components,8
+Motor,Completion,Paint,4.4 Shot blast Coachbuild small components,8
+Motor,Completion,Paint,5.1 Clean dirt/dust inside the coach,8
+Motor,Completion,Paint,5.2 Auto coat interior,8
+Motor,Completion,Paint,5.3 Wash the underframe,8
+Motor,Completion,Paint,5.4 Auto coat under frame,8
 Motor,Completion,Coach Build,6.1 First water test - Check the coach is fully sealed. ,8
 Motor,Completion,Coach Build,6.2 Spray pressurized water where sealant is applied (on the panel joints),8
 Motor,Completion,Coach Build,6.3 Check if there is any leaks on windows,8
 Motor,Completion,Coach Build,6.4 Check if there is any leaks on monsoons,8
-Motor,Completion,Paint Works,"7.1 1st Prime preparation - Sanding, Bodyfiller, Sanding ,  & Apply 1st primer coat",8
-Motor,Completion,Paint Works,"7.2 2nd Prime preparation - Sanding, Sealing (Sika Flex) & Apply final coat (different colors)",8
+Motor,Completion,Paint,"7.1 1st Prime preparation - Sanding, Bodyfiller, Sanding ,  & Apply 1st primer coat",8
+Motor,Completion,Paint,"7.2 2nd Prime preparation - Sanding, Sealing (Sika Flex) & Apply final coat (different colors)",8
 Motor,Completion,Electrical,8.1 Inspect all electrical wiring,8
 Motor,Completion,Electrical,"8.2 Route train line through the conduits and ensure continuity - Body Ends, Doors, Control box, Lights, PA switch, Emergency push button, QSA",8
 Motor,Completion,Electrical,"8.3 Terminate cables, lug, insert I-dentS, prepare & connect bogie earth straps",8
@@ -159,14 +159,13 @@ Motor,Completion,Electrical,39.1 QSA Connection - Neatly complete all electrical
 Motor,Completion,Electrical,39.2 Protect electrical cables with spiral,8
 Motor,Completion,Electrical,40.1 Electrical Test - Clean coach & final inspection,8
 Motor,Completion,Testing & Commissioning,41 .1 Conduct Visual Inspection,8
-Motor,Completion,Testing & Commissioning,41.2 Conduct Static Testing (Functional) on 110V,8
-Motor,Completion,Testing & Commissioning,41.3 Conduct Dynamic Testing on 3kV,8
+Motor,Completion,Testing & Commissioning,41.2 Conduct Static Testing (Functional) on 110V or as applicable e.g. Shoreline for SMely Coach_Types,8
+Motor,Completion,Testing & Commissioning,41.3 Conduct Dynamic Testing on 3kV if applicable,8
 Motor,Completion,Testing & Commissioning,41.4 Confirm no oustanding snags,8
 Motor,Completion,Testing & Commissioning,41.5 Management walk about,8
 Motor,Completion,Testing & Commissioning,41.6 Invite PRASA QC for Coach Inspection,8
 Motor,Completion,Testing & Commissioning,41.7 Attend to PRASA snags,8
 Motor,Completion,Testing & Commissioning,41.8 Invite PRASA QC for Verification,8
-Motor,Completion,PRASA,42.1 Issue Completion Certificate,8
 Motor,Stripping,BUP,Bogie,8
 Motor,Stripping,BUP,Underframe,8
 Motor,Stripping,Coach Build,Exterior,8
@@ -201,11 +200,670 @@ Sleeper,Stripping,Coach Build,Roof,8
 Sleeper,Stripping,Electrical,Wiring,8
 Sleeper,Stripping,BUP,Bogie Frame,8
 Sleeper,Stripping,QC,Documentation,8
-Trailer,Service worthy,PRASA,Issue Service Worthy Certificate,8
 Trailer,Stripping,Electrical,Components,8
-Sitter,Completion,QC,Has the coach under frame been blasted thoroughly?,8
-Sitter,Completion,QC,Has the pantograph area been blasted?,8
-Sitter,Completion,QC,"Have all corners, gussets and cavities been blasted?",8
-Sitter,Completion,QC,Are all surfaces clean and smooth?,8
-Sitter,Completion,QC,"Are there any noticeable cracks, corrosion and deformities?",8
-Sitter,Completion,QC,Is the excess grit below the acceptable percentage?,8
+Sitter,Completion,Paint,Has the coach under frame been blasted thoroughly?,8
+Sitter,Completion,Paint,Has the pantograph area been blasted?,8
+Sitter,Completion,Paint,"Have all corners, gussets and cavities been blasted?",8
+Sitter,Completion,Paint,Are all surfaces clean and smooth?,8
+Sitter,Completion,Paint,"Are there any noticeable cracks, corrosion and deformities?",8
+Sitter,Completion,Paint,Is the excess grit below the acceptable percentage?,8
+Sitter,Completion,Paint,Shot Blasted Components,8
+Sitter,Completion,Paint,Bogie Frame,8
+Sitter,Completion,Paint,Bolster,8
+Sitter,Completion,Paint,Spring Plank,8
+Sitter,Completion,Paint,Equalising Beam,8
+Sitter,Completion,Paint,Small Components,8
+Sitter,Completion,Paint,Sole Bar,8
+Sitter,Completion,Paint,PRIMER PREPARATION,8
+Sitter,Completion,Paint,Body Side,8
+Sitter,Completion,Paint,Entire coach washed,8
+Sitter,Completion,Paint,Apparent dents filled,8
+Sitter,Completion,Paint,Sand of entire coach complete,8
+Sitter,Completion,Paint,Ensure there is no grinding marks and peeling paint in all doors,8
+Sitter,Completion,Paint,Roof,8
+Sitter,Completion,Paint,Ensure that welding and body filling in the roof is smooth,8
+Sitter,Completion,Paint,Ensure monsoons has no sanding dust,8
+Sitter,Completion,Paint,Ensure no peeling paint and tear drops on the roof,8
+Sitter,Completion,Paint,Underframe/Sole Bar,8
+Sitter,Completion,Paint,Ensure sole bar is free of peeling paint,8
+Sitter,Completion,Paint,No paint runs in tanks and chambers,8
+Sitter,Completion,Paint,Ensure no peeling paint and tear drops in electrical boxes,8
+Sitter,Completion,Paint,Check peeling paint and rust inside buffer section,8
+Sitter,Completion,Paint,Ensure that underframe is thoroughly washed.,8
+Sitter,Completion,Paint,FINAL PAINT PREPARATION,8
+Sitter,Completion,Paint,Primer on edges of body sides not peeling,8
+Sitter,Completion,Paint,No pen marks,8
+Sitter,Completion,Paint,No water marks on body side panels,8
+Sitter,Completion,Paint,Accurate measurement and marking of stripes,8
+Sitter,Completion,Paint,FINAL PAINT,8
+Sitter,Completion,Paint,Body Side,8
+Sitter,Completion,Paint,Is the paint coverage adequate on all side of the coach,8
+Sitter,Completion,Paint,Are paint markings correct (stripes and decals),8
+Sitter,Completion,Paint,Is there any paint sags visible,8
+Sitter,Completion,Paint,Is there paint runs visible,8
+Sitter,Completion,Paint,Is there any pin-holes visible in the surface area,8
+Sitter,Completion,Paint,Is there any fish eyes visible on surface area,8
+Sitter,Completion,Paint,Is there any peeling paint on body edges,8
+Sitter,Completion,Paint,Is there any pen marks,8
+Sitter,Completion,Paint,Is the stencilling done correctly on Body Side and Sole Bar,8
+Sitter,Completion,Paint,Roof,8
+Sitter,Completion,Paint,Is there any paint sags visible,8
+Sitter,Completion,Paint,Is there any paint runs visible,8
+Sitter,Completion,Paint,Is there any pin-holes visible in surface area,8
+Sitter,Completion,Paint,Is there any fish eyes visible on surface area,8
+Sitter,Completion,Paint,Is the paint coverage adequate,8
+Sitter,Completion,Paint,Underframe,8
+Sitter,Completion,Paint,Is the Auto coat coverage adequate (min 3mm),8
+Sitter,Completion,Paint,Is the piping and underframe components neatly painted with dust grey,8
+Sitter,Completion,Paint,Is the Auto coat applied to the draw gear box areas,8
+Sitter,Completion,Paint,Is the Auto coat adequately applied above beams across corrugation,8
+Sitter,Completion,Paint,Are the bogie frame and bogie components painted neatly with dust grey,8
+Sitter,Completion,Paint,General,8
+Sitter,Completion,Paint,Is the any paint runs on sole bar,8
+Sitter,Completion,Paint,Is the coupler stencilling correspond with the lifting date,8
+Sitter,Completion,Paint,Is the Coach clean of any dust or residue,8
+Sitter,Completion,Paint,Is the Final paint thickness recorded (min  150µ),8
+Sitter,Completion,Structural ,Roof repairs,8
+Sitter,Completion,Structural ,Is the monsoon cut-out repaired,8
+Sitter,Completion,Structural ,Are all monsoons mount holes closed with welding,8
+Sitter,Completion,Structural ,Are any new plates welded on roof,8
+Sitter,Completion,Structural ,Doors,8
+Sitter,Completion,Structural ,Is the rust treated around all sliding (side) door apertures,8
+Sitter,Completion,Structural ,Is the door opening  not skew,8
+Sitter,Completion,Structural ,Is there any sharp edges on emergency stop button cut-out?,8
+Sitter,Completion,Structural ,Windows,8
+Sitter,Completion,Structural ,Is the any rust around exterior window cut-outs,8
+Sitter,Completion,Structural ,Are all former window mounting holes closed with welding,8
+Sitter,Completion,Structural ,Are all old screws removed,8
+Sitter,Completion,Structural ,Body Sides and Body Ends,8
+Sitter,Completion,Structural ,Is the rust treated on the sole bar,8
+Sitter,Completion,Structural ,Are all rusted/damage gutters welded/straightened,8
+Sitter,Completion,Structural ,Are all buffer guide bolts removed,8
+Sitter,Completion,Structural ,Are all buffer guide mounting holes rimmed,8
+Sitter,Completion,Structural ,Is the coupler area treated of rust,8
+Sitter,Completion,Structural ,Floor,8
+Sitter,Completion,Structural ,Are all old screws removed on the channels?,8
+Sitter,Completion,Structural ,Are all floor supports properly welded,8
+Sitter,Completion,Structural ,Are all channels straight,8
+Sitter,Completion,Structural ,Underframe,8
+Sitter,Completion,Structural ,Is rusted bolster areas & body end pockets chipped,8
+Sitter,Completion,Structural ,Are all damaged section on the underframe welded and grinded,8
+Sitter,Completion,Structural ,General,8
+Sitter,Completion,Structural ,Bogie frame,8
+Sitter,Completion,Structural ,Bolster,8
+Sitter,Completion,Structural ,Spring plank,8
+Sitter,Completion,Structural ,Equalizing beam,8
+Sitter,Completion,Structural ,Small components,8
+Sitter,Completion,Electrical ,All connection are secured on  three phase jumper cables,8
+Sitter,Completion,Electrical ,All connection are secured on three phase receptacle.,8
+Sitter,Completion,Electrical ,"All phase are separated each other L1,L2,L3 also earth (E)",8
+Sitter,Completion,Electrical ,Electrical terminal are closed on connection box  and  sign be installed,8
+Sitter,Completion,Electrical ,Check continuity of bonding all metallic component or conductive equipment,8
+Sitter,Completion,Electrical ,Operation of earth leakage test but,8
+Sitter,Completion,Electrical ,"All switching devices, make-and-break circuits",8
+Sitter,Completion,Electrical ,Phase rotation is consistent at points all of consumption for three-phase systems,8
+Sitter,Completion,Electrical ,Single phase Distribution board must meet SANS 10142 part1,8
+Sitter,Completion,Electrical ,Light system meet level luminance of normal light 200 Lux minimum and emergence 200 Lux minimum.,8
+Sitter,Completion,Electrical ,All jumper cable  and receptacle  secured also earthed,8
+Sitter,Completion,Electrical ,All socket plug are meet SANS 10142 Rule,8
+Sitter,Completion,Electrical ,All switch light point are meet SANS 10142 Rule,8
+Sitter,Completion,Electrical ,All single phase  and three phase   cabling must secure with trunkin  or conduits,8
+Sitter,Completion,Electrical ,Polarity of points of consumption,8
+Sitter,Completion,Electrical ,Conductors are of the correct rating and current-carrying capacity for the protective device and connected to load,8
+Sitter,Completion,Electrical ,"Circuits, fuses , switches, terminals, earth leakage unit, circuit breaker, distribution board are correctly and permanent marked or labels ",8
+Sitter,Completion,Electrical ,Certificate of Compliance,8
+Sitter,Completion,Coach Build ,Exterior installations,8
+Sitter,Completion,Coach Build ,Exit side doors,8
+Sitter,Completion,Coach Build ,Sliding inter leading doors (4),8
+Sitter,Completion,Coach Build ,Exterior door handles fitted with gasket,8
+Sitter,Completion,Coach Build ,Exit doors locking,8
+Sitter,Completion,Coach Build ,Entrance grab handles fitted with gasket,8
+Sitter,Completion,Coach Build ,Lamp iron brackets fitted with gasket (2),8
+Sitter,Completion,Coach Build ,Side steps fitted correctly (4),8
+Sitter,Completion,Coach Build ,Windows fitted and sealed correctly,8
+Sitter,Completion,Coach Build ,Toilet windows fitted and sealed,8
+Sitter,Completion,Coach Build ,Paper clip fitted on both sides,8
+Sitter,Completion,Coach Build ,Interior Saloon & Ends,8
+Sitter,Completion,Coach Build ,Exit Door controllers (4),8
+Sitter,Completion,Coach Build ,Paper clips fitted (2),8
+Sitter,Completion,Coach Build ,Seats stitched properly,8
+Sitter,Completion,Coach Build ,Seats frames mounted & secure,8
+Sitter,Completion,Coach Build ,Water drinking station and tap,8
+Sitter,Completion,Coach Build ,Fire Extinguisher door functional,8
+Sitter,Completion,Coach Build ,Inter-leading doors rubber stoppers,8
+Sitter,Completion,Coach Build ,Shrouds with  ]rollers Fitted & secure,8
+Sitter,Completion,Coach Build ,Rollers in good working order and locking,8
+Sitter,Completion,Coach Build ,Fire Extinguishers present (1Co2 & 1Dcp).,8
+Sitter,Completion,Coach Build ,Door controllers,8
+Sitter,Completion,Coach Build ,Toilet air vents installed  without sharp edges,8
+Sitter,Completion,Coach Build ,Toilet door installed correctly & locking,8
+Sitter,Completion,Coach Build ,Toilet shroud fitted and clean,8
+Sitter,Completion,Coach Build ,Ends A & B,
+Sitter,Completion,Coach Build ,Bogie pin plates fitted and sealed,8
+Sitter,Completion,Coach Build ,Exit door thread plates fitted,8
+Sitter,Completion,Coach Build ,Exit door locks functional and locking from inside,8
+Sitter,Completion,Coach Build ,Trap door locks functional,8
+Sitter,Completion,Coach Build ,Molding fitted all round the floor and sealed,8
+Trailer,Stripping,BUP,Bogie,8
+Trailer,Stripping,BUP,Underframe,8
+Trailer,Stripping,Coach Build,Exterior,8
+Trailer,Stripping,Electrical,Components,8
+Trailer,Stripping,BUP,Coach Sole bar,8
+Trailer,Stripping,BUP,Loose Components,8
+Trailer,Stripping,Coach Build,Interior,8
+Trailer,Stripping,Coach Build,Roof,8
+Trailer,Stripping,Electrical,Wiring,8
+Trailer,Stripping,BUP,Bogie Frame,8
+Trailer,Stripping,QC,Documentation,8
+Sitter,Completion,BUP,9.1 Mechanical Draw gear/coupler installation - Fit draw gears on both ends,8
+Sitter,Completion,BUP,9.2 Fit draw-gear top guides,8
+Sitter,Completion,BUP,9.3 Fit carrier plate/draw-gear cover plate,8
+Sitter,Completion,BUP,9.4 Fit side plunger springs,8
+Sitter,Completion,BUP,9.5 Fit wear plate in a side plunger,8
+Sitter,Completion,BUP,9.6 Assemble &  fit side plunger springs & spring guide,8
+Sitter,Completion,BUP,9.7 Fit coupler web plate and fit coupler guides,8
+Sitter,Completion,BUP,9.8 Fit coupler casting & secure them with right sized bolts and split pins,8
+Sitter,Completion,BUP,9.9 Fit coupler & secure coupler with split pins,8
+Sitter,Completion,BUP,9.10 Fit casting and secure,8
+Sitter,Completion,BUP,9.11 Fit buffer rod & split pins,8
+Sitter,Completion,BUP,9.12 Fit buffer beams plate,8
+Sitter,Completion,BUP,10.1 Vacuum Pipe Assembly - Cut and thread pipe in to workable size,8
+Sitter,Completion,BUP,10.2 Fit and properly join the pipe assembly,8
+Sitter,Completion,BUP,10.3 Clean mounting block (on QSA),8
+Sitter,Completion,BUP,10.4 Fit vacuum hose with soft pliable gasket,8
+Sitter,Completion,BUP,11.1 Gummies - Measure and mark holes,8
+Sitter,Completion,BUP,11.2 Drill and tap holes,8
+Sitter,Completion,BUP,11.3 Load gummies and semi-tighten (check straightness),8
+Sitter,Completion,BUP,11.4 Check the alignment of gummies,8
+Sitter,Completion,BUP,11.5 Tighten the bolts on gummies,8
+Sitter,Completion,BUP,18.1 Vacuum Brake Installation - Fit the V-hangers (4) and brake shaft (2),8
+Sitter,Completion,BUP,18.2 Pre-fit the V-hanger using bolts and split pins,8
+Sitter,Completion,BUP,18.3 Fit the brake shaft (using the crane/forklift),8
+Sitter,Completion,BUP,18.4 Fit the brake shaft (using the crane/forklift),8
+Sitter,Completion,BUP,18.5 Lock V-hanger using bolts and split pins,8
+Sitter,Completion,BUP,18.6 Fit the safety loops and secure by bolts and nuts,8
+Sitter,Completion,BUP,18.7 Fit vacuum cylinder using mounting bracket and secure with bolt and nut,8
+Sitter,Completion,BUP,18.8 Fit ball valve on the cylinder and release wire,8
+Sitter,Completion,BUP,18.9 Connect vacuum cylinder rods with brake shaft lever using pin and split pins,8
+Sitter,Completion,BUP,18.10 Fit slack adjuster on the brake shaft,8
+Sitter,Completion,BUP,18.11 Join slack adjusters with pull rods using bolt and pin lock with split pins,8
+Sitter,Completion,BUP,18.12 Fit release spring,8
+Sitter,Completion,BUP,"18.13 Fit the reservoirs, secure them with strip bracket",8
+Sitter,Completion,BUP,18.14 Fit small reservoirs using strip bracket,8
+Sitter,Completion,BUP,18.15 Fit the flexible rubber pipe,8
+Sitter,Completion,BUP,18.16 Install handbrake,8
+Sitter,Completion,BUP,19.1 Bogies - Crack checks done on the bogie frames,8
+Sitter,Completion,BUP,19.2 Diagonal checks done on the bogie frames,8
+Sitter,Completion,BUP,19.3 Fit bolster,8
+Sitter,Completion,BUP,19.4 Fit equalizing beam,8
+Sitter,Completion,BUP,19.5 Fit bolster and equalizing spring,8
+Sitter,Completion,BUP,19.6 Fit wheels (with gear cases for Motor coaches),8
+Sitter,Completion,BUP,19.7 Fit brake rigging,8
+Sitter,Completion,BUP,20.1 QSA - Clean mounting block (on QSA),8
+Sitter,Completion,BUP,20.2 Fit sealing rubber gasket and mount QSA valve and secure with bolt and nut,8
+Sleeper,Completion,BUP,19.3 Fit bolster,8
+Sleeper,Completion,BUP,9.1 Mechanical Draw gear/coupler installation - Fit draw gears on both ends,8
+Sleeper,Completion,BUP,9.2 Fit draw-gear top guides,8
+Sleeper,Completion,BUP,9.3 Fit carrier plate/draw-gear cover plate,8
+Sleeper,Completion,BUP,9.4 Fit side plunger springs,8
+Sleeper,Completion,BUP,9.5 Fit wear plate in a side plunger,8
+Sleeper,Completion,BUP,9.6 Assemble &  fit side plunger springs & spring guide,8
+Sleeper,Completion,BUP,9.7 Fit coupler web plate and fit coupler guides,8
+Sleeper,Completion,BUP,9.8 Fit coupler casting & secure them with right sized bolts and split pins,8
+Sleeper,Completion,BUP,9.9 Fit coupler & secure coupler with split pins,8
+Sleeper,Completion,BUP,9.10 Fit casting and secure,8
+Sleeper,Completion,BUP,9.11 Fit buffer rod & split pins,8
+Sleeper,Completion,BUP,9.12 Fit buffer beams plate,8
+Sleeper,Completion,BUP,10.1 Vacuum Pipe Assembly - Cut and thread pipe in to workable size,8
+Sleeper,Completion,BUP,10.2 Fit and properly join the pipe assembly,8
+Sleeper,Completion,BUP,10.3 Clean mounting block (on QSA),8
+Sleeper,Completion,BUP,10.4 Fit vacuum hose with soft pliable gasket,8
+Sleeper,Completion,BUP,11.1 Gummies - Measure and mark holes,8
+Sleeper,Completion,BUP,11.2 Drill and tap holes,8
+Sleeper,Completion,BUP,11.3 Load gummies and semi-tighten (check straightness),8
+Sleeper,Completion,BUP,11.4 Check the alignment of gummies,8
+Sleeper,Completion,BUP,11.5 Tighten the bolts on gummies,8
+Sleeper,Completion,BUP,18.1 Vacuum Brake Installation - Fit the V-hangers (4) and brake shaft (2),8
+Sleeper,Completion,BUP,18.2 Pre-fit the V-hanger using bolts and split pins,8
+Sleeper,Completion,BUP,18.3 Fit the brake shaft (using the crane/forklift),8
+Sleeper,Completion,BUP,18.4 Fit the brake shaft (using the crane/forklift),8
+Sleeper,Completion,BUP,18.5 Lock V-hanger using bolts and split pins,8
+Sleeper,Completion,BUP,18.6 Fit the safety loops and secure by bolts and nuts,8
+Sleeper,Completion,BUP,18.7 Fit vacuum cylinder using mounting bracket and secure with bolt and nut,8
+Sleeper,Completion,BUP,18.8 Fit ball valve on the cylinder and release wire,8
+Sleeper,Completion,BUP,18.9 Connect vacuum cylinder rods with brake shaft lever using pin and split pins,8
+Sleeper,Completion,BUP,18.10 Fit slack adjuster on the brake shaft,8
+Sleeper,Completion,BUP,18.11 Join slack adjusters with pull rods using bolt and pin lock with split pins,8
+Sleeper,Completion,BUP,18.12 Fit release spring,8
+Sleeper,Completion,BUP,"18.13 Fit the reservoirs, secure them with strip bracket",8
+Sleeper,Completion,BUP,18.14 Fit small reservoirs using strip bracket,8
+Sleeper,Completion,BUP,18.15 Fit the flexible rubber pipe,8
+Sleeper,Completion,BUP,18.16 Install handbrake,8
+Sleeper,Completion,BUP,19.1 Bogies - Crack checks done on the bogie frames,8
+Sleeper,Completion,BUP,19.2 Diagonal checks done on the bogie frames,8
+Sleeper,Completion,BUP,19.3 Fit bolster,8
+Sleeper,Completion,BUP,19.4 Fit equalizing beam,8
+Sleeper,Completion,BUP,19.5 Fit bolster and equalizing spring,8
+Sleeper,Completion,BUP,19.6 Fit wheels (with gear cases for Motor coaches),8
+Sleeper,Completion,BUP,19.7 Fit brake rigging,8
+Sleeper,Completion,BUP,20.1 QSA - Clean mounting block (on QSA),8
+Sleeper,Completion,BUP,20.2 Fit sealing rubber gasket and mount QSA valve and secure with bolt and nut,8
+Kitchen,Completion,BUP,19.3 Fit bolster,8
+Kitchen,Completion,BUP,9.1 Mechanical Draw gear/coupler installation - Fit draw gears on both ends,8
+Kitchen,Completion,BUP,9.2 Fit draw-gear top guides,8
+Kitchen,Completion,BUP,9.3 Fit carrier plate/draw-gear cover plate,8
+Kitchen,Completion,BUP,9.4 Fit side plunger springs,8
+Kitchen,Completion,BUP,9.5 Fit wear plate in a side plunger,8
+Kitchen,Completion,BUP,9.6 Assemble &  fit side plunger springs & spring guide,8
+Kitchen,Completion,BUP,9.7 Fit coupler web plate and fit coupler guides,8
+Kitchen,Completion,BUP,9.8 Fit coupler casting & secure them with right sized bolts and split pins,8
+Kitchen,Completion,BUP,9.9 Fit coupler & secure coupler with split pins,8
+Kitchen,Completion,BUP,9.10 Fit casting and secure,8
+Kitchen,Completion,BUP,9.11 Fit buffer rod & split pins,8
+Kitchen,Completion,BUP,9.12 Fit buffer beams plate,8
+Kitchen,Completion,BUP,10.1 Vacuum Pipe Assembly - Cut and thread pipe in to workable size,8
+Kitchen,Completion,BUP,10.2 Fit and properly join the pipe assembly,8
+Kitchen,Completion,BUP,10.3 Clean mounting block (on QSA),8
+Kitchen,Completion,BUP,10.4 Fit vacuum hose with soft pliable gasket,8
+Kitchen,Completion,BUP,11.1 Gummies - Measure and mark holes,8
+Kitchen,Completion,BUP,11.2 Drill and tap holes,8
+Kitchen,Completion,BUP,11.3 Load gummies and semi-tighten (check straightness),8
+Kitchen,Completion,BUP,11.4 Check the alignment of gummies,8
+Kitchen,Completion,BUP,11.5 Tighten the bolts on gummies,8
+Kitchen,Completion,BUP,18.1 Vacuum Brake Installation - Fit the V-hangers (4) and brake shaft (2),8
+Kitchen,Completion,BUP,18.2 Pre-fit the V-hanger using bolts and split pins,8
+Kitchen,Completion,BUP,18.3 Fit the brake shaft (using the crane/forklift),8
+Kitchen,Completion,BUP,18.4 Fit the brake shaft (using the crane/forklift),8
+Kitchen,Completion,BUP,18.5 Lock V-hanger using bolts and split pins,8
+Kitchen,Completion,BUP,18.6 Fit the safety loops and secure by bolts and nuts,8
+Kitchen,Completion,BUP,18.7 Fit vacuum cylinder using mounting bracket and secure with bolt and nut,8
+Kitchen,Completion,BUP,18.8 Fit ball valve on the cylinder and release wire,8
+Kitchen,Completion,BUP,18.9 Connect vacuum cylinder rods with brake shaft lever using pin and split pins,8
+Kitchen,Completion,BUP,18.10 Fit slack adjuster on the brake shaft,8
+Kitchen,Completion,BUP,18.11 Join slack adjusters with pull rods using bolt and pin lock with split pins,8
+Kitchen,Completion,BUP,18.12 Fit release spring,8
+Kitchen,Completion,BUP,"18.13 Fit the reservoirs, secure them with strip bracket",8
+Kitchen,Completion,BUP,18.14 Fit small reservoirs using strip bracket,8
+Kitchen,Completion,BUP,18.15 Fit the flexible rubber pipe,8
+Kitchen,Completion,BUP,18.16 Install handbrake,8
+Kitchen,Completion,BUP,19.1 Bogies - Crack checks done on the bogie frames,8
+Kitchen,Completion,BUP,19.2 Diagonal checks done on the bogie frames,8
+Kitchen,Completion,BUP,19.3 Fit bolster,8
+Kitchen,Completion,BUP,19.4 Fit equalizing beam,8
+Kitchen,Completion,BUP,19.5 Fit bolster and equalizing spring,8
+Kitchen,Completion,BUP,19.6 Fit wheels (with gear cases for Motor coaches),8
+Kitchen,Completion,BUP,19.7 Fit brake rigging,8
+Kitchen,Completion,BUP,20.1 QSA - Clean mounting block (on QSA),8
+Kitchen,Completion,BUP,20.2 Fit sealing rubber gasket and mount QSA valve and secure with bolt and nut,8
+Sleeper,Completion,Coach Build ,Exterior installations,8
+Sleeper,Completion,Coach Build ,Exit side doors,8
+Sleeper,Completion,Coach Build ,Sliding inter leading doors (4),8
+Sleeper,Completion,Coach Build ,Exterior door handles fitted with gasket,8
+Sleeper,Completion,Coach Build ,Exit doors locking,8
+Sleeper,Completion,Coach Build ,Entrance grab handles fitted with gasket,8
+Sleeper,Completion,Coach Build ,Lamp iron brackets fitted with gasket (2),8
+Sleeper,Completion,Coach Build ,Side steps fitted correctly (4),8
+Sleeper,Completion,Coach Build ,Windows fitted and sealed correctly,8
+Sleeper,Completion,Coach Build ,Toilet windows fitted and sealed,8
+Sleeper,Completion,Coach Build ,Paper clip fitted on both sides,8
+Sleeper,Completion,Coach Build ,Interior Saloon & Ends,8
+Sleeper,Completion,Coach Build ,Exit Door controllers (4),8
+Sleeper,Completion,Coach Build ,Paper clips fitted (2),8
+Sleeper,Completion,Coach Build ,Seats stitched properly,8
+Sleeper,Completion,Coach Build ,Seats frames mounted & secure,8
+Sleeper,Completion,Coach Build ,Water drinking station and tap,8
+Sleeper,Completion,Coach Build ,Fire Extinguisher door functional,8
+Sleeper,Completion,Coach Build ,Inter-leading doors rubber stoppers,8
+Sleeper,Completion,Coach Build ,Shrouds with  ]rollers Fitted & secure,8
+Sleeper,Completion,Coach Build ,Rollers in good working order and locking,8
+Sleeper,Completion,Coach Build ,Fire Extinguishers present (1Co2 & 1Dcp).,8
+Sleeper,Completion,Coach Build ,Door controllers,8
+Sleeper,Completion,Coach Build ,Toilet air vents installed  without sharp edges,8
+Sleeper,Completion,Coach Build ,Toilet door installed correctly & locking,8
+Sleeper,Completion,Coach Build ,Toilet shroud fitted and clean,8
+Sleeper,Completion,Coach Build ,Ends A & B,
+Sleeper,Completion,Coach Build ,Bogie pin plates fitted and sealed,8
+Sleeper,Completion,Coach Build ,Exit door thread plates fitted,8
+Sleeper,Completion,Coach Build ,Exit door locks functional and locking from inside,8
+Sleeper,Completion,Coach Build ,Trap door locks functional,8
+Sleeper,Completion,Coach Build ,Molding fitted all round the floor and sealed,8
+Kitchen,Completion,Coach Build ,Exterior installations,8
+Kitchen,Completion,Coach Build ,Exit side doors,8
+Kitchen,Completion,Coach Build ,Sliding inter leading doors (4),8
+Kitchen,Completion,Coach Build ,Exterior door handles fitted with gasket,8
+Kitchen,Completion,Coach Build ,Exit doors locking,8
+Kitchen,Completion,Coach Build ,Entrance grab handles fitted with gasket,8
+Kitchen,Completion,Coach Build ,Lamp iron brackets fitted with gasket (2),8
+Kitchen,Completion,Coach Build ,Side steps fitted correctly (4),8
+Kitchen,Completion,Coach Build ,Windows fitted and sealed correctly,8
+Kitchen,Completion,Coach Build ,Toilet windows fitted and sealed,8
+Kitchen,Completion,Coach Build ,Paper clip fitted on both sides,8
+Kitchen,Completion,Coach Build ,Interior Saloon & Ends,8
+Kitchen,Completion,Coach Build ,Exit Door controllers (4),8
+Kitchen,Completion,Coach Build ,Paper clips fitted (2),8
+Kitchen,Completion,Coach Build ,Seats stitched properly,8
+Kitchen,Completion,Coach Build ,Seats frames mounted & secure,8
+Kitchen,Completion,Coach Build ,Water drinking station and tap,8
+Kitchen,Completion,Coach Build ,Fire Extinguisher door functional,8
+Kitchen,Completion,Coach Build ,Inter-leading doors rubber stoppers,8
+Kitchen,Completion,Coach Build ,Shrouds with  ]rollers Fitted & secure,8
+Kitchen,Completion,Coach Build ,Rollers in good working order and locking,8
+Kitchen,Completion,Coach Build ,Fire Extinguishers present (1Co2 & 1Dcp).,8
+Kitchen,Completion,Coach Build ,Door controllers,8
+Kitchen,Completion,Coach Build ,Toilet air vents installed  without sharp edges,8
+Kitchen,Completion,Coach Build ,Toilet door installed correctly & locking,8
+Kitchen,Completion,Coach Build ,Toilet shroud fitted and clean,8
+Kitchen,Completion,Coach Build ,Ends A & B,
+Kitchen,Completion,Coach Build ,Bogie pin plates fitted and sealed,8
+Kitchen,Completion,Coach Build ,Exit door thread plates fitted,8
+Kitchen,Completion,Coach Build ,Exit door locks functional and locking from inside,8
+Kitchen,Completion,Coach Build ,Trap door locks functional,8
+Kitchen,Completion,Coach Build ,Molding fitted all round the floor and sealed,8
+Sleeper,Completion,Electrical ,All connection are secured on  three phase jumper cables,8
+Sleeper,Completion,Electrical ,All connection are secured on three phase receptacle.,8
+Sleeper,Completion,Electrical ,"All phase are separated each other L1,L2,L3 also earth (E)",8
+Sleeper,Completion,Electrical ,Electrical terminal are closed on connection box  and  sign be installed,8
+Sleeper,Completion,Electrical ,Check continuity of bonding all metallic component or conductive equipment,8
+Sleeper,Completion,Electrical ,Operation of earth leakage test but,8
+Sleeper,Completion,Electrical ,"All switching devices, make-and-break circuits",8
+Sleeper,Completion,Electrical ,Phase rotation is consistent at points all of consumption for three-phase systems,8
+Sleeper,Completion,Electrical ,Single phase Distribution board must meet SANS 10142 part1,8
+Sleeper,Completion,Electrical ,Light system meet level luminance of normal light 200 Lux minimum and emergence 200 Lux minimum.,8
+Sleeper,Completion,Electrical ,All jumper cable  and receptacle  secured also earthed,8
+Sleeper,Completion,Electrical ,All socket plug are meet SANS 10142 Rule,8
+Sleeper,Completion,Electrical ,All switch light point are meet SANS 10142 Rule,8
+Sleeper,Completion,Electrical ,All single phase  and three phase   cabling must secure with trunkin  or conduits,8
+Sleeper,Completion,Electrical ,Polarity of points of consumption,8
+Sleeper,Completion,Electrical ,Conductors are of the correct rating and current-carrying capacity for the protective device and connected to load,8
+Sleeper,Completion,Electrical ,"Circuits, fuses , switches, terminals, earth leakage unit, circuit breaker, distribution board are correctly and permanent marked or labels ",8
+Sleeper,Completion,Electrical ,Certificate of Compliance,8
+Kitchen,Completion,Electrical ,All connection are secured on  three phase jumper cables,8
+Kitchen,Completion,Electrical ,All connection are secured on three phase receptacle.,8
+Kitchen,Completion,Electrical ,"All phase are separated each other L1,L2,L3 also earth (E)",8
+Kitchen,Completion,Electrical ,Electrical terminal are closed on connection box  and  sign be installed,8
+Kitchen,Completion,Electrical ,Check continuity of bonding all metallic component or conductive equipment,8
+Kitchen,Completion,Electrical ,Operation of earth leakage test but,8
+Kitchen,Completion,Electrical ,"All switching devices, make-and-break circuits",8
+Kitchen,Completion,Electrical ,Phase rotation is consistent at points all of consumption for three-phase systems,8
+Kitchen,Completion,Electrical ,Single phase Distribution board must meet SANS 10142 part1,8
+Kitchen,Completion,Electrical ,Light system meet level luminance of normal light 200 Lux minimum and emergence 200 Lux minimum.,8
+Kitchen,Completion,Electrical ,All jumper cable  and receptacle  secured also earthed,8
+Kitchen,Completion,Electrical ,All socket plug are meet SANS 10142 Rule,8
+Kitchen,Completion,Electrical ,All switch light point are meet SANS 10142 Rule,8
+Kitchen,Completion,Electrical ,All single phase  and three phase   cabling must secure with trunkin  or conduits,8
+Kitchen,Completion,Electrical ,Polarity of points of consumption,8
+Kitchen,Completion,Electrical ,Conductors are of the correct rating and current-carrying capacity for the protective device and connected to load,8
+Kitchen,Completion,Electrical ,"Circuits, fuses , switches, terminals, earth leakage unit, circuit breaker, distribution board are correctly and permanent marked or labels ",8
+Kitchen,Completion,Electrical ,Certificate of Compliance,8
+Motor,Completion,Paint,Has the coach under frame been blasted thoroughly?,8
+Motor,Completion,Paint,Has the pantograph area been blasted?,8
+Motor,Completion,Paint,"Have all corners, gussets and cavities been blasted?",8
+Motor,Completion,Paint,Are all surfaces clean and smooth?,8
+Motor,Completion,Paint,"Are there any noticeable cracks, corrosion and deformities?",8
+Motor,Completion,Paint,Is the excess grit below the acceptable percentage?,8
+Motor,Completion,Paint,Shot Blasted Components,8
+Motor,Completion,Paint,Bogie Frame,8
+Motor,Completion,Paint,Bolster,8
+Motor,Completion,Paint,Spring Plank,8
+Motor,Completion,Paint,Equalising Beam,8
+Motor,Completion,Paint,Small Components,8
+Motor,Completion,Paint,Sole Bar,8
+Motor,Completion,Paint,PRIMER PREPARATION,8
+Motor,Completion,Paint,Body Side,8
+Motor,Completion,Paint,Entire coach washed,8
+Motor,Completion,Paint,Apparent dents filled,8
+Motor,Completion,Paint,Sand of entire coach complete,8
+Motor,Completion,Paint,Ensure there is no grinding marks and peeling paint in all doors,8
+Motor,Completion,Paint,Roof,8
+Motor,Completion,Paint,Ensure that welding and body filling in the roof is smooth,8
+Motor,Completion,Paint,Ensure monsoons has no sanding dust,8
+Motor,Completion,Paint,Ensure no peeling paint and tear drops on the roof,8
+Motor,Completion,Paint,Underframe/Sole Bar,8
+Motor,Completion,Paint,Ensure sole bar is free of peeling paint,8
+Motor,Completion,Paint,No paint runs in tanks and chambers,8
+Motor,Completion,Paint,Ensure no peeling paint and tear drops in electrical boxes,8
+Motor,Completion,Paint,Check peeling paint and rust inside buffer section,8
+Motor,Completion,Paint,Ensure that underframe is thoroughly washed.,8
+Motor,Completion,Paint,FINAL PAINT PREPARATION,8
+Motor,Completion,Paint,Primer on edges of body sides not peeling,8
+Motor,Completion,Paint,No pen marks,8
+Motor,Completion,Paint,No water marks on body side panels,8
+Motor,Completion,Paint,Accurate measurement and marking of stripes,8
+Motor,Completion,Paint,FINAL PAINT,8
+Motor,Completion,Paint,Body Side,8
+Motor,Completion,Paint,Is the paint coverage adequate on all side of the coach,8
+Motor,Completion,Paint,Are paint markings correct (stripes and decals),8
+Motor,Completion,Paint,Is there any paint sags visible,8
+Motor,Completion,Paint,Is there paint runs visible,8
+Motor,Completion,Paint,Is there any pin-holes visible in the surface area,8
+Motor,Completion,Paint,Is there any fish eyes visible on surface area,8
+Motor,Completion,Paint,Is there any peeling paint on body edges,8
+Motor,Completion,Paint,Is there any pen marks,8
+Motor,Completion,Paint,Is the stencilling done correctly on Body Side and Sole Bar,8
+Motor,Completion,Paint,Roof,8
+Motor,Completion,Paint,Is there any paint sags visible,8
+Motor,Completion,Paint,Is there any paint runs visible,8
+Motor,Completion,Paint,Is there any pin-holes visible in surface area,8
+Motor,Completion,Paint,Is there any fish eyes visible on surface area,8
+Motor,Completion,Paint,Is the paint coverage adequate,8
+Motor,Completion,Paint,Underframe,8
+Motor,Completion,Paint,Is the Auto coat coverage adequate (min 3mm),8
+Motor,Completion,Paint,Is the piping and underframe components neatly painted with dust grey,8
+Motor,Completion,Paint,Is the Auto coat applied to the draw gear box areas,8
+Motor,Completion,Paint,Is the Auto coat adequately applied above beams across corrugation,8
+Motor,Completion,Paint,Are the bogie frame and bogie components painted neatly with dust grey,8
+Motor,Completion,Paint,General,8
+Motor,Completion,Paint,Is the any paint runs on sole bar,8
+Motor,Completion,Paint,Is the coupler stencilling correspond with the lifting date,8
+Motor,Completion,Paint,Is the Coach clean of any dust or residue,8
+Motor,Completion,Paint,Is the Final paint thickness recorded (min  150µ),8
+Sleeper,Completion,Paint,Has the coach under frame been blasted thoroughly?,8
+Sleeper,Completion,Paint,Has the pantograph area been blasted?,8
+Sleeper,Completion,Paint,"Have all corners, gussets and cavities been blasted?",8
+Sleeper,Completion,Paint,Are all surfaces clean and smooth?,8
+Sleeper,Completion,Paint,"Are there any noticeable cracks, corrosion and deformities?",8
+Sleeper,Completion,Paint,Is the excess grit below the acceptable percentage?,8
+Sleeper,Completion,Paint,Shot Blasted Components,8
+Sleeper,Completion,Paint,Bogie Frame,8
+Sleeper,Completion,Paint,Bolster,8
+Sleeper,Completion,Paint,Spring Plank,8
+Sleeper,Completion,Paint,Equalising Beam,8
+Sleeper,Completion,Paint,Small Components,8
+Sleeper,Completion,Paint,Sole Bar,8
+Sleeper,Completion,Paint,PRIMER PREPARATION,8
+Sleeper,Completion,Paint,Body Side,8
+Sleeper,Completion,Paint,Entire coach washed,8
+Sleeper,Completion,Paint,Apparent dents filled,8
+Sleeper,Completion,Paint,Sand of entire coach complete,8
+Sleeper,Completion,Paint,Ensure there is no grinding marks and peeling paint in all doors,8
+Sleeper,Completion,Paint,Roof,8
+Sleeper,Completion,Paint,Ensure that welding and body filling in the roof is smooth,8
+Sleeper,Completion,Paint,Ensure monsoons has no sanding dust,8
+Sleeper,Completion,Paint,Ensure no peeling paint and tear drops on the roof,8
+Sleeper,Completion,Paint,Underframe/Sole Bar,8
+Sleeper,Completion,Paint,Ensure sole bar is free of peeling paint,8
+Sleeper,Completion,Paint,No paint runs in tanks and chambers,8
+Sleeper,Completion,Paint,Ensure no peeling paint and tear drops in electrical boxes,8
+Sleeper,Completion,Paint,Check peeling paint and rust inside buffer section,8
+Sleeper,Completion,Paint,Ensure that underframe is thoroughly washed.,8
+Sleeper,Completion,Paint,FINAL PAINT PREPARATION,8
+Sleeper,Completion,Paint,Primer on edges of body sides not peeling,8
+Sleeper,Completion,Paint,No pen marks,8
+Sleeper,Completion,Paint,No water marks on body side panels,8
+Sleeper,Completion,Paint,Accurate measurement and marking of stripes,8
+Sleeper,Completion,Paint,FINAL PAINT,8
+Sleeper,Completion,Paint,Body Side,8
+Sleeper,Completion,Paint,Is the paint coverage adequate on all side of the coach,8
+Sleeper,Completion,Paint,Are paint markings correct (stripes and decals),8
+Sleeper,Completion,Paint,Is there any paint sags visible,8
+Sleeper,Completion,Paint,Is there paint runs visible,8
+Sleeper,Completion,Paint,Is there any pin-holes visible in the surface area,8
+Sleeper,Completion,Paint,Is there any fish eyes visible on surface area,8
+Sleeper,Completion,Paint,Is there any peeling paint on body edges,8
+Sleeper,Completion,Paint,Is there any pen marks,8
+Sleeper,Completion,Paint,Is the stencilling done correctly on Body Side and Sole Bar,8
+Sleeper,Completion,Paint,Roof,8
+Sleeper,Completion,Paint,Is there any paint sags visible,8
+Sleeper,Completion,Paint,Is there any paint runs visible,8
+Sleeper,Completion,Paint,Is there any pin-holes visible in surface area,8
+Sleeper,Completion,Paint,Is there any fish eyes visible on surface area,8
+Sleeper,Completion,Paint,Is the paint coverage adequate,8
+Sleeper,Completion,Paint,Underframe,8
+Sleeper,Completion,Paint,Is the Auto coat coverage adequate (min 3mm),8
+Sleeper,Completion,Paint,Is the piping and underframe components neatly painted with dust grey,8
+Sleeper,Completion,Paint,Is the Auto coat applied to the draw gear box areas,8
+Sleeper,Completion,Paint,Is the Auto coat adequately applied above beams across corrugation,8
+Sleeper,Completion,Paint,Are the bogie frame and bogie components painted neatly with dust grey,8
+Sleeper,Completion,Paint,General,8
+Sleeper,Completion,Paint,Is the any paint runs on sole bar,8
+Sleeper,Completion,Paint,Is the coupler stencilling correspond with the lifting date,8
+Sleeper,Completion,Paint,Is the Coach clean of any dust or residue,8
+Sleeper,Completion,Paint,Is the Final paint thickness recorded (min  150µ),8
+Kitchen,Completion,Paint,Has the coach under frame been blasted thoroughly?,8
+Kitchen,Completion,Paint,Has the pantograph area been blasted?,8
+Kitchen,Completion,Paint,"Have all corners, gussets and cavities been blasted?",8
+Kitchen,Completion,Paint,Are all surfaces clean and smooth?,8
+Kitchen,Completion,Paint,"Are there any noticeable cracks, corrosion and deformities?",8
+Kitchen,Completion,Paint,Is the excess grit below the acceptable percentage?,8
+Kitchen,Completion,Paint,Shot Blasted Components,8
+Kitchen,Completion,Paint,Bogie Frame,8
+Kitchen,Completion,Paint,Bolster,8
+Kitchen,Completion,Paint,Spring Plank,8
+Kitchen,Completion,Paint,Equalising Beam,8
+Kitchen,Completion,Paint,Small Components,8
+Kitchen,Completion,Paint,Sole Bar,8
+Kitchen,Completion,Paint,PRIMER PREPARATION,8
+Kitchen,Completion,Paint,Body Side,8
+Kitchen,Completion,Paint,Entire coach washed,8
+Kitchen,Completion,Paint,Apparent dents filled,8
+Kitchen,Completion,Paint,Sand of entire coach complete,8
+Kitchen,Completion,Paint,Ensure there is no grinding marks and peeling paint in all doors,8
+Kitchen,Completion,Paint,Roof,8
+Kitchen,Completion,Paint,Ensure that welding and body filling in the roof is smooth,8
+Kitchen,Completion,Paint,Ensure monsoons has no sanding dust,8
+Kitchen,Completion,Paint,Ensure no peeling paint and tear drops on the roof,8
+Kitchen,Completion,Paint,Underframe/Sole Bar,8
+Kitchen,Completion,Paint,Ensure sole bar is free of peeling paint,8
+Kitchen,Completion,Paint,No paint runs in tanks and chambers,8
+Kitchen,Completion,Paint,Ensure no peeling paint and tear drops in electrical boxes,8
+Kitchen,Completion,Paint,Check peeling paint and rust inside buffer section,8
+Kitchen,Completion,Paint,Ensure that underframe is thoroughly washed.,8
+Kitchen,Completion,Paint,FINAL PAINT PREPARATION,8
+Kitchen,Completion,Paint,Primer on edges of body sides not peeling,8
+Kitchen,Completion,Paint,No pen marks,8
+Kitchen,Completion,Paint,No water marks on body side panels,8
+Kitchen,Completion,Paint,Accurate measurement and marking of stripes,8
+Kitchen,Completion,Paint,FINAL PAINT,8
+Kitchen,Completion,Paint,Body Side,8
+Kitchen,Completion,Paint,Is the paint coverage adequate on all side of the coach,8
+Kitchen,Completion,Paint,Are paint markings correct (stripes and decals),8
+Kitchen,Completion,Paint,Is there any paint sags visible,8
+Kitchen,Completion,Paint,Is there paint runs visible,8
+Kitchen,Completion,Paint,Is there any pin-holes visible in the surface area,8
+Kitchen,Completion,Paint,Is there any fish eyes visible on surface area,8
+Kitchen,Completion,Paint,Is there any peeling paint on body edges,8
+Kitchen,Completion,Paint,Is there any pen marks,8
+Kitchen,Completion,Paint,Is the stencilling done correctly on Body Side and Sole Bar,8
+Kitchen,Completion,Paint,Roof,8
+Kitchen,Completion,Paint,Is there any paint sags visible,8
+Kitchen,Completion,Paint,Is there any paint runs visible,8
+Kitchen,Completion,Paint,Is there any pin-holes visible in surface area,8
+Kitchen,Completion,Paint,Is there any fish eyes visible on surface area,8
+Kitchen,Completion,Paint,Is the paint coverage adequate,8
+Kitchen,Completion,Paint,Underframe,8
+Kitchen,Completion,Paint,Is the Auto coat coverage adequate (min 3mm),8
+Kitchen,Completion,Paint,Is the piping and underframe components neatly painted with dust grey,8
+Kitchen,Completion,Paint,Is the Auto coat applied to the draw gear box areas,8
+Kitchen,Completion,Paint,Is the Auto coat adequately applied above beams across corrugation,8
+Kitchen,Completion,Paint,Are the bogie frame and bogie components painted neatly with dust grey,8
+Kitchen,Completion,Paint,General,8
+Kitchen,Completion,Paint,Is the any paint runs on sole bar,8
+Kitchen,Completion,Paint,Is the coupler stencilling correspond with the lifting date,8
+Kitchen,Completion,Paint,Is the Coach clean of any dust or residue,8
+Kitchen,Completion,Paint,Is the Final paint thickness recorded (min  150µ),8
+Sleeper,Completion,Structural ,Roof repairs,8
+Sleeper,Completion,Structural ,Is the monsoon cut-out repaired,8
+Sleeper,Completion,Structural ,Are all monsoons mount holes closed with welding,8
+Sleeper,Completion,Structural ,Are any new plates welded on roof,8
+Sleeper,Completion,Structural ,Doors,8
+Sleeper,Completion,Structural ,Is the rust treated around all sliding (side) door apertures,8
+Sleeper,Completion,Structural ,Is the door opening  not skew,8
+Sleeper,Completion,Structural ,Is there any sharp edges on emergency stop button cut-out?,8
+Sleeper,Completion,Structural ,Windows,8
+Sleeper,Completion,Structural ,Is the any rust around exterior window cut-outs,8
+Sleeper,Completion,Structural ,Are all former window mounting holes closed with welding,8
+Sleeper,Completion,Structural ,Are all old screws removed,8
+Sleeper,Completion,Structural ,Body Sides and Body Ends,8
+Sleeper,Completion,Structural ,Is the rust treated on the sole bar,8
+Sleeper,Completion,Structural ,Are all rusted/damage gutters welded/straightened,8
+Sleeper,Completion,Structural ,Are all buffer guide bolts removed,8
+Sleeper,Completion,Structural ,Are all buffer guide mounting holes rimmed,8
+Sleeper,Completion,Structural ,Is the coupler area treated of rust,8
+Sleeper,Completion,Structural ,Floor,8
+Sleeper,Completion,Structural ,Are all old screws removed on the channels?,8
+Sleeper,Completion,Structural ,Are all floor supports properly welded,8
+Sleeper,Completion,Structural ,Are all channels straight,8
+Sleeper,Completion,Structural ,Underframe,8
+Sleeper,Completion,Structural ,Is rusted bolster areas & body end pockets chipped,8
+Sleeper,Completion,Structural ,Are all damaged section on the underframe welded and grinded,8
+Sleeper,Completion,Structural ,General,8
+Sleeper,Completion,Structural ,Bogie frame,8
+Sleeper,Completion,Structural ,Bolster,8
+Sleeper,Completion,Structural ,Spring plank,8
+Sleeper,Completion,Structural ,Equalizing beam,8
+Sleeper,Completion,Structural ,Small components,8
+Kitchen,Completion,Structural ,Roof repairs,8
+Kitchen,Completion,Structural ,Is the monsoon cut-out repaired,8
+Kitchen,Completion,Structural ,Are all monsoons mount holes closed with welding,8
+Kitchen,Completion,Structural ,Are any new plates welded on roof,8
+Kitchen,Completion,Structural ,Doors,8
+Kitchen,Completion,Structural ,Is the rust treated around all sliding (side) door apertures,8
+Kitchen,Completion,Structural ,Is the door opening  not skew,8
+Kitchen,Completion,Structural ,Is there any sharp edges on emergency stop button cut-out?,8
+Kitchen,Completion,Structural ,Windows,8
+Kitchen,Completion,Structural ,Is the any rust around exterior window cut-outs,8
+Kitchen,Completion,Structural ,Are all former window mounting holes closed with welding,8
+Kitchen,Completion,Structural ,Are all old screws removed,8
+Kitchen,Completion,Structural ,Body Sides and Body Ends,8
+Kitchen,Completion,Structural ,Is the rust treated on the sole bar,8
+Kitchen,Completion,Structural ,Are all rusted/damage gutters welded/straightened,8
+Kitchen,Completion,Structural ,Are all buffer guide bolts removed,8
+Kitchen,Completion,Structural ,Are all buffer guide mounting holes rimmed,8
+Kitchen,Completion,Structural ,Is the coupler area treated of rust,8
+Kitchen,Completion,Structural ,Floor,8
+Kitchen,Completion,Structural ,Are all old screws removed on the channels?,8
+Kitchen,Completion,Structural ,Are all floor supports properly welded,8
+Kitchen,Completion,Structural ,Are all channels straight,8
+Kitchen,Completion,Structural ,Underframe,8
+Kitchen,Completion,Structural ,Is rusted bolster areas & body end pockets chipped,8
+Kitchen,Completion,Structural ,Are all damaged section on the underframe welded and grinded,8
+Kitchen,Completion,Structural ,General,8
+Kitchen,Completion,Structural ,Bogie frame,8
+Kitchen,Completion,Structural ,Bolster,8
+Kitchen,Completion,Structural ,Spring plank,8
+Kitchen,Completion,Structural ,Equalizing beam,8
+Kitchen,Completion,Structural ,Small components,8
+Sitter,Completion,Testing & Commissioning,41 .1 Conduct Visual Inspection,8
+Sitter,Completion,Testing & Commissioning,41.2 Conduct Static Testing (Functional) on 110V or as applicable e.g. Shoreline for SMely Coach_Types,8
+Sitter,Completion,Testing & Commissioning,41.3 Conduct Dynamic Testing on 3kV if applicable,8
+Sitter,Completion,Testing & Commissioning,41.4 Confirm no oustanding snags,8
+Sitter,Completion,Testing & Commissioning,41.5 Management walk about,8
+Sitter,Completion,Testing & Commissioning,41.6 Invite PRASA QC for Coach Inspection,8
+Sitter,Completion,Testing & Commissioning,41.7 Attend to PRASA snags,8
+Sitter,Completion,Testing & Commissioning,41.8 Invite PRASA QC for Verification,8
+Sleeper,Completion,Testing & Commissioning,41 .1 Conduct Visual Inspection,8
+Sleeper,Completion,Testing & Commissioning,41.2 Conduct Static Testing (Functional) on 110V or as applicable e.g. Shoreline for SMely Coach_Types,8
+Sleeper,Completion,Testing & Commissioning,41.3 Conduct Dynamic Testing on 3kV if applicable,8
+Sleeper,Completion,Testing & Commissioning,41.4 Confirm no oustanding snags,8
+Sleeper,Completion,Testing & Commissioning,41.5 Management walk about,8
+Sleeper,Completion,Testing & Commissioning,41.6 Invite PRASA QC for Coach Inspection,8
+Sleeper,Completion,Testing & Commissioning,41.7 Attend to PRASA snags,8
+Sleeper,Completion,Testing & Commissioning,41.8 Invite PRASA QC for Verification,8
+Kitchen,Completion,Testing & Commissioning,41 .1 Conduct Visual Inspection,8
+Kitchen,Completion,Testing & Commissioning,41.2 Conduct Static Testing (Functional) on 110V or as applicable e.g. Shoreline for SMely Coach_Types,8
+Kitchen,Completion,Testing & Commissioning,41.3 Conduct Dynamic Testing on 3kV if applicable,8
+Kitchen,Completion,Testing & Commissioning,41.4 Confirm no oustanding snags,8
+Kitchen,Completion,Testing & Commissioning,41.5 Management walk about,8
+Kitchen,Completion,Testing & Commissioning,41.6 Invite PRASA QC for Coach Inspection,8
+Kitchen,Completion,Testing & Commissioning,41.7 Attend to PRASA snags,8
+Kitchen,Completion,Testing & Commissioning,41.8 Invite PRASA QC for Verification,8

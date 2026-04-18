@@ -16,7 +16,6 @@ from flask_login import (
 from models import db, User, Coach, CompletionTask, CoachAudit
 
 
-
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
 
@@ -64,6 +63,7 @@ with app.app_context():
         db.session.commit()
         print("✅ Admin user created")
 
+
 def role_required(*roles):
     def wrapper(fn):
         @wraps(fn)
@@ -80,6 +80,7 @@ def role_required(*roles):
         return decorated
     return wrapper
 
+
 def log_coach_audit(coach, action, changed_by=None, details=None):
     audit = CoachAudit(
         coach_id=coach.id,
@@ -90,9 +91,6 @@ def log_coach_audit(coach, action, changed_by=None, details=None):
         created_at=datetime.utcnow(),
     )
     db.session.add(audit)
-
-
-
 
 
 @login_manager.user_loader
@@ -107,6 +105,61 @@ def parse_date(value):
         return datetime.strptime(value.strip(), "%Y-%m-%d").date()
     except ValueError:
         return None
+
+
+def get_inspection_date(coach):
+    """
+    Operational inspection date:
+    coach must be ready 8 days before the contractual due date.
+    """
+    if not coach.due_date:
+        return None
+    return coach.due_date - timedelta(days=8)
+
+
+def get_schedule_flags(coach, today):
+    """
+    Returns derived schedule flags based on inspection date, not contractual due date.
+    """
+    inspection_date = get_inspection_date(coach)
+
+    is_complete = bool(coach.complete)
+    is_not_started = bool(not coach.stripping and not coach.complete)
+
+    if not inspection_date or is_complete:
+        return {
+            "inspection_date": inspection_date,
+            "days_to_inspection": None if not inspection_date else (inspection_date - today).days,
+            "is_complete": is_complete,
+            "is_overdue": False,
+            "is_due_soon": False,
+            "is_approaching": False,
+            "is_not_started": is_not_started,
+            "is_in_progress": not is_complete and not is_not_started,
+        }
+
+    days_to_inspection = (inspection_date - today).days
+    is_overdue = days_to_inspection < 0
+    is_due_soon = 0 <= days_to_inspection <= 7
+    is_approaching = 8 <= days_to_inspection <= 14
+    is_in_progress = not is_complete and not is_overdue and not is_due_soon and not is_not_started
+
+    return {
+        "inspection_date": inspection_date,
+        "days_to_inspection": days_to_inspection,
+        "is_complete": is_complete,
+        "is_overdue": is_overdue,
+        "is_due_soon": is_due_soon,
+        "is_approaching": is_approaching,
+        "is_not_started": is_not_started,
+        "is_in_progress": is_in_progress,
+    }
+
+
+def format_display_date(value):
+    if not value:
+        return "—"
+    return value.strftime("%d %b %Y")
 
 
 def load_task_templates(coach_type):
@@ -183,6 +236,7 @@ def logout():
     flash("Logged out successfully", "info")
     return redirect(url_for("login"))
 
+
 @app.route("/manage-users", strict_slashes=False)
 @login_required
 @role_required("admin")
@@ -227,9 +281,6 @@ def manage_users():
         status=status,
         per_page=per_page,
     )
-
-
-
 
 
 @app.route("/users/add", methods=["GET", "POST"])
@@ -337,26 +388,6 @@ def edit_user(id):
     return render_template("edit_user.html", user=user)
 
 
-# @app.route("/users/delete/<int:id>", methods=["POST"])
-# @login_required
-# @role_required("admin")
-# def delete_user(id):
-#     user = User.query.get_or_404(id)
-
-#     if user.username == "admin":
-#         flash("Cannot delete the admin account.", "danger")
-#         return redirect(url_for("manage_users"))
-
-#     if user.id == current_user.id:
-#         flash("You cannot delete your own account while logged in.", "danger")
-#         return redirect(url_for("manage_users"))
-
-#     db.session.delete(user)
-#     db.session.commit()
-
-#     flash("User deleted successfully.", "info")
-#     return redirect(url_for("manage_users"))
-
 @app.route("/users/deactivate/<int:id>", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -383,6 +414,7 @@ def deactivate_user(id):
 
     flash("User deactivated successfully.", "info")
     return redirect(url_for("manage_users"))
+
 
 @app.route("/users/reactivate/<int:id>", methods=["POST"])
 @login_required
@@ -432,10 +464,8 @@ def coaches_list():
     if coach_type_filter:
         query = query.filter(Coach.coach_type == coach_type_filter)
 
-    # Full result set before status filtering
     all_matching_coaches = query.order_by(Coach.coach_number).all()
 
-    # Global counts for quick status cards
     status_counts = {
         "all": len(all_matching_coaches),
         "overdue": 0,
@@ -446,57 +476,35 @@ def coaches_list():
     }
 
     for coach in all_matching_coaches:
-        is_complete = bool(coach.complete)
-        is_overdue = bool(coach.due_date and not coach.complete and coach.due_date < today)
-        is_due_soon = bool(
-            coach.due_date
-            and not coach.complete
-            and 0 <= (coach.due_date - today).days <= 10
-        )
-        is_not_started = bool(not coach.stripping and not coach.complete)
-        is_in_progress = bool(
-            not is_complete and not is_overdue and not is_due_soon and not is_not_started
-        )
+        flags = get_schedule_flags(coach, today)
 
-        if is_complete:
+        if flags["is_complete"]:
             status_counts["complete"] += 1
-        elif is_overdue:
+        elif flags["is_overdue"]:
             status_counts["overdue"] += 1
-        elif is_due_soon:
+        elif flags["is_due_soon"]:
             status_counts["due_soon"] += 1
-        elif is_not_started:
+        elif flags["is_not_started"]:
             status_counts["not_started"] += 1
-        elif is_in_progress:
+        elif flags["is_in_progress"]:
             status_counts["in_progress"] += 1
 
-    # Apply status filter for displayed rows
     filtered_coaches = []
     for coach in all_matching_coaches:
-        is_complete = bool(coach.complete)
-        is_overdue = bool(coach.due_date and not coach.complete and coach.due_date < today)
-        is_due_soon = bool(
-            coach.due_date
-            and not coach.complete
-            and 0 <= (coach.due_date - today).days <= 10
-        )
-        is_not_started = bool(not coach.stripping and not coach.complete)
-        is_in_progress = bool(
-            not is_complete and not is_overdue and not is_due_soon and not is_not_started
-        )
+        flags = get_schedule_flags(coach, today)
 
         include = (
             status_filter in ["", "all"]
-            or (status_filter == "complete" and is_complete)
-            or (status_filter == "overdue" and is_overdue)
-            or (status_filter == "due_soon" and is_due_soon)
-            or (status_filter == "not_started" and is_not_started)
-            or (status_filter == "in_progress" and is_in_progress)
+            or (status_filter == "complete" and flags["is_complete"])
+            or (status_filter == "overdue" and flags["is_overdue"])
+            or (status_filter == "due_soon" and flags["is_due_soon"])
+            or (status_filter == "not_started" and flags["is_not_started"])
+            or (status_filter == "in_progress" and flags["is_in_progress"])
         )
 
         if include:
             filtered_coaches.append(coach)
 
-    # KPI cards
     kpis = {
         "active_total": 0,
         "archived_total": 0,
@@ -510,31 +518,21 @@ def coaches_list():
     progress_values = []
 
     for coach in Coach.query.order_by(Coach.coach_number).all():
+        flags = get_schedule_flags(coach, today)
         is_archived = bool(getattr(coach, "archived", False))
-        is_complete = bool(coach.complete)
-        is_overdue = bool(coach.due_date and not coach.complete and coach.due_date < today)
-        is_due_soon = bool(
-            coach.due_date
-            and not coach.complete
-            and 0 <= (coach.due_date - today).days <= 10
-        )
-        is_not_started = bool(not coach.stripping and not coach.complete)
-        is_in_progress = bool(
-            not is_complete and not is_overdue and not is_due_soon and not is_not_started
-        )
 
         if is_archived:
             kpis["archived_total"] += 1
         else:
             kpis["active_total"] += 1
 
-        if is_complete:
+        if flags["is_complete"]:
             kpis["complete_total"] += 1
-        if is_overdue:
+        if flags["is_overdue"]:
             kpis["overdue_total"] += 1
-        if is_due_soon:
+        if flags["is_due_soon"]:
             kpis["due_soon_total"] += 1
-        if is_in_progress:
+        if flags["is_in_progress"]:
             kpis["in_progress_total"] += 1
 
         try:
@@ -549,6 +547,8 @@ def coaches_list():
     coach_progress_data = []
     for coach in filtered_coaches:
         progress = coach.calculate_progress()
+        flags = get_schedule_flags(coach, today)
+
         coach_progress_data.append(
             {
                 "coach_id": coach.id,
@@ -559,6 +559,8 @@ def coaches_list():
                 "completion_date": coach.completion_date,
                 "serviceworthy_date": coach.serviceworthy_date,
                 "retention_date": coach.retention_date,
+                "inspection_date": flags["inspection_date"],
+                "days_to_inspection": flags["days_to_inspection"],
             }
         )
 
@@ -569,6 +571,23 @@ def coaches_list():
             if c.coach_type
         }
     )
+
+    alerts = []
+    if status_counts["overdue"] > 0:
+        alerts.append({
+            "level": "danger",
+            "text": f"{status_counts['overdue']} coach(es) are overdue against the inspection date."
+        })
+    if status_counts["due_soon"] > 0:
+        alerts.append({
+            "level": "warning",
+            "text": f"{status_counts['due_soon']} coach(es) are due for inspection within 7 days."
+        })
+    if not alerts:
+        alerts.append({
+            "level": "success",
+            "text": "No overdue or due-soon inspection risks at the moment."
+        })
 
     return render_template(
         "coaches_list.html",
@@ -583,10 +602,8 @@ def coaches_list():
         today=today,
         status_counts=status_counts,
         kpis=kpis,
+        alerts=alerts,
     )
-
-
-
 
 
 @app.route("/coaches/add", methods=["GET", "POST"])
@@ -648,13 +665,13 @@ def coaches_add():
             details=f"Coach created. Type={coach.coach_type}, due_date={coach.due_date}, tasks_loaded={len(template_tasks)}"
         )
 
-
         db.session.commit()
 
         flash("Coach added successfully", "success")
         return redirect(url_for("coaches_list"))
 
     return render_template("coaches_add.html")
+
 
 @app.route("/coaches/archive/<int:id>", methods=["POST"])
 @login_required
@@ -681,6 +698,7 @@ def coaches_archive(id):
     flash("Coach archived successfully.", "info")
     return redirect(url_for("coaches_list", updated=coach.coach_number))
 
+
 @app.route("/coaches/unarchive/<int:id>", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -706,6 +724,7 @@ def coaches_unarchive(id):
     flash("Coach restored successfully.", "success")
     return redirect(url_for("coaches_list", updated=coach.coach_number))
 
+
 @app.route("/coaches/delete/<int:id>", methods=["POST"])
 @login_required
 @role_required("admin")
@@ -730,19 +749,6 @@ def coaches_delete(id):
 
     flash("Coach permanently deleted.", "danger")
     return redirect(url_for("coaches_list", updated=coach_number))
-
-
-
-# @app.route("/coaches/delete/<int:id>")
-# @login_required
-# @role_required("admin")
-# def coaches_delete(id):
-#     coach = Coach.query.get_or_404(id)
-#     coach_number = coach.coach_number
-#     db.session.delete(coach)
-#     db.session.commit()
-#     flash("Coach deleted successfully", "info")
-#     return redirect(url_for("coaches_list", updated=coach_number))
 
 
 @app.route("/coaches/edit/<int:id>", methods=["GET", "POST"])
@@ -865,7 +871,6 @@ def coaches_edit(id):
     progress = coach.calculate_progress()
     return render_template("coaches_edit.html", coach=coach, progress=progress)
 
-
 @app.route("/delivery-schedule")
 @login_required
 def delivery_schedule():
@@ -885,18 +890,18 @@ def delivery_schedule():
     approaching = []
     urgent = []
 
-    route_version = "v4-quick-filter-global-counts"
+    route_version = "v6-inspection-date-minus-8"
 
     for coach in coaches:
         progress = coach.calculate_progress()
-
         due_date = coach.due_date
         completion_date = coach.completion_date
+        inspection_date = get_inspection_date(coach)
 
         if completion_date:
             days_left = None
         else:
-            days_left = (due_date - today).days if due_date else None
+            days_left = (inspection_date - today).days if inspection_date else None
 
         if coach.coach_type and coach.coach_type.lower() == "trailer":
             retention_due_date = "Not applicable (Trailer)"
@@ -928,6 +933,8 @@ def delivery_schedule():
         item = {
             "coach": coach,
             "days_left": days_left,
+            "due_date": format_display_date(due_date),
+            "inspection_date": format_display_date(inspection_date),
             "retention_due_date": retention_due_date,
             "retention_countdown": retention_countdown,
             "status": status,
@@ -939,41 +946,39 @@ def delivery_schedule():
         }
 
         if completion_date:
-            if due_date:
-                if completion_date <= due_date:
-                    item["classification_reason"] = "Completed on or before due date"
+            if inspection_date:
+                if completion_date <= inspection_date:
+                    item["classification_reason"] = "Completed on or before inspection date"
                     on_schedule.append(item)
                 else:
-                    item["classification_reason"] = "Completed after due date"
+                    item["classification_reason"] = "Completed after inspection date"
                     completed_late.append(item)
             else:
-                item["classification_reason"] = "Completed (no due date)"
+                item["classification_reason"] = "Completed (no due date / inspection date)"
                 on_schedule.append(item)
         else:
-            if due_date is None:
+            if inspection_date is None:
                 item["classification_reason"] = "No due date set"
                 work_in_progress.append(item)
             elif days_left < 0:
-                item["classification_reason"] = "Overdue and not completed"
+                item["classification_reason"] = "Inspection date overdue and coach not completed"
                 urgent.append(item)
-            elif 0 <= days_left <= 10:
-                item["classification_reason"] = "Due within 7 days and not completed"
+            elif 0 <= days_left <= 7:
+                item["classification_reason"] = "Inspection due within 7 days"
                 urgent.append(item)
-            elif 11 <= days_left <= 21:
-                item["classification_reason"] = "Due within 8–21 days and not completed"
+            elif 8 <= days_left <= 14:
+                item["classification_reason"] = "Inspection due within 8–14 days"
                 approaching.append(item)
             else:
-                item["classification_reason"] = "More than 21 days remaining"
+                item["classification_reason"] = "More than 14 days remaining to inspection"
                 work_in_progress.append(item)
 
-    # Global counts before applying view filter
     on_schedule_count = len(on_schedule)
     completed_late_count = len(completed_late)
     work_in_progress_count = len(work_in_progress)
     approaching_count = len(approaching)
     urgent_count = len(urgent)
 
-    # Apply display filter
     if status_filter == "on_schedule":
         on_schedule_view = on_schedule
         completed_late_view = []
@@ -1012,6 +1017,23 @@ def delivery_schedule():
         approaching_view = approaching
         urgent_view = urgent
 
+    alerts = []
+    if urgent_count > 0:
+        alerts.append({
+            "level": "danger",
+            "text": f"{urgent_count} coach(es) are urgent / overdue against the inspection date."
+        })
+    if approaching_count > 0:
+        alerts.append({
+            "level": "warning",
+            "text": f"{approaching_count} coach(es) are approaching inspection within 8–14 days."
+        })
+    if not alerts:
+        alerts.append({
+            "level": "success",
+            "text": "No urgent or approaching inspection risks at the moment."
+        })
+
     return render_template(
         "delivery_schedule.html",
         today=today.strftime("%d %b %Y"),
@@ -1027,6 +1049,7 @@ def delivery_schedule():
         work_in_progress_count=work_in_progress_count,
         approaching_count=approaching_count,
         urgent_count=urgent_count,
+        alerts=alerts,
     )
 
 
@@ -1069,6 +1092,8 @@ def coach_audits():
         "coach_created",
         "coach_updated",
         "coach_deleted",
+        "coach_archived",
+        "coach_unarchived",
     ]
 
     return render_template(
@@ -1079,8 +1104,6 @@ def coach_audits():
         per_page=per_page,
         actions=actions,
     )
-
-
 
 
 @app.route("/debug-env")
