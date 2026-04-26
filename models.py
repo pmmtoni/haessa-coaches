@@ -347,3 +347,28 @@ class CoachAudit(db.Model):
 
     def __repr__(self):
         return f"<CoachAudit {self.action} coach={self.coach_number}>"    
+    
+    
+class TaskTemplate(db.Model):
+    __tablename__ = "task_template"
+
+    id = db.Column(db.Integer, primary_key=True)
+    coach_type = db.Column(db.String(100), nullable=False, index=True)
+    phase = db.Column(db.String(100), nullable=False, index=True)
+    section = db.Column(db.String(100), nullable=False, index=True)
+    task = db.Column(db.String(500), nullable=False)
+    hours = db.Column(db.Float, default=0.0)
+
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    sort_order = db.Column(db.Integer, default=0, nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return f"<TaskTemplate {self.coach_type} | {self.phase} | {self.section} | {self.task}>"    

@@ -4,6 +4,10 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from functools import wraps
 
+from io import StringIO
+from flask import Response
+
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import (
     LoginManager,
@@ -13,8 +17,7 @@ from flask_login import (
     current_user,
 )
 
-from models import db, User, Coach, CompletionTask, CoachAudit
-
+from models import db, User, Coach, CompletionTask, CoachAudit, TaskTemplate
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
@@ -95,7 +98,7 @@ def log_coach_audit(coach, action, changed_by=None, details=None):
 
 @login_manager.user_loader
 def load_user(uid):
-    return User.query.get(int(uid))
+    return db.session.get(User, int(uid))
 
 
 def parse_date(value):
@@ -163,24 +166,66 @@ def format_display_date(value):
 
 
 def load_task_templates(coach_type):
-    template_path = Path(app.root_path) / "coach_tasks.csv"
+    """
+    Load task templates from database.
+    CSV is now used only for import/export, not as the live source of truth.
+    """
+    templates = (
+        TaskTemplate.query
+        .filter(
+            TaskTemplate.coach_type.ilike(coach_type.strip()),
+            TaskTemplate.is_active.is_(True)
+        )
+        .order_by(
+            TaskTemplate.sort_order.asc(),
+            TaskTemplate.phase.asc(),
+            TaskTemplate.section.asc(),
+            TaskTemplate.task.asc(),
+        )
+        .all()
+    )
+
     tasks = []
+    for row in templates:
+        tasks.append(
+            {
+                "coach_type": row.coach_type,
+                "phase": row.phase,
+                "section": row.section,
+                "task": row.task,
+                "hours": float(row.hours or 0.0),
+            }
+        )
+
+    print(f"Loaded {len(tasks)} DB task templates for coach type '{coach_type}'")
+    return tasks
+
+def import_task_templates_from_csv(csv_path=None, replace_existing=False):
+    """
+    Import templates from coach_tasks.csv into TaskTemplate table.
+    """
+    template_path = Path(csv_path) if csv_path else Path(app.root_path) / "coach_tasks.csv"
 
     if not template_path.exists():
-        print(f"Template file not found: {template_path}")
-        return tasks
+        raise FileNotFoundError(f"Template file not found: {template_path}")
+
+    if replace_existing:
+        TaskTemplate.query.delete()
+        db.session.commit()
+
+    imported_count = 0
 
     with open(template_path, mode="r", encoding="utf-8-sig", newline="") as file:
         reader = csv.DictReader(file)
 
-        for row in reader:
-            row_coach_type = (row.get("coach_type") or "").strip()
-            row_phase = (row.get("phase") or "").strip()
-            row_section = (row.get("section") or "").strip()
-            row_task = (row.get("task") or "").strip()
+        for idx, row in enumerate(reader, start=1):
+            coach_type = (row.get("coach_type") or "").strip()
+            phase = (row.get("phase") or "").strip()
+            section = (row.get("section") or "").strip()
+            task = (row.get("task") or "").strip()
             row_hours = row.get("hours") or 0
 
-            if row_coach_type.lower() != coach_type.strip().lower():
+            if not coach_type or not phase or not section or not task:
                 continue
 
             try:
@@ -188,18 +233,37 @@ def load_task_templates(coach_type):
             except (TypeError, ValueError):
                 hours_value = 0.0
 
-            tasks.append(
-                {
-                    "coach_type": row_coach_type,
-                    "phase": row_phase,
-                    "section": row_section,
-                    "task": row_task,
-                    "hours": hours_value,
-                }
-            )
+            exists = TaskTemplate.query.filter_by(
+                coach_type=coach_type,
+                phase=phase,
+                section=section,
+                task=task
+            ).first()
 
-    print(f"Loaded {len(tasks)} template tasks for coach type '{coach_type}'")
-    return tasks
+            if exists:
+                exists.hours = hours_value
+                exists.sort_order = idx
+                exists.is_active = True
+            else:
+                db.session.add(
+                    TaskTemplate(
+                        coach_type=coach_type,
+                        phase=phase,
+                        section=section,
+                        task=task,
+                        hours=hours_value,
+                        is_active=True,
+                        sort_order=idx,
+                    )
+                )
+
+            imported_count += 1
+
+    db.session.commit()
+    return imported_count
+
+
+
 
 
 @app.route("/")
@@ -236,39 +300,25 @@ def logout():
     flash("Logged out successfully", "info")
     return redirect(url_for("login"))
 
-
-@app.route("/manage-users", strict_slashes=False)
+@app.route("/manage-users")
 @login_required
 @role_required("admin")
 def manage_users():
     q = request.args.get("q", "").strip()
-    sort = request.args.get("sort", "username").strip().lower()
-    status = request.args.get("status", "all").strip().lower()
-    page = request.args.get("page", 1, type=int)
+    sort = request.args.get("sort", "username").strip()
     per_page = request.args.get("per_page", 10, type=int)
-
-    if per_page not in [10, 25, 50]:
-        per_page = 10
-
-    if status not in ["all", "active", "inactive"]:
-        status = "all"
+    page = request.args.get("page", 1, type=int)
 
     query = User.query
 
     if q:
         query = query.filter(User.username.ilike(f"%{q}%"))
 
-    if status == "active":
-        query = query.filter(User.is_active_user.is_(True))
-    elif status == "inactive":
-        query = query.filter(User.is_active_user.is_(False))
-
     if sort == "role":
         query = query.order_by(User.role.asc(), User.username.asc())
     elif sort == "updated_at":
         query = query.order_by(User.updated_at.desc(), User.username.asc())
     else:
-        sort = "username"
         query = query.order_by(User.username.asc())
 
     users = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -278,7 +328,6 @@ def manage_users():
         users=users,
         q=q,
         sort=sort,
-        status=status,
         per_page=per_page,
     )
 
@@ -434,6 +483,239 @@ def reactivate_user(id):
 
     flash("User reactivated successfully.", "success")
     return redirect(url_for("manage_users"))
+
+@app.route("/task-templates")
+@login_required
+@role_required("admin", "editor")
+def task_templates_list():
+    q = request.args.get("q", "").strip()
+    coach_type_filter = request.args.get("coach_type", "").strip()
+    active_filter = request.args.get("active", "active").strip().lower()
+
+    query = TaskTemplate.query
+
+    if q:
+        query = query.filter(
+            db.or_(
+                TaskTemplate.coach_type.ilike(f"%{q}%"),
+                TaskTemplate.phase.ilike(f"%{q}%"),
+                TaskTemplate.section.ilike(f"%{q}%"),
+                TaskTemplate.task.ilike(f"%{q}%"),
+            )
+        )
+
+    if coach_type_filter:
+        query = query.filter(TaskTemplate.coach_type == coach_type_filter)
+
+    if active_filter == "active":
+        query = query.filter(TaskTemplate.is_active.is_(True))
+    elif active_filter == "inactive":
+        query = query.filter(TaskTemplate.is_active.is_(False))
+
+    templates = query.order_by(
+        TaskTemplate.coach_type.asc(),
+        TaskTemplate.sort_order.asc(),
+        TaskTemplate.phase.asc(),
+        TaskTemplate.section.asc(),
+        TaskTemplate.task.asc(),
+    ).all()
+
+    coach_types = sorted(
+        {
+            row.coach_type
+            for row in TaskTemplate.query.with_entities(TaskTemplate.coach_type).all()
+            if row.coach_type
+        }
+    )
+
+    return render_template(
+        "task_templates_list.html",
+        templates=templates,
+        q=q,
+        coach_type_filter=coach_type_filter,
+        active_filter=active_filter,
+        coach_types=coach_types,
+    )
+
+
+@app.route("/task-templates/add", methods=["GET", "POST"])
+@login_required
+@role_required("admin", "editor")
+def task_templates_add():
+    if request.method == "POST":
+        coach_type = request.form.get("coach_type", "").strip()
+        phase = request.form.get("phase", "").strip()
+        section = request.form.get("section", "").strip()
+        task = request.form.get("task", "").strip()
+        hours_raw = request.form.get("hours", "0").strip()
+        sort_order_raw = request.form.get("sort_order", "0").strip()
+        is_active = "is_active" in request.form
+
+        if not coach_type or not phase or not section or not task:
+            flash("Coach type, phase, section, and task are required.", "danger")
+            return render_template("task_templates_add.html")
+
+        try:
+            hours = float(hours_raw or 0)
+        except ValueError:
+            flash("Hours must be a valid number.", "danger")
+            return render_template("task_templates_add.html")
+
+        try:
+            sort_order = int(sort_order_raw or 0)
+        except ValueError:
+            sort_order = 0
+
+        exists = TaskTemplate.query.filter_by(
+            coach_type=coach_type,
+            phase=phase,
+            section=section,
+            task=task,
+        ).first()
+
+        if exists:
+            flash("That task template already exists.", "warning")
+            return render_template("task_templates_add.html")
+
+        db.session.add(
+            TaskTemplate(
+                coach_type=coach_type,
+                phase=phase,
+                section=section,
+                task=task,
+                hours=hours,
+                sort_order=sort_order,
+                is_active=is_active,
+            )
+        )
+        db.session.commit()
+
+        flash("Task template added successfully.", "success")
+        return redirect(url_for("task_templates_list"))
+
+    return render_template("task_templates_add.html")
+
+
+@app.route("/task-templates/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+@role_required("admin", "editor")
+def task_templates_edit(id):
+    template = TaskTemplate.query.get_or_404(id)
+
+    if request.method == "POST":
+        coach_type = request.form.get("coach_type", "").strip()
+        phase = request.form.get("phase", "").strip()
+        section = request.form.get("section", "").strip()
+        task = request.form.get("task", "").strip()
+        hours_raw = request.form.get("hours", "0").strip()
+        sort_order_raw = request.form.get("sort_order", "0").strip()
+        is_active = "is_active" in request.form
+
+        if not coach_type or not phase or not section or not task:
+            flash("Coach type, phase, section, and task are required.", "danger")
+            return render_template("task_templates_edit.html", template=template)
+
+        try:
+            hours = float(hours_raw or 0)
+        except ValueError:
+            flash("Hours must be a valid number.", "danger")
+            return render_template("task_templates_edit.html", template=template)
+
+        try:
+            sort_order = int(sort_order_raw or 0)
+        except ValueError:
+            sort_order = 0
+
+        duplicate = TaskTemplate.query.filter(
+            TaskTemplate.id != template.id,
+            TaskTemplate.coach_type == coach_type,
+            TaskTemplate.phase == phase,
+            TaskTemplate.section == section,
+            TaskTemplate.task == task,
+        ).first()
+
+        if duplicate:
+            flash("Another task template already uses the same coach type/phase/section/task.", "danger")
+            return render_template("task_templates_edit.html", template=template)
+
+        template.coach_type = coach_type
+        template.phase = phase
+        template.section = section
+        template.task = task
+        template.hours = hours
+        template.sort_order = sort_order
+        template.is_active = is_active
+
+        db.session.commit()
+        flash("Task template updated successfully.", "success")
+        return redirect(url_for("task_templates_list"))
+
+    return render_template("task_templates_edit.html", template=template)
+
+
+@app.route("/task-templates/delete/<int:id>", methods=["POST"])
+@login_required
+@role_required("admin")
+def task_templates_delete(id):
+    template = TaskTemplate.query.get_or_404(id)
+    db.session.delete(template)
+    db.session.commit()
+    flash("Task template deleted successfully.", "info")
+    return redirect(url_for("task_templates_list"))
+
+
+@app.route("/task-templates/import-csv", methods=["POST"])
+@login_required
+@role_required("admin", "editor")
+def task_templates_import_csv():
+    replace_existing = "replace_existing" in request.form
+
+    try:
+        count = import_task_templates_from_csv(replace_existing=replace_existing)
+        flash(f"Imported {count} task template row(s) from CSV.", "success")
+    except Exception as exc:
+        flash(f"CSV import failed: {exc}", "danger")
+
+    return redirect(url_for("task_templates_list"))
+
+
+@app.route("/task-templates/export-csv")
+@login_required
+@role_required("admin", "editor")
+def task_templates_export_csv():
+    templates = (
+        TaskTemplate.query
+        .order_by(
+            TaskTemplate.coach_type.asc(),
+            TaskTemplate.sort_order.asc(),
+            TaskTemplate.phase.asc(),
+            TaskTemplate.section.asc(),
+            TaskTemplate.task.asc(),
+        )
+        .all()
+    )
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["coach_type", "phase", "section", "task", "hours"])
+
+    for row in templates:
+        writer.writerow([
+            row.coach_type,
+            row.phase,
+            row.section,
+            row.task,
+            row.hours,
+        ])
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=coach_tasks_export.csv"},
+    )
+
+
+
 
 
 @app.route("/coaches", methods=["GET"])
@@ -1054,8 +1336,6 @@ def delivery_schedule():
 
 
 
-
-
 @app.route("/coach-audits", strict_slashes=False)
 @login_required
 @role_required("admin", "editor")
@@ -1104,6 +1384,49 @@ def coach_audits():
         per_page=per_page,
         actions=actions,
     )
+
+
+@app.route("/task-templates/export")
+@login_required
+@role_required("admin", "editor")
+def export_task_templates_csv():
+    templates = TaskTemplate.query.filter(
+        TaskTemplate.is_active.is_(True)
+    ).order_by(
+        TaskTemplate.coach_type.asc(),
+        TaskTemplate.sort_order.asc(),
+        TaskTemplate.phase.asc(),
+        TaskTemplate.section.asc(),
+        TaskTemplate.task.asc(),
+    ).all()
+
+    output = StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow(["coach_type", "phase", "section", "task", "hours"])
+
+    for t in templates:
+        writer.writerow([
+            t.coach_type,
+            t.phase,
+            t.section,
+            t.task,
+            t.hours or 0,
+        ])
+
+    csv_data = output.getvalue()
+
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=coach_tasks_export.csv"
+        },
+    )
+
+
+
+
 
 
 @app.route("/debug-env")

@@ -111,6 +111,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ['task_templates_list', 'task_templates_add', 'task_templates_edit'] %}active-link{% endif %}"
+                           href="{{ url_for('task_templates_list') }}">
+                            Task Templates
+                        </a>
+                    </li>
+
                     {% if current_user.role in ['admin', 'editor'] %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'coach_audits' %}active-link{% endif %}"
