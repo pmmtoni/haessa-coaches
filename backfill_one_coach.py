@@ -8,7 +8,7 @@ Created on Sun Mar 22 21:52:45 2026
 from app import app, db, load_completion_task_templates
 from models import Coach, CompletionTask
 
-COACH_NUMBER = "10M50084M"
+COACH_NUMBER = "25 714"
 
 with app.app_context():
     coach = Coach.query.filter_by(coach_number=COACH_NUMBER).first()
