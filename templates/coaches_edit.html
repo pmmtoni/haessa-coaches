@@ -124,6 +124,85 @@
                             </div>
                         </div>
 
+                        <!-- Coach Timeline -->
+                        <div class="col-12 mt-5">
+                            <h5 class="mb-3 border-bottom pb-2 text-primary">Coach Timeline</h5>
+                        
+                            <div class="timeline-wrapper">
+                                <div class="timeline-step {% if coach.stripping %}timeline-done{% else %}timeline-pending{% endif %}">
+                                    <div class="timeline-circle">1</div>
+                                    <div class="timeline-label">Stripping</div>
+                                    <div class="timeline-status">
+                                        {{ "Completed" if coach.stripping else "Pending" }}
+                                    </div>
+                                    <div class="timeline-date">
+                                        {{ coach.stripping_date.strftime('%d %b %Y') if coach.stripping_date else '—' }}
+                                    </div>
+                                </div>
+                        
+                                <div class="timeline-line"></div>
+                        
+                                <div class="timeline-step {% if coach.complete %}timeline-done{% else %}timeline-pending{% endif %}">
+                                    <div class="timeline-circle">2</div>
+                                    <div class="timeline-label">Completion</div>
+                                    <div class="timeline-status">
+                                        {{ "Completed" if coach.complete else "Pending" }}
+                                    </div>
+                                    <div class="timeline-date">
+                                        {{ coach.completion_date.strftime('%d %b %Y') if coach.completion_date else '—' }}
+                                    </div>
+                                </div>
+                        
+                                <div class="timeline-line"></div>
+                        
+                                <div class="timeline-step {% if coach.serviceworthy %}timeline-done{% else %}timeline-pending{% endif %}">
+                                    <div class="timeline-circle">3</div>
+                                    <div class="timeline-label">Serviceworthy</div>
+                                    <div class="timeline-status">
+                                        {{ "Completed" if coach.serviceworthy else "Pending" }}
+                                    </div>
+                                    <div class="timeline-date">
+                                        {{ coach.serviceworthy_date.strftime('%d %b %Y') if coach.serviceworthy_date else '—' }}
+                                    </div>
+                                </div>
+                        
+                                <div class="timeline-line"></div>
+                        
+                                {% set is_trailer = coach.coach_type and coach.coach_type|lower == 'trailer' %}
+                        
+                                <div class="timeline-step
+                                    {% if is_trailer %}
+                                        timeline-na
+                                    {% elif coach.retention %}
+                                        timeline-done
+                                    {% else %}
+                                        timeline-pending
+                                    {% endif %}
+                                ">
+                                    <div class="timeline-circle">4</div>
+                                    <div class="timeline-label">Retention</div>
+                                    <div class="timeline-status">
+                                        {% if is_trailer %}
+                                            Not Applicable
+                                        {% elif coach.retention %}
+                                            Completed
+                                        {% else %}
+                                            Pending
+                                        {% endif %}
+                                    </div>
+                                    <div class="timeline-date">
+                                        {% if is_trailer %}
+                                            Trailer
+                                        {% else %}
+                                            {{ coach.retention_date.strftime('%d %b %Y') if coach.retention_date else '—' }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+
                         <!-- Task Phases -->
                         <div class="col-12 mt-5">
                             <h5 class="mb-3 border-bottom pb-2 text-primary">Task Phases</h5>
@@ -465,8 +544,18 @@
 
                         <!-- Actions -->
                         <div class="col-12 mt-5 d-flex gap-3 justify-content-end">
+                            <!--<button type="submit" class="btn btn-primary btn-lg px-5">Save Changes</button>-->
+                            <a href="{{ url_for('coach_pack', id=coach.id) }}"
+                               target="_blank"
+                               class="btn btn-outline-success btn-lg px-5">
+                               Coach Pack
+                            </a>
+                            
                             <button type="submit" class="btn btn-primary btn-lg px-5">Save Changes</button>
-                            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary btn-lg px-5">Cancel</a>
+                            
+                            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary btn-lg px-5">
+                                Cancel
+                            </a>
                         </div>
 
                     </form>
@@ -475,4 +564,112 @@
         </div>
     </div>
 </div>
+
+<style>
+.timeline-wrapper {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+}
+
+.timeline-step {
+    flex: 1;
+    text-align: center;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px 10px;
+    border: 2px solid #dee2e6;
+    min-height: 140px;
+}
+
+.timeline-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #ffffff;
+    background: #6c757d;
+}
+
+.timeline-label {
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.timeline-status {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.timeline-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.timeline-line {
+    width: 32px;
+    height: 4px;
+    background: #dee2e6;
+    align-self: center;
+    border-radius: 99px;
+}
+
+.timeline-done {
+    border-color: #198754;
+}
+
+.timeline-done .timeline-circle {
+    background: #198754;
+}
+
+.timeline-done .timeline-status {
+    color: #198754;
+    font-weight: 700;
+}
+
+.timeline-pending {
+    border-color: #adb5bd;
+}
+
+.timeline-pending .timeline-circle {
+    background: #6c757d;
+}
+
+.timeline-na {
+    border-color: #0dcaf0;
+}
+
+.timeline-na .timeline-circle {
+    background: #0dcaf0;
+}
+
+.timeline-na .timeline-status {
+    color: #087990;
+    font-weight: 700;
+}
+
+@media (max-width: 992px) {
+    .timeline-wrapper {
+        flex-direction: column;
+    }
+
+    .timeline-line {
+        width: 4px;
+        height: 24px;
+        margin: 0 auto;
+    }
+}
+</style>
+
+
+
 {% endblock %}

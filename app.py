@@ -1,9 +1,15 @@
 import os
 import io
 import csv
+import math
+import calendar
+
 from pathlib import Path
 from datetime import datetime, timedelta
 from functools import wraps
+
+import plotly.graph_objects as go
+from collections import defaultdict
 
 from io import StringIO
 from flask import Response
@@ -41,6 +47,14 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
     "pool_recycle": 300,
 }
+
+if os.environ.get("RENDER"):
+    app.config["SESSION_COOKIE_SECURE"] = True
+    app.config["REMEMBER_COOKIE_SECURE"] = True
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
 
 print("RAW DATABASE_URL repr:", repr(database_url))
 print("Using database:", app.config["SQLALCHEMY_DATABASE_URI"])
@@ -96,6 +110,19 @@ def log_coach_audit(coach, action, changed_by=None, details=None):
     )
     db.session.add(audit)
 
+
+def log_system_audit(action, changed_by=None, details=None):
+    audit = CoachAudit(
+        coach_id=None,
+        coach_number="TASK TEMPLATE",
+        action=action,
+        changed_by=changed_by,
+        details=details,
+        created_at=datetime.utcnow(),
+    )
+    db.session.add(audit)
+    
+    
 
 @login_manager.user_loader
 def load_user(uid):
@@ -604,6 +631,16 @@ def task_templates_edit(id):
     template = TaskTemplate.query.get_or_404(id)
 
     if request.method == "POST":
+        old_values = {
+            "coach_type": template.coach_type,
+            "phase": template.phase,
+            "section": template.section,
+            "task": template.task,
+            "hours": template.hours,
+            "sort_order": template.sort_order,
+            "is_active": template.is_active,
+        }
+
         coach_type = request.form.get("coach_type", "").strip()
         phase = request.form.get("phase", "").strip()
         section = request.form.get("section", "").strip()
@@ -647,11 +684,39 @@ def task_templates_edit(id):
         template.sort_order = sort_order
         template.is_active = is_active
 
+        new_values = {
+            "coach_type": template.coach_type,
+            "phase": template.phase,
+            "section": template.section,
+            "task": template.task,
+            "hours": template.hours,
+            "sort_order": template.sort_order,
+            "is_active": template.is_active,
+        }
+
+        changes = []
+        for field, old_value in old_values.items():
+            new_value = new_values[field]
+            if old_value != new_value:
+                changes.append(f"{field}: {old_value} -> {new_value}")
+
+        log_system_audit(
+            action="task_template_updated",
+            changed_by=current_user.username,
+            details=(
+                f"Template ID {template.id}; "
+                + (" | ".join(changes) if changes else "No material changes")
+            ),
+        )
+
         db.session.commit()
         flash("Task template updated successfully.", "success")
         return redirect(url_for("task_templates_list"))
 
     return render_template("task_templates_edit.html", template=template)
+
+
+
 
 
 @app.route("/task-templates/delete/<int:id>", methods=["POST"])
@@ -673,12 +738,19 @@ def task_templates_import_csv():
 
     try:
         count = import_task_templates_from_csv(replace_existing=replace_existing)
+        
+        log_system_audit(
+            action="task_templates_imported",
+            changed_by=current_user.username,
+            details=f"Imported {count} row(s). replace_existing={replace_existing}"
+        )
+        db.session.commit()
+                
         flash(f"Imported {count} task template row(s) from CSV.", "success")
     except Exception as exc:
         flash(f"CSV import failed: {exc}", "danger")
 
     return redirect(url_for("task_templates_list"))
-
 
 @app.route("/task-templates/export-csv")
 @login_required
@@ -709,12 +781,251 @@ def task_templates_export_csv():
             row.hours,
         ])
 
+    log_system_audit(
+        action="task_templates_exported",
+        changed_by=current_user.username,
+        details=f"Exported {len(templates)} task template row(s)"
+    )
+    db.session.commit()
+
     return Response(
         output.getvalue(),
         mimetype="text/csv",
         headers={"Content-Disposition": "attachment; filename=coach_tasks_export.csv"},
     )
 
+
+
+
+
+
+def build_smart_alerts(coaches, today):
+    alerts = []
+
+    overdue = []
+    due_soon = []
+    ncr_gc_blocked = []
+    retention_overdue = []
+    serviceworthy_pending_retention = []
+
+    for coach in coaches:
+        flags = get_schedule_flags(coach, today)
+
+        if flags.get("is_overdue"):
+            overdue.append(coach)
+
+        if flags.get("is_due_soon"):
+            due_soon.append(coach)
+
+        if getattr(coach, "ncr", False) or getattr(coach, "gc", False):
+            ncr_gc_blocked.append(coach)
+
+        is_trailer = (coach.coach_type or "").strip().lower() == "trailer"
+
+        if not is_trailer and coach.serviceworthy_date and not coach.retention:
+            retention_due = coach.serviceworthy_date + timedelta(days=14)
+
+            if retention_due < today:
+                retention_overdue.append(coach)
+            else:
+                serviceworthy_pending_retention.append(coach)
+
+    if overdue:
+        alerts.append({
+            "level": "danger",
+            "title": "Immediate Risk",
+            "text": f"{len(overdue)} coach(es) are overdue against inspection date.",
+            "items": overdue[:5],
+        })
+
+    if due_soon:
+        alerts.append({
+            "level": "warning",
+            "title": "Upcoming Risk",
+            "text": f"{len(due_soon)} coach(es) are due for inspection within 7 days.",
+            "items": due_soon[:5],
+        })
+
+    if ncr_gc_blocked:
+        alerts.append({
+            "level": "danger",
+            "title": "NCR / GC Blocked",
+            "text": f"{len(ncr_gc_blocked)} coach(es) have open NCR or GC flags.",
+            "items": ncr_gc_blocked[:5],
+        })
+
+    if retention_overdue:
+        alerts.append({
+            "level": "danger",
+            "title": "Retention Overdue",
+            "text": f"{len(retention_overdue)} coach(es) are past retention due date.",
+            "items": retention_overdue[:5],
+        })
+
+    if serviceworthy_pending_retention:
+        alerts.append({
+            "level": "info",
+            "title": "Retention Pending",
+            "text": f"{len(serviceworthy_pending_retention)} coach(es) are serviceworthy and awaiting retention.",
+            "items": serviceworthy_pending_retention[:5],
+        })
+
+    if not alerts:
+        alerts.append({
+            "level": "success",
+            "title": "Healthy",
+            "text": "No urgent inspection, NCR/GC, or retention risks detected.",
+            "items": [],
+        })
+
+    return alerts
+
+def get_current_phase_info(coach, today):
+    """
+    Determine the coach's current operational phase and how long it has been there.
+    No database changes required.
+    """
+
+    is_trailer = (coach.coach_type or "").strip().lower() == "trailer"
+
+    if coach.retention:
+        return {
+            "phase": "Delivered",
+            "start_date": coach.retention_date or coach.serviceworthy_date or coach.completion_date,
+            "days": 0,
+            "risk": "success",
+            "risk_label": "Complete",
+        }
+
+    if is_trailer and coach.serviceworthy:
+        return {
+            "phase": "Delivered",
+            "start_date": coach.serviceworthy_date or coach.completion_date,
+            "days": 0,
+            "risk": "success",
+            "risk_label": "Complete",
+        }
+
+    if coach.serviceworthy and not coach.retention and not is_trailer:
+        start_date = coach.serviceworthy_date
+        phase = "Retention"
+
+    elif coach.complete and not coach.serviceworthy:
+        start_date = coach.completion_date
+        phase = "Serviceworthy"
+
+    elif coach.stripping and not coach.complete:
+        start_date = coach.stripping_date
+        phase = "Completion"
+
+    else:
+        start_date = coach.due_date
+        phase = "Stripping"
+
+    if start_date:
+        days = max((today - start_date).days, 0)
+    else:
+        days = None
+
+    if days is None:
+        risk = "secondary"
+        risk_label = "Date Missing"
+    elif days <= 7:
+        risk = "success"
+        risk_label = "Healthy"
+    elif days <= 21:
+        risk = "warning"
+        risk_label = "Slow"
+    else:
+        risk = "danger"
+        risk_label = "Critical"
+
+    return {
+        "phase": phase,
+        "start_date": start_date,
+        "days": days,
+        "risk": risk,
+        "risk_label": risk_label,
+    }
+
+
+def get_delay_risk_score(coach, today):
+    score = 0
+    reasons = []
+
+    flags = get_schedule_flags(coach, today)
+    phase_info = get_current_phase_info(coach, today)
+
+    if coach.complete:
+        return {
+            "score": 0,
+            "level": "success",
+            "label": "Complete",
+            "reasons": ["Coach is completed."],
+        }
+
+    if flags.get("is_overdue"):
+        score += 35
+        reasons.append("Inspection date overdue")
+
+    elif flags.get("is_due_soon"):
+        score += 20
+        reasons.append("Inspection due within 7 days")
+
+    days_in_phase = phase_info.get("days")
+
+    if days_in_phase is None:
+        score += 10
+        reasons.append("Current phase start date missing")
+    elif days_in_phase > 21:
+        score += 25
+        reasons.append(f"Current phase ageing: {days_in_phase} days")
+    elif days_in_phase > 7:
+        score += 12
+        reasons.append(f"Current phase slowing: {days_in_phase} days")
+
+    if getattr(coach, "ncr", False):
+        score += 20
+        reasons.append("NCR open")
+
+    if getattr(coach, "gc", False):
+        score += 20
+        reasons.append("GC open")
+
+    try:
+        progress = coach.calculate_progress()
+        overall_percent = float(progress.get("overall_percent", 0))
+    except Exception:
+        overall_percent = 0
+
+    if overall_percent < 25:
+        score += 15
+        reasons.append("Overall progress below 25%")
+    elif overall_percent < 50:
+        score += 10
+        reasons.append("Overall progress below 50%")
+
+    score = min(score, 100)
+
+    if score >= 70:
+        level = "danger"
+        label = "Critical Risk"
+    elif score >= 40:
+        level = "warning"
+        label = "High Risk"
+    else:
+        level = "success"
+        label = "Low Risk"
+
+    if not reasons:
+        reasons.append("No major delay indicators detected")
+
+    return {
+        "score": score,
+        "level": level,
+        "label": label,
+        "reasons": reasons,
+    }
 
 
 
@@ -832,6 +1143,10 @@ def coaches_list():
         progress = coach.calculate_progress()
         flags = get_schedule_flags(coach, today)
 
+
+        phase_info = get_current_phase_info(coach, today)
+        risk_info = get_delay_risk_score(coach, today)
+        
         coach_progress_data.append(
             {
                 "coach_id": coach.id,
@@ -844,8 +1159,21 @@ def coaches_list():
                 "retention_date": coach.retention_date,
                 "inspection_date": flags["inspection_date"],
                 "days_to_inspection": flags["days_to_inspection"],
+                "current_phase": phase_info["phase"],
+                "days_in_phase": phase_info["days"],
+                "phase_risk": phase_info["risk"],
+                "phase_risk_label": phase_info["risk_label"],
+                "risk_score": risk_info["score"],
+                "risk_level": risk_info["level"],
+                "risk_label": risk_info["label"],
+                "risk_reasons": risk_info["reasons"],
+                
+            
             }
         )
+        
+
+
 
     all_types = sorted(
         {
@@ -855,22 +1183,11 @@ def coaches_list():
         }
     )
 
-    alerts = []
-    if status_counts["overdue"] > 0:
-        alerts.append({
-            "level": "danger",
-            "text": f"{status_counts['overdue']} coach(es) are overdue against the inspection date."
-        })
-    if status_counts["due_soon"] > 0:
-        alerts.append({
-            "level": "warning",
-            "text": f"{status_counts['due_soon']} coach(es) are due for inspection within 7 days."
-        })
-    if not alerts:
-        alerts.append({
-            "level": "success",
-            "text": "No overdue or due-soon inspection risks at the moment."
-        })
+    alerts = build_smart_alerts(
+        Coach.query.filter(Coach.archived.is_(False)).all(),
+        today
+    )
+    
 
     return render_template(
         "coaches_list.html",
@@ -1154,6 +1471,39 @@ def coaches_edit(id):
     progress = coach.calculate_progress()
     return render_template("coaches_edit.html", coach=coach, progress=progress)
 
+
+@app.route("/coaches/<int:id>/pack")
+@login_required
+def coach_pack(id):
+    coach = Coach.query.get_or_404(id)
+    progress = coach.calculate_progress()
+
+    audits = (
+        CoachAudit.query
+        .filter(
+            db.or_(
+                CoachAudit.coach_id == coach.id,
+                CoachAudit.coach_number == coach.coach_number,
+            )
+        )
+        .order_by(CoachAudit.created_at.desc())
+        .limit(20)
+        .all()
+    )
+
+    return render_template(
+        "coach_pack.html",
+        coach=coach,
+        progress=progress,
+        audits=audits,
+        generated_at=datetime.utcnow().strftime("%d %b %Y %H:%M"),
+    )
+
+
+
+
+
+
 @app.route("/delivery-schedule")
 @login_required
 def delivery_schedule():
@@ -1426,6 +1776,685 @@ def export_task_templates_csv():
     )
 
 
+
+@app.route("/delivery-graph", methods=["GET", "POST"])
+@login_required
+def delivery_graph():
+    from datetime import date
+    import calendar
+    import math
+    from collections import defaultdict
+
+    today_date = date.today()
+    report_date = today_date.strftime("%d %b %Y")
+
+    selected_type = request.values.get("coach_type", "all")
+    desired_rate = request.values.get("desired_rate", type=float)
+
+    query = Coach.query.filter(Coach.archived.is_(False))
+
+    if selected_type != "all":
+        query = query.filter(Coach.coach_type == selected_type)
+
+    coaches = query.all()
+    all_coach_types = sorted({c.coach_type for c in Coach.query.filter(Coach.archived.is_(False)).all() if c.coach_type})
+
+    total_coaches = len(coaches)
+    completed_coaches = [c for c in coaches if c.completion_date]
+    incomplete_coaches = [c for c in coaches if not c.completion_date]
+
+    completed_count = len(completed_coaches)
+    incomplete_count = len(incomplete_coaches)
+
+    max_due_date = max([c.due_date for c in coaches if c.due_date], default=today_date)
+
+    if desired_rate is None:
+        desired_rate = math.ceil(total_coaches / 12) if total_coaches else 0
+
+    def month_start(d):
+        return date(d.year, d.month, 1)
+
+    start_month = month_start(today_date)
+    end_month = month_start(max_due_date)
+
+    months = []
+    cursor = start_month
+
+    while cursor <= end_month:
+        months.append(cursor)
+        if cursor.month == 12:
+            cursor = date(cursor.year + 1, 1, 1)
+        else:
+            cursor = date(cursor.year, cursor.month + 1, 1)
+
+    remaining_months = max(len(months), 1)
+    required_rate = math.ceil(incomplete_count / remaining_months) if incomplete_count else 0
+
+    completions_by_month = defaultdict(int)
+    due_by_month = defaultdict(int)
+
+    for coach in completed_coaches:
+        completions_by_month[month_start(coach.completion_date)] += 1
+
+    for coach in coaches:
+        if coach.due_date:
+            due_by_month[month_start(coach.due_date)] += 1
+
+    labels = []
+    actual_completed_line = []
+    desired_completed_line = []
+    required_completed_line = []
+    remaining_line = []
+    due_load_line = []
+    monthly_completion_line = []
+    monthly_completion_avg_line = []
+    capacity_heat_colors = []
+    capacity_heat_labels = []
+    cumulative_actual = completed_count
+
+    for index, m in enumerate(months):
+        if index > 0:
+            cumulative_actual += completions_by_month[m]
+
+        desired_completed = min(total_coaches, completed_count + int(round(desired_rate * (index + 1))))
+        required_completed = min(total_coaches, completed_count + int(round(required_rate * (index + 1))))
+        remaining = max(total_coaches - cumulative_actual, 0)
+
+        labels.append(f"{calendar.month_abbr[m.month]} {m.year}")
+        actual_completed_line.append(cumulative_actual)
+        desired_completed_line.append(desired_completed)
+        required_completed_line.append(required_completed)
+        remaining_line.append(remaining)
+        due_load_line.append(due_by_month[m])
+        monthly_completion_line.append(completions_by_month[m])
+        recent_values = monthly_completion_line[-3:]
+        monthly_avg = round(sum(recent_values) / len(recent_values), 1) if recent_values else 0
+        monthly_completion_avg_line.append(monthly_avg)
+        month_due_count = due_by_month[m]
+        
+        if required_rate == 0:
+            heat_label = "No Load"
+            heat_color = "#6c757d"
+        elif month_due_count >= required_rate * 1.5:
+            heat_label = "High Pressure"
+            heat_color = "#dc3545"
+        elif month_due_count >= required_rate:
+            heat_label = "Moderate Pressure"
+            heat_color = "#fd7e14"
+        else:
+            heat_label = "Manageable"
+            heat_color = "#198754"
+        
+        capacity_heat_labels.append(heat_label)
+        capacity_heat_colors.append(heat_color)        
+
+    
+    # INSERT STEP 1 HERE
+    if len(monthly_completion_avg_line) >= 2:
+        previous_avg = monthly_completion_avg_line[-2]
+        latest_avg = monthly_completion_avg_line[-1]
+    
+        if latest_avg > previous_avg:
+            productivity_trend = "Improving"
+            productivity_trend_color = "success"
+            productivity_trend_icon = "🟢"
+    
+        elif latest_avg < previous_avg:
+            productivity_trend = "Declining"
+            productivity_trend_color = "danger"
+            productivity_trend_icon = "🔴"
+    
+        else:
+            productivity_trend = "Stable"
+            productivity_trend_color = "warning"
+            productivity_trend_icon = "🟠"
+    
+    else:
+        productivity_trend = "Insufficient Data"
+        productivity_trend_color = "secondary"
+        productivity_trend_icon = "⚪"
+
+
+    if desired_rate and desired_rate > 0 and incomplete_count:
+        months_to_finish = math.ceil(incomplete_count / desired_rate)
+        projected_index = max(months_to_finish - 1, 0)
+
+        if projected_index < len(months):
+            projected_completion_month = labels[projected_index]
+        else:
+            extra_months = projected_index - len(months) + 1
+            projected_completion_month = f"{extra_months} month(s) after final due date"
+    elif incomplete_count == 0:
+        projected_completion_month = "Already complete"
+    else:
+        projected_completion_month = "Not achievable at 0/month"
+
+    bottlenecks = {
+        "Stripping": 0,
+        "Completion": 0,
+        "Serviceworthy": 0,
+        "Retention": 0,
+    }
+
+    for coach in incomplete_coaches:
+        if not coach.stripping:
+            bottlenecks["Stripping"] += 1
+        elif not coach.complete:
+            bottlenecks["Completion"] += 1
+        elif not coach.serviceworthy:
+            bottlenecks["Serviceworthy"] += 1
+        elif coach.coach_type and coach.coach_type.lower() != "trailer" and not coach.retention:
+            bottlenecks["Retention"] += 1
+
+    bottleneck_labels = list(bottlenecks.keys())
+    bottleneck_values = list(bottlenecks.values())
+    
+    section_totals = defaultdict(int)
+    section_incomplete = defaultdict(int)
+    
+    for coach in incomplete_coaches:
+        for task in coach.completion_tasks:
+    
+            section_name = task.section or "Unspecified"
+    
+            section_totals[section_name] += 1
+    
+            if not task.completed:
+                section_incomplete[section_name] += 1
+    
+    section_percentages = []
+    
+    for section_name in section_totals:
+    
+        total = section_totals[section_name]
+        incomplete = section_incomplete[section_name]
+    
+        if total > 0:
+            incomplete_percent = round((incomplete / total) * 100, 1)
+        else:
+            incomplete_percent = 0
+    
+        section_percentages.append(
+            (section_name, incomplete_percent)
+        )
+    
+    section_percentages_sorted = sorted(
+        section_percentages,
+        key=lambda item: item[1],
+        reverse=True
+    )
+    
+    section_bottleneck_labels = [
+        item[0]
+        for item in section_percentages_sorted[:12]
+    ]
+    
+    section_bottleneck_values = [
+        item[1]
+        for item in section_percentages_sorted[:12]
+    ]
+
+    section_risk_matrix = []
+    
+    for section_name, percent in section_percentages_sorted[:12]:
+    
+        if percent >= 75:
+            risk_level = "danger"
+            risk_label = "Critical"
+            risk_icon = "🔴"
+    
+        elif percent >= 50:
+            risk_level = "warning"
+            risk_label = "High"
+            risk_icon = "🟠"
+    
+        elif percent >= 25:
+            risk_level = "primary"
+            risk_label = "Moderate"
+            risk_icon = "🔵"
+    
+        else:
+            risk_level = "success"
+            risk_label = "Stable"
+            risk_icon = "🟢"
+    
+        section_risk_matrix.append({
+            "section": section_name,
+            "percent": percent,
+            "risk_level": risk_level,
+            "risk_label": risk_label,
+            "risk_icon": risk_icon,
+        })    
+
+    gap = desired_rate - required_rate
+    
+    if incomplete_count == 0:
+        status_color = "success"
+        confidence = "HIGH CONFIDENCE"
+        confidence_icon = "🟢"
+    
+        status = (
+            "All coaches are complete. "
+            "No outstanding delivery risk exists."
+        )
+    
+    elif desired_rate >= required_rate * 1.25:
+        status_color = "success"
+        confidence = "HIGH CONFIDENCE"
+        confidence_icon = "🟢"
+    
+        status = (
+            f"Production capacity exceeds required throughput. "
+            f"Desired rate ({desired_rate:g}/month) is comfortably above "
+            f"required rate ({required_rate:g}/month)."
+        )
+    
+    elif desired_rate >= required_rate:
+        status_color = "warning"
+        confidence = "MODERATE RISK"
+        confidence_icon = "🟠"
+    
+        status = (
+            f"Production targets are technically achievable, but with low margin. "
+            f"Desired rate ({desired_rate:g}/month) is only slightly above "
+            f"required rate ({required_rate:g}/month)."
+        )
+    
+    else:
+        status_color = "danger"
+        confidence = "CRITICAL RISK"
+        confidence_icon = "🔴"
+    
+        shortfall = required_rate - desired_rate
+    
+        status = (
+            f"Current throughput is insufficient to achieve planned delivery dates. "
+            f"Production is short by approximately {shortfall:g} coach(es)/month."
+        )
+  
+    actual_rate = round(completed_count / 12, 1) if completed_count else 0
+
+    if incomplete_count == 0:
+        delivery_confidence = 100
+    
+    else:
+        confidence_ratio = desired_rate / required_rate if required_rate else 1
+    
+        if confidence_ratio >= 1.2:
+            delivery_confidence = 95
+        elif confidence_ratio >= 1.0:
+            delivery_confidence = 80
+        elif confidence_ratio >= 0.8:
+            delivery_confidence = 60
+        elif confidence_ratio >= 0.6:
+            delivery_confidence = 40
+        else:
+            delivery_confidence = 20
+    
+        overdue_count = len([
+            c for c in coaches
+            if get_schedule_flags(c, today_date).get("is_overdue")
+        ])
+    
+        delivery_confidence -= overdue_count * 3
+    
+        critical_risk_count = len([
+            c for c in coaches
+            if get_delay_risk_score(c, today_date)["score"] >= 70
+        ])
+    
+        delivery_confidence -= critical_risk_count * 2
+    
+        delivery_confidence = max(min(delivery_confidence, 100), 0)
+    
+    if delivery_confidence >= 85:
+        confidence_grade = "Excellent"
+        confidence_color = "success"
+        confidence_icon = "🟢"
+    
+    elif delivery_confidence >= 70:
+        confidence_grade = "Good"
+        confidence_color = "primary"
+        confidence_icon = "🔵"
+    
+    elif delivery_confidence >= 50:
+        confidence_grade = "Moderate"
+        confidence_color = "warning"
+        confidence_icon = "🟠"
+    
+    else:
+        confidence_grade = "High Risk"
+        confidence_color = "danger"
+        confidence_icon = "🔴"    
+
+    top_risk_coaches = []
+    
+    for coach in coaches:
+        risk = get_delay_risk_score(coach, today_date)
+    
+        if risk["score"] > 0:
+            top_risk_coaches.append({
+                "coach_id": coach.id,
+                "coach_number": coach.coach_number,
+                "coach_type": coach.coach_type,
+                "risk_score": risk["score"],
+                "risk_level": risk["level"],
+                "risk_label": risk["label"],
+                "risk_reasons": risk["reasons"],
+            })
+    
+    top_risk_coaches = sorted(
+        top_risk_coaches,
+        key=lambda item: item["risk_score"],
+        reverse=True
+    )[:5]
+    
+    gantt_items = []
+    
+    for coach in coaches:
+        start_date = coach.stripping_date or coach.due_date or today_date
+        end_date = coach.completion_date or coach.due_date or today_date
+    
+        if end_date < start_date:
+            end_date = start_date
+    
+        flags = get_schedule_flags(coach, today_date)
+    
+        if coach.complete:
+            bar_color = "success"
+            status_label = "Complete"
+        elif flags.get("is_overdue"):
+            bar_color = "danger"
+            status_label = "Overdue"
+        elif flags.get("is_due_soon"):
+            bar_color = "warning"
+            status_label = "Due Soon"
+        else:
+            bar_color = "primary"
+            status_label = "In Progress"
+    
+        gantt_items.append({
+            "coach_id": coach.id,
+            "coach_number": coach.coach_number,
+            "coach_type": coach.coach_type,
+            "start_date": start_date,
+            "end_date": end_date,
+            "start_label": start_date.strftime("%d %b %Y"),
+            "end_label": end_date.strftime("%d %b %Y"),
+            "bar_color": bar_color,
+            "status_label": status_label,
+        })    
+        
+        ageing_items = []
+        
+        # Phase ageing from current operational phase
+        phase_ageing = defaultdict(list)
+        
+        for coach in incomplete_coaches:
+            phase_info = get_current_phase_info(coach, today_date)
+        
+            phase_name = phase_info.get("phase") or "Unknown"
+            days = phase_info.get("days")
+        
+            if days is not None:
+                phase_ageing[phase_name].append(days)
+        
+        for phase_name, values in phase_ageing.items():
+            avg_days = round(sum(values) / len(values), 1) if values else 0
+        
+            ageing_items.append({
+                "category": "Phase",
+                "name": phase_name,
+                "avg_days": avg_days,
+                "count": len(values),
+            })
+        
+        
+        # Section ageing pressure from incomplete tasks on incomplete coaches
+        section_ageing = defaultdict(list)
+        
+        for coach in incomplete_coaches:
+            phase_info = get_current_phase_info(coach, today_date)
+            days = phase_info.get("days")
+        
+            if days is None:
+                continue
+        
+            for task in coach.completion_tasks:
+                if not task.completed:
+                    section_name = task.section or "Unspecified"
+                    section_ageing[section_name].append(days)
+        
+        for section_name, values in section_ageing.items():
+            avg_days = round(sum(values) / len(values), 1) if values else 0
+        
+            ageing_items.append({
+                "category": "Section",
+                "name": section_name,
+                "avg_days": avg_days,
+                "count": len(values),
+            })
+        
+        
+        ageing_items = sorted(
+            ageing_items,
+            key=lambda item: item["avg_days"],
+            reverse=True
+        )[:15]
+        
+        ageing_labels = [
+            f"{item['category']}: {item['name']}"
+            for item in ageing_items
+        ]
+        
+        ageing_values = [
+            item["avg_days"]
+            for item in ageing_items
+        ]
+    
+    executive_actions = []
+    
+    if top_risk_coaches:
+        coach = top_risk_coaches[0]
+        executive_actions.append({
+            "level": coach["risk_level"],
+            "title": f"Prioritise coach {coach['coach_number']}",
+            "text": (
+                f"Risk score is {coach['risk_score']}/100. "
+                f"Main indicators: {', '.join(coach['risk_reasons'][:2])}."
+            ),
+        })
+    
+    if section_risk_matrix:
+        section = section_risk_matrix[0]
+        executive_actions.append({
+            "level": section["risk_level"],
+            "title": f"Review {section['section']} capacity",
+            "text": (
+                f"{section['percent']}% of work is incomplete. "
+                f"Operational risk is {section['risk_label']}."
+            ),
+        })
+    
+    if ageing_items:
+        ageing = ageing_items[0]
+        action_level = "danger" if ageing["avg_days"] > 21 else "warning" if ageing["avg_days"] > 7 else "success"
+    
+        executive_actions.append({
+            "level": action_level,
+            "title": f"Investigate ageing in {ageing['name']}",
+            "text": (
+                f"{ageing['category']} ageing average is {ageing['avg_days']} day(s), "
+                f"based on {ageing['count']} item(s)."
+            ),
+        })
+    
+    executive_actions.append({
+        "level": confidence_color,
+        "title": f"Delivery confidence is {confidence_grade}",
+        "text": (
+            f"Overall delivery confidence is {delivery_confidence}%. "
+            f"Current forecast status: {confidence}."
+        ),
+    })
+    
+    executive_actions.append({
+        "level": productivity_trend_color,
+        "title": f"Productivity trend is {productivity_trend}",
+        "text": "Review monthly completion velocity if the trend is declining or stable.",
+    })
+    
+    
+
+
+
+    return render_template(
+        "delivery_graph.html",
+        report_date=report_date,
+        selected_type=selected_type,
+        all_coach_types=all_coach_types,
+        total_coaches=total_coaches,
+        completed_count=completed_count,
+        incomplete_count=incomplete_count,
+        desired_rate=desired_rate,
+        actual_rate=actual_rate,
+        required_rate=required_rate,
+        final_deadline=max_due_date.strftime("%d %b %Y"),
+        remaining_months=remaining_months,
+        projected_completion_month=projected_completion_month,
+        status=status,
+        status_color=status_color,
+        confidence=confidence,
+        confidence_icon=confidence_icon,
+        labels=labels,
+        actual_completed_line=actual_completed_line,
+        desired_completed_line=desired_completed_line,
+        required_completed_line=required_completed_line,
+        remaining_line=remaining_line,
+        due_load_line=due_load_line,
+        monthly_completion_line=monthly_completion_line,
+        bottleneck_labels=bottleneck_labels,
+        bottleneck_values=bottleneck_values,
+        capacity_heat_labels=capacity_heat_labels,
+        capacity_heat_colors=capacity_heat_colors,
+        section_bottleneck_labels=section_bottleneck_labels,
+        section_bottleneck_values=section_bottleneck_values,
+        monthly_completion_avg_line=monthly_completion_avg_line,
+        productivity_trend=productivity_trend,
+        productivity_trend_color=productivity_trend_color,
+        productivity_trend_icon=productivity_trend_icon,
+        delivery_confidence=delivery_confidence,
+        confidence_grade=confidence_grade,
+        confidence_color=confidence_color,
+        #confidence_icon=confidence_icon,
+        top_risk_coaches=top_risk_coaches,
+        section_risk_matrix=section_risk_matrix,
+        gantt_items=gantt_items,
+        ageing_items=ageing_items,
+        ageing_labels=ageing_labels,
+        ageing_values=ageing_values,
+        executive_actions=executive_actions,
+    )
+
+@app.route("/admin/export-database-csv")
+@login_required
+@role_required("admin")
+def export_database_csv():
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow(["TABLE: coach"])
+    writer.writerow([
+        "id", "coach_number", "coach_type", "due_date",
+        "stripping_date", "completion_date", "serviceworthy_date",
+        "retention_date",
+        "stripping", "complete", "serviceworthy", "retention",
+        "archived"
+    ])
+
+    for c in Coach.query.order_by(Coach.coach_number.asc()).all():
+        writer.writerow([
+            c.id,
+            c.coach_number,
+            c.coach_type,
+            c.due_date,
+            c.stripping_date,
+            c.completion_date,
+            c.serviceworthy_date,
+            c.retention_date,
+            c.stripping,
+            c.complete,
+            c.serviceworthy,
+            c.retention,
+            getattr(c, "archived", False),
+        ])
+
+    writer.writerow([])
+    writer.writerow(["TABLE: completion_task"])
+    writer.writerow([
+        "id", "coach_id", "coach_no", "coach_type",
+        "phase", "section", "task", "hours",
+        "completed", "completed_date"
+    ])
+
+    for t in CompletionTask.query.order_by(CompletionTask.coach_no.asc(), CompletionTask.phase.asc(), CompletionTask.section.asc()).all():
+        writer.writerow([
+            t.id,
+            t.coach_id,
+            t.coach_no,
+            t.coach_type,
+            t.phase,
+            t.section,
+            t.task,
+            t.hours,
+            t.completed,
+            t.completed_date,
+        ])
+
+    writer.writerow([])
+    writer.writerow(["TABLE: task_template"])
+    writer.writerow([
+        "id", "coach_type", "phase", "section", "task",
+        "hours", "is_active", "sort_order"
+    ])
+
+    for tt in TaskTemplate.query.order_by(TaskTemplate.coach_type.asc(), TaskTemplate.sort_order.asc()).all():
+        writer.writerow([
+            tt.id,
+            tt.coach_type,
+            tt.phase,
+            tt.section,
+            tt.task,
+            tt.hours,
+            tt.is_active,
+            tt.sort_order,
+        ])
+
+    writer.writerow([])
+    writer.writerow(["TABLE: coach_audit"])
+    writer.writerow([
+        "id", "coach_id", "coach_number", "action",
+        "changed_by", "details", "created_at"
+    ])
+
+    for a in CoachAudit.query.order_by(CoachAudit.created_at.desc()).all():
+        writer.writerow([
+            a.id,
+            a.coach_id,
+            a.coach_number,
+            a.action,
+            a.changed_by,
+            a.details,
+            a.created_at,
+        ])
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=cte_durban_coaches_backup.csv"
+        },
+    )
 
 
 

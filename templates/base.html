@@ -118,6 +118,14 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'delivery_graph' %}active-link{% endif %}"
+                           href="{{ url_for('delivery_graph') }}">
+                            📊 Delivery Graph
+                        </a>
+                    </li>
+
+
                     {% if current_user.role in ['admin', 'editor'] %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'coach_audits' %}active-link{% endif %}"
@@ -143,6 +151,12 @@
                             Manage Users
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('export_database_csv') }}">
+                            Backup CSV
+                        </a>
+                    </li>                    
+                              
                     {% endif %}
                 </ul>
                 {% endif %}
