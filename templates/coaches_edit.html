@@ -4,15 +4,16 @@
 {% block content %}
 {% set progress = coach.calculate_progress() %}
 
-{% set active_total = 0 %}
-{% set active_completed = 0 %}
+{% set ns = namespace(active_total=0, active_completed=0) %}
 {% for phase in progress.phases %}
     {% if phase.name in ['Stripping', 'Completion'] %}
-        {% set active_total = active_total + phase.total %}
-        {% set active_completed = active_completed + phase.completed %}
+        {% set ns.active_total = ns.active_total + phase.total %}
+        {% set ns.active_completed = ns.active_completed + phase.completed %}
     {% endif %}
 {% endfor %}
-{% set active_percent = ((active_completed / active_total) * 100) | round(1) if active_total > 0 else 0 %}
+{% set active_percent = ((ns.active_completed / ns.active_total) * 100) | round(1) if ns.active_total > 0 else 0 %}
+
+<form id="coachEditForm" method="POST" action="{{ url_for('coaches_edit', id=coach.id) }}"></form>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -24,78 +25,44 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('coaches_edit', id=coach.id) }}" class="row g-4">
+                    <div class="row g-4">
 
-                        <!-- Coach Details -->
                         <div class="col-12">
                             <h5 class="mb-3 border-bottom pb-2 text-primary">Coach Details</h5>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="coach_number" class="form-label fw-bold">Coach Number</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="coach_number"
-                                name="coach_number"
-                                value="{{ coach.coach_number }}"
-                                required
-                            >
+                            <label class="form-label fw-bold">Coach Number</label>
+                            <input form="coachEditForm" type="text" class="form-control" name="coach_number" value="{{ coach.coach_number }}" required>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="coach_type" class="form-label fw-bold">Coach Type</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="coach_type"
-                                name="coach_type"
-                                value="{{ coach.coach_type }}"
-                                required
-                            >
+                            <label class="form-label fw-bold">Coach Type</label>
+                            <input form="coachEditForm" type="text" class="form-control" name="coach_type" value="{{ coach.coach_type }}" required>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="due_date" class="form-label fw-bold">Coach Due Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="due_date"
-                                name="due_date"
-                                value="{{ coach.due_date.strftime('%Y-%m-%d') if coach.due_date else '' }}"
-                            >
-                            <small class="form-text text-muted">
-                                This date drives the countdown in the Delivery Schedule page.
-                            </small>
+                            <label class="form-label fw-bold">Coach Due Date</label>
+                            <input form="coachEditForm" type="date" class="form-control" name="due_date" value="{{ coach.due_date.strftime('%Y-%m-%d') if coach.due_date else '' }}">
                         </div>
 
                         <div class="col-md-6">
-                            <label for="notes" class="form-label fw-bold">Notes / Remarks</label>
-                            <textarea
-                                class="form-control"
-                                id="notes"
-                                name="notes"
-                                rows="3"
-                            >{{ coach.notes or '' }}</textarea>
+                            <label class="form-label fw-bold">Notes / Remarks</label>
+                            <textarea form="coachEditForm" class="form-control" name="notes" rows="3">{{ coach.notes or '' }}</textarea>
                         </div>
 
-                        <!-- Progress Summary -->
                         <div class="col-12 mt-4">
                             <h5 class="mb-3 border-bottom pb-2 text-primary">Progress Summary</h5>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Stripping Status</label>
-                            <div class="form-control bg-light">
-                                {{ "Completed" if coach.stripping else "In Progress / Not Started" }}
-                            </div>
+                            <div class="form-control bg-light">{{ "Completed" if coach.stripping else "In Progress / Not Started" }}</div>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Completion Status</label>
-                            <div class="form-control bg-light">
-                                {{ "Completed" if coach.complete else "In Progress / Not Started" }}
-                            </div>
+                            <div class="form-control bg-light">{{ "Completed" if coach.complete else "In Progress / Not Started" }}</div>
                         </div>
 
                         <div class="col-md-4">
@@ -103,233 +70,260 @@
                             <div class="form-control bg-light">{{ active_percent }}%</div>
                         </div>
 
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Stripping Date</label>
-                            <div class="form-control bg-light">
-                                {{ coach.stripping_date.strftime('%Y-%m-%d') if coach.stripping_date else '—' }}
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Completion Date</label>
-                            <div class="form-control bg-light">
-                                {{ coach.completion_date.strftime('%Y-%m-%d') if coach.completion_date else '—' }}
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Workflow</label>
-                            <div class="form-control bg-light">
-                                {{ progress.phases|length }} phases
-                            </div>
-                        </div>
-
-                        <!-- Coach Timeline -->
                         <div class="col-12 mt-5">
                             <h5 class="mb-3 border-bottom pb-2 text-primary">Coach Timeline</h5>
-                        
+
+                            {% set is_trailer = coach.coach_type and coach.coach_type|lower == 'trailer' %}
+
                             <div class="timeline-wrapper">
                                 <div class="timeline-step {% if coach.stripping %}timeline-done{% else %}timeline-pending{% endif %}">
                                     <div class="timeline-circle">1</div>
                                     <div class="timeline-label">Stripping</div>
-                                    <div class="timeline-status">
-                                        {{ "Completed" if coach.stripping else "Pending" }}
-                                    </div>
-                                    <div class="timeline-date">
-                                        {{ coach.stripping_date.strftime('%d %b %Y') if coach.stripping_date else '—' }}
-                                    </div>
+                                    <div class="timeline-status">{{ "Completed" if coach.stripping else "Pending" }}</div>
+                                    <div class="timeline-date">{{ coach.stripping_date.strftime('%d %b %Y') if coach.stripping_date else '—' }}</div>
                                 </div>
-                        
+
                                 <div class="timeline-line"></div>
-                        
+
                                 <div class="timeline-step {% if coach.complete %}timeline-done{% else %}timeline-pending{% endif %}">
                                     <div class="timeline-circle">2</div>
                                     <div class="timeline-label">Completion</div>
-                                    <div class="timeline-status">
-                                        {{ "Completed" if coach.complete else "Pending" }}
-                                    </div>
-                                    <div class="timeline-date">
-                                        {{ coach.completion_date.strftime('%d %b %Y') if coach.completion_date else '—' }}
-                                    </div>
+                                    <div class="timeline-status">{{ "Completed" if coach.complete else "Pending" }}</div>
+                                    <div class="timeline-date">{{ coach.completion_date.strftime('%d %b %Y') if coach.completion_date else '—' }}</div>
                                 </div>
-                        
+
                                 <div class="timeline-line"></div>
-                        
+
                                 <div class="timeline-step {% if coach.serviceworthy %}timeline-done{% else %}timeline-pending{% endif %}">
                                     <div class="timeline-circle">3</div>
                                     <div class="timeline-label">Serviceworthy</div>
-                                    <div class="timeline-status">
-                                        {{ "Completed" if coach.serviceworthy else "Pending" }}
-                                    </div>
-                                    <div class="timeline-date">
-                                        {{ coach.serviceworthy_date.strftime('%d %b %Y') if coach.serviceworthy_date else '—' }}
-                                    </div>
+                                    <div class="timeline-status">{{ "Completed" if coach.serviceworthy else "Pending" }}</div>
+                                    <div class="timeline-date">{{ coach.serviceworthy_date.strftime('%d %b %Y') if coach.serviceworthy_date else '—' }}</div>
                                 </div>
-                        
+
                                 <div class="timeline-line"></div>
-                        
-                                {% set is_trailer = coach.coach_type and coach.coach_type|lower == 'trailer' %}
-                        
-                                <div class="timeline-step
-                                    {% if is_trailer %}
-                                        timeline-na
-                                    {% elif coach.retention %}
-                                        timeline-done
-                                    {% else %}
-                                        timeline-pending
-                                    {% endif %}
-                                ">
+
+                                <div class="timeline-step {% if is_trailer %}timeline-na{% elif coach.retention %}timeline-done{% else %}timeline-pending{% endif %}">
                                     <div class="timeline-circle">4</div>
                                     <div class="timeline-label">Retention</div>
                                     <div class="timeline-status">
-                                        {% if is_trailer %}
-                                            Not Applicable
-                                        {% elif coach.retention %}
-                                            Completed
-                                        {% else %}
-                                            Pending
-                                        {% endif %}
+                                        {% if is_trailer %}Not Applicable{% elif coach.retention %}Completed{% else %}Pending{% endif %}
                                     </div>
                                     <div class="timeline-date">
-                                        {% if is_trailer %}
-                                            Trailer
-                                        {% else %}
-                                            {{ coach.retention_date.strftime('%d %b %Y') if coach.retention_date else '—' }}
-                                        {% endif %}
+                                        {% if is_trailer %}Trailer{% else %}{{ coach.retention_date.strftime('%d %b %Y') if coach.retention_date else '—' }}{% endif %}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
 
-
-                        <!-- Task Phases -->
                         <div class="col-12 mt-5">
                             <h5 class="mb-3 border-bottom pb-2 text-primary">Task Phases</h5>
-                            <div class="alert alert-info mb-0">
+                            <div class="alert alert-info mb-3">
                                 Expand a phase, then expand only the section you want to update.
+                            </div>
+                            
+                             <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+                                <input type="text" id="taskSearch" class="form-control flex-grow-1"
+                                       placeholder="Search tasks, sections, phases...">
+                            
+                                <select id="taskPageSize" class="form-select" style="max-width: 140px;">
+                                    <option value="10">10 per page</option>
+                                    <option value="20" selected>20 per page</option>
+                                    <option value="50">50 per page</option>
+                                    <option value="9999">All</option>
+                                </select>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="prevTaskPage">
+                                    Previous
+                                </button>
+                            
+                                <div class="small text-muted" id="taskPageInfo">
+                                    Page 1
+                                </div>
+                            
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="nextTaskPage">
+                                    Next
+                                </button>
+                            </div>                           
+                                                        
+                                                        
+                            
+                            
+                            
+                            
+                            
+                            
+                        </div>
+
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                                <div class="card-header bg-white">
+                                    <h5 class="mb-0">Add Task to This Coach Only</h5>
+                                </div>
+
+                                <div class="card-body">
+                                    <form method="post" action="{{ url_for('coach_task_add', coach_id=coach.id) }}">
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-bold">Phase</label>
+                                                <input type="text" name="phase" class="form-control" placeholder="Completion" required>
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <label class="form-label fw-bold">Section</label>
+                                                <input type="text" name="section" class="form-control" placeholder="Electrical" required>
+                                            </div>
+
+                                            <div class="col-md-5">
+                                                <label class="form-label fw-bold">Task</label>
+                                                <input type="text" name="task" class="form-control" placeholder="Enter task description" required>
+                                            </div>
+
+                                            <div class="col-md-1">
+                                                <label class="form-label fw-bold">Hours</label>
+                                                <input type="number" step="0.1" name="hours" class="form-control" value="0">
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <button type="submit" class="btn btn-success w-100">Add Task</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
 
                         {% set phase_groups = coach.completion_tasks | groupby('phase') %}
                         {% if phase_groups %}
-                            <div class="col-12">
-                                <div class="accordion" id="phaseAccordion">
-                                    {% for phase_group in phase_groups %}
-                                        {% set phase_name = phase_group.grouper %}
-                                        {% set phase_tasks = phase_group.list %}
-                                        {% set phase_total = phase_tasks|length %}
-                                        {% set phase_completed = phase_tasks | selectattr('completed') | list | length %}
-                                        {% set phase_hours = phase_tasks | sum(attribute='hours') %}
-                                        {% set phase_percent = ((phase_completed / phase_total) * 100) | round(1) if phase_total > 0 else 0 %}
+                        <div class="col-12">
+                            <div class="accordion" id="phaseAccordion">
+                                {% for phase_group in phase_groups %}
+                                    {% set phase_name = phase_group.grouper %}
+                                    {% set phase_tasks = phase_group.list %}
+                                    {% set phase_total = phase_tasks|length %}
+                                    {% set phase_completed = phase_tasks | selectattr('completed') | list | length %}
+                                    {% set phase_hours = phase_tasks | sum(attribute='hours') %}
+                                    {% set phase_percent = ((phase_completed / phase_total) * 100) | round(1) if phase_total > 0 else 0 %}
 
-                                        <div class="accordion-item border mb-3 rounded">
-                                            <h2 class="accordion-header" id="phase-heading-{{ loop.index }}">
-                                                <button
-                                                    class="accordion-button {% if not loop.first %}collapsed{% endif %}"
-                                                    type="button"
-                                                    data-bs-toggle="collapse"
-                                                    data-bs-target="#phase-collapse-{{ loop.index }}"
-                                                    aria-expanded="{% if loop.first %}true{% else %}false{% endif %}"
-                                                    aria-controls="phase-collapse-{{ loop.index }}"
-                                                >
-                                                    <span class="fw-semibold">{{ phase_name }}</span>
-                                                    <span class="badge ms-3 {% if phase_percent == 100 %}bg-success{% elif phase_percent > 0 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
-                                                        {{ phase_completed }} / {{ phase_total }} completed – {{ phase_percent }}%
-                                                    </span>
-                                                    <small class="text-muted ms-3">({{ phase_hours }} hrs total)</small>
-                                                </button>
-                                            </h2>
+                                    <div class="accordion-item border mb-3 rounded">
+                                        <h2 class="accordion-header" id="phase-heading-{{ loop.index }}">
+                                            <button class="accordion-button {% if not loop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#phase-collapse-{{ loop.index }}">
+                                                <span class="fw-semibold">{{ phase_name }}</span>
+                                                <span class="badge ms-3 {% if phase_percent == 100 %}bg-success{% elif phase_percent > 0 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                                    {{ phase_completed }} / {{ phase_total }} completed – {{ phase_percent }}%
+                                                </span>
+                                                <small class="text-muted ms-3">({{ phase_hours }} hrs total)</small>
+                                            </button>
+                                        </h2>
 
-                                            <div
-                                                id="phase-collapse-{{ loop.index }}"
-                                                class="accordion-collapse collapse {% if loop.first %}show{% endif %}"
-                                                aria-labelledby="phase-heading-{{ loop.index }}"
-                                                data-bs-parent="#phaseAccordion"
-                                            >
-                                                <div class="accordion-body bg-light">
+                                        <div id="phase-collapse-{{ loop.index }}" class="accordion-collapse collapse {% if loop.first %}show{% endif %}" data-bs-parent="#phaseAccordion">
+                                            <div class="accordion-body bg-light">
 
-                                                    {% set outer_phase_index = loop.index %}
-                                                    {% set section_groups = phase_tasks | groupby('section') %}
+                                                {% set outer_phase_index = loop.index %}
+                                                {% set section_groups = phase_tasks | groupby('section') %}
 
-                                                    {% if section_groups %}
-                                                        <div class="accordion" id="sectionAccordion-{{ outer_phase_index }}">
-                                                            {% for section_group in section_groups %}
-                                                                {% set section_name = section_group.grouper %}
-                                                                {% set section_tasks = section_group.list %}
-                                                                {% set section_total = section_tasks|length %}
-                                                                {% set section_completed = section_tasks | selectattr('completed') | list | length %}
-                                                                {% set section_hours = section_tasks | sum(attribute='hours') %}
-                                                                {% set section_percent = ((section_completed / section_total) * 100) | round(1) if section_total > 0 else 0 %}
+                                                {% if section_groups %}
+                                                <div class="accordion" id="sectionAccordion-{{ outer_phase_index }}">
+                                                    {% for section_group in section_groups %}
+                                                        {% set section_name = section_group.grouper %}
+                                                        {% set section_tasks = section_group.list %}
+                                                        {% set section_total = section_tasks|length %}
+                                                        {% set section_completed = section_tasks | selectattr('completed') | list | length %}
+                                                        {% set section_hours = section_tasks | sum(attribute='hours') %}
+                                                        {% set section_percent = ((section_completed / section_total) * 100) | round(1) if section_total > 0 else 0 %}
 
-                                                                <div class="accordion-item border mb-3 rounded">
-                                                                    <h2 class="accordion-header" id="section-heading-{{ outer_phase_index }}-{{ loop.index }}">
-                                                                        <button
-                                                                            class="accordion-button collapsed"
-                                                                            type="button"
-                                                                            data-bs-toggle="collapse"
-                                                                            data-bs-target="#section-collapse-{{ outer_phase_index }}-{{ loop.index }}"
-                                                                            aria-expanded="false"
-                                                                            aria-controls="section-collapse-{{ outer_phase_index }}-{{ loop.index }}"
-                                                                        >
-                                                                            <span class="fw-semibold">{{ section_name }}</span>
-                                                                            <span class="badge ms-3 {% if section_percent == 100 %}bg-success{% elif section_percent > 0 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
-                                                                                {{ section_completed }} / {{ section_total }} – {{ section_percent }}%
-                                                                            </span>
-                                                                            <small class="text-muted ms-3">({{ section_hours }} hrs total)</small>
-                                                                        </button>
-                                                                    </h2>
+                                                        <div class="accordion-item border mb-3 rounded">
+                                                            <h2 class="accordion-header" id="section-heading-{{ outer_phase_index }}-{{ loop.index }}">
+                                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#section-collapse-{{ outer_phase_index }}-{{ loop.index }}">
+                                                                    <span class="fw-semibold">{{ section_name }}</span>
+                                                                    <span class="badge ms-3 {% if section_percent == 100 %}bg-success{% elif section_percent > 0 %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                                                        {{ section_completed }} / {{ section_total }} – {{ section_percent }}%
+                                                                    </span>
+                                                                    <small class="text-muted ms-3">({{ section_hours }} hrs total)</small>
+                                                                </button>
+                                                            </h2>
 
-                                                                    <div
-                                                                        id="section-collapse-{{ outer_phase_index }}-{{ loop.index }}"
-                                                                        class="accordion-collapse collapse"
-                                                                        aria-labelledby="section-heading-{{ outer_phase_index }}-{{ loop.index }}"
-                                                                        data-bs-parent="#sectionAccordion-{{ outer_phase_index }}"
-                                                                    >
-                                                                        <div class="accordion-body bg-white">
-                                                                            <div class="row g-3">
-                                                                                {% for task in section_tasks %}
-                                                                                    <div class="col-md-6 col-lg-4">
-                                                                                        <div class="form-check">
-                                                                                            <input
-                                                                                                class="form-check-input"
-                                                                                                type="checkbox"
-                                                                                                name="task_{{ task.id }}"
-                                                                                                id="task_{{ task.id }}"
-                                                                                                {% if task.completed %}checked{% endif %}
-                                                                                            >
-                                                                                            <label class="form-check-label" for="task_{{ task.id }}">
-                                                                                                {{ task.task }}
-                                                                                                <small class="text-muted ms-1">({{ task.hours }} hrs)</small>
-                                                                                            </label>
+                                                            <div id="section-collapse-{{ outer_phase_index }}-{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#sectionAccordion-{{ outer_phase_index }}">
+                                                                <div class="accordion-body bg-white">
+                                                                    <div class="row g-3">
+                                                                        {% for task in section_tasks %}
+                                                                        <div class="col-12">
+                                                                            <div class="border rounded-4 p-3 mb-3 bg-light">
+
+                                                                                <div class="form-check mb-3">
+                                                                                    <input form="coachEditForm" class="form-check-input" type="checkbox" name="task_{{ task.id }}" id="task_{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                                                                                    <label class="form-check-label fw-semibold" for="task_{{ task.id }}">
+                                                                                        {{ task.task }}
+                                                                                        <small class="text-muted ms-1">({{ task.hours }} hrs)</small>
+                                                                                    </label>
+                                                                                </div>
+
+                                                                                <form method="post" action="{{ url_for('coach_task_edit', coach_id=coach.id, task_id=task.id) }}">
+                                                                                    <div class="row g-2 align-items-end">
+                                                                                        <div class="col-md-2">
+                                                                                            <label class="form-label small fw-bold">Phase</label>
+                                                                                            <input type="text" name="phase" class="form-control form-control-sm" value="{{ task.phase }}" required>
+                                                                                        </div>
+
+                                                                                        <div class="col-md-2">
+                                                                                            <label class="form-label small fw-bold">Section</label>
+                                                                                            <input type="text" name="section" class="form-control form-control-sm" value="{{ task.section }}" required>
+                                                                                        </div>
+
+                                                                                        <div class="col-md-4">
+                                                                                            <label class="form-label small fw-bold">Task</label>
+                                                                                            <input type="text" name="task" class="form-control form-control-sm" value="{{ task.task }}" required>
+                                                                                        </div>
+
+                                                                                        <div class="col-md-1">
+                                                                                            <label class="form-label small fw-bold">Hours</label>
+                                                                                            <input type="number" step="0.1" name="hours" class="form-control form-control-sm" value="{{ task.hours or 0 }}">
+                                                                                        </div>
+
+                                                                                        <div class="col-md-1">
+                                                                                            <label class="form-label small fw-bold">Done</label>
+                                                                                            <div class="form-check">
+                                                                                                <input type="checkbox" name="completed" class="form-check-input" {% if task.completed %}checked{% endif %}>
+                                                                                            </div>
+                                                                                        </div>
+
+                                                                                        <div class="col-md-2">
+                                                                                            <button type="submit" class="btn btn-sm btn-primary w-100">Edit Task</button>
                                                                                         </div>
                                                                                     </div>
-                                                                                {% endfor %}
+                                                                                </form>
+
+                                                                                <form method="post" action="{{ url_for('coach_task_delete', coach_id=coach.id, task_id=task.id) }}" class="mt-2" onsubmit="return confirm('Delete this task from this coach only?');">
+                                                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete Task</button>
+                                                                                </form>
+
                                                                             </div>
                                                                         </div>
+                                                                        {% endfor %}
                                                                     </div>
                                                                 </div>
-                                                            {% endfor %}
+                                                            </div>
                                                         </div>
-                                                    {% else %}
-                                                        <div class="alert alert-warning mb-0">
-                                                            No sections found in this phase.
-                                                        </div>
-                                                    {% endif %}
-
+                                                    {% endfor %}
                                                 </div>
+                                                {% else %}
+                                                <div class="alert alert-warning mb-0">No sections found in this phase.</div>
+                                                {% endif %}
+
                                             </div>
                                         </div>
-                                    {% endfor %}
-                                </div>
+                                    </div>
+                                {% endfor %}
                             </div>
+                        </div>
                         {% else %}
-                            <div class="col-12">
-                                <div class="alert alert-warning">No tasks found for this coach.</div>
-                            </div>
+                        <div class="col-12">
+                            <div class="alert alert-warning">No tasks found for this coach.</div>
+                        </div>
                         {% endif %}
 
-                        <!-- Passive Certification / Status -->
                         <div class="col-12 mt-5">
                             <h5 class="mb-3 border-bottom pb-2 text-primary">Passive Certification / Status</h5>
                         </div>
@@ -337,26 +331,14 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Stripping Certificate Issued?</label>
                             <div class="form-check form-switch">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id="stripping_certificate_issued"
-                                    name="stripping_certificate_issued"
-                                    {% if coach.stripping_certificate_issued %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="stripping_certificate_issued">Yes</label>
+                                <input form="coachEditForm" class="form-check-input" type="checkbox" name="stripping_certificate_issued" {% if coach.stripping_certificate_issued %}checked{% endif %}>
+                                <label class="form-check-label">Yes</label>
                             </div>
                         </div>
 
                         <div class="col-md-4">
-                            <label for="stripping_date" class="form-label fw-bold">Stripping Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="stripping_date"
-                                name="stripping_date"
-                                value="{{ coach.stripping_date.strftime('%Y-%m-%d') if coach.stripping_date else '' }}"
-                            >
+                            <label class="form-label fw-bold">Stripping Date</label>
+                            <input form="coachEditForm" type="date" class="form-control" name="stripping_date" value="{{ coach.stripping_date.strftime('%Y-%m-%d') if coach.stripping_date else '' }}">
                         </div>
 
                         <div class="col-md-4">
@@ -367,26 +349,14 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Completion Certificate Issued?</label>
                             <div class="form-check form-switch">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id="completion_certificate_issued"
-                                    name="completion_certificate_issued"
-                                    {% if coach.completion_certificate_issued %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="completion_certificate_issued">Yes</label>
+                                <input form="coachEditForm" class="form-check-input" type="checkbox" name="completion_certificate_issued" {% if coach.completion_certificate_issued %}checked{% endif %}>
+                                <label class="form-check-label">Yes</label>
                             </div>
                         </div>
 
                         <div class="col-md-4">
-                            <label for="completion_date" class="form-label fw-bold">Completion Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="completion_date"
-                                name="completion_date"
-                                value="{{ coach.completion_date.strftime('%Y-%m-%d') if coach.completion_date else '' }}"
-                            >
+                            <label class="form-label fw-bold">Completion Date</label>
+                            <input form="coachEditForm" type="date" class="form-control" name="completion_date" value="{{ coach.completion_date.strftime('%Y-%m-%d') if coach.completion_date else '' }}">
                         </div>
 
                         <div class="col-md-4">
@@ -400,14 +370,8 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label for="serviceworthy_date" class="form-label fw-bold">Serviceworthy Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="serviceworthy_date"
-                                name="serviceworthy_date"
-                                value="{{ coach.serviceworthy_date.strftime('%Y-%m-%d') if coach.serviceworthy_date else '' }}"
-                            >
+                            <label class="form-label fw-bold">Serviceworthy Date</label>
+                            <input form="coachEditForm" type="date" class="form-control" name="serviceworthy_date" value="{{ coach.serviceworthy_date.strftime('%Y-%m-%d') if coach.serviceworthy_date else '' }}">
                         </div>
 
                         <div class="col-md-4">
@@ -418,147 +382,55 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold">NCR Open?</label>
                             <div class="form-check form-switch">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id="ncr"
-                                    name="ncr"
-                                    {% if coach.ncr %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="ncr">Yes</label>
+                                <input form="coachEditForm" class="form-check-input" type="checkbox" name="ncr" {% if coach.ncr %}checked{% endif %}>
+                                <label class="form-check-label">Yes</label>
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">GC Open?</label>
                             <div class="form-check form-switch">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    id="gc"
-                                    name="gc"
-                                    {% if coach.gc %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="gc">Yes</label>
+                                <input form="coachEditForm" class="form-check-input" type="checkbox" name="gc" {% if coach.gc %}checked{% endif %}>
+                                <label class="form-check-label">Yes</label>
                             </div>
                         </div>
 
                         <div class="col-md-4">
-                            <label for="ncr_gc_cleared_date" class="form-label fw-bold">NCR / GC Cleared Date</label>
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="ncr_gc_cleared_date"
-                                name="ncr_gc_cleared_date"
-                                value="{{ coach.ncr_gc_cleared_date.strftime('%Y-%m-%d') if coach.ncr_gc_cleared_date else '' }}"
-                            >
+                            <label class="form-label fw-bold">NCR / GC Cleared Date</label>
+                            <input form="coachEditForm" type="date" class="form-control" name="ncr_gc_cleared_date" value="{{ coach.ncr_gc_cleared_date.strftime('%Y-%m-%d') if coach.ncr_gc_cleared_date else '' }}">
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label fw-bold">Retention Date</label>
-                            <div class="form-control bg-light">
-                                {{ coach.retention_date.strftime('%Y-%m-%d') if coach.retention_date else '—' }}
-                            </div>
+                            <div class="form-control bg-light">{{ coach.retention_date.strftime('%Y-%m-%d') if coach.retention_date else '—' }}</div>
                         </div>
 
-                        <!-- Invoicing -->
                         <div class="col-12 mt-5">
                             <h5 class="mb-3 border-bottom pb-2 text-primary">Invoicing Confirmation</h5>
-                            <small class="text-muted">Record-keeping only.</small>
                         </div>
 
+                        {% for invoice_field, invoice_label in [
+                            ('invoice_stripping', 'Stripping Invoice Confirmed'),
+                            ('invoice_completion', 'Completion Invoice Confirmed'),
+                            ('invoice_serviceworthy', 'Serviceworthy Invoice Confirmed'),
+                            ('invoice_retention', 'Retention Invoice Confirmed'),
+                            ('invoice_current_escalation', 'Current Year Escalation Confirmed')
+                        ] %}
                         <div class="col-md-4">
                             <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    name="invoice_stripping"
-                                    id="invoice_stripping"
-                                    {% if coach.invoice_stripping %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="invoice_stripping">
-                                    Stripping Invoice Confirmed
-                                </label>
+                                <input form="coachEditForm" class="form-check-input" type="checkbox" name="{{ invoice_field }}" id="{{ invoice_field }}" {% if coach|attr(invoice_field) %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ invoice_field }}">{{ invoice_label }}</label>
                             </div>
                         </div>
+                        {% endfor %}
 
-                        <div class="col-md-4">
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    name="invoice_completion"
-                                    id="invoice_completion"
-                                    {% if coach.invoice_completion %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="invoice_completion">
-                                    Completion Invoice Confirmed
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    name="invoice_serviceworthy"
-                                    id="invoice_serviceworthy"
-                                    {% if coach.invoice_serviceworthy %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="invoice_serviceworthy">
-                                    Serviceworthy Invoice Confirmed
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    name="invoice_retention"
-                                    id="invoice_retention"
-                                    {% if coach.invoice_retention %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="invoice_retention">
-                                    Retention Invoice Confirmed
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    name="invoice_current_escalation"
-                                    id="invoice_current_escalation"
-                                    {% if coach.invoice_current_escalation %}checked{% endif %}
-                                >
-                                <label class="form-check-label" for="invoice_current_escalation">
-                                    Current Year Escalation Confirmed
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
                         <div class="col-12 mt-5 d-flex gap-3 justify-content-end">
-                            <!--<button type="submit" class="btn btn-primary btn-lg px-5">Save Changes</button>-->
-                            <a href="{{ url_for('coach_pack', id=coach.id) }}"
-                               target="_blank"
-                               class="btn btn-outline-success btn-lg px-5">
-                               Coach Pack
-                            </a>
-                            
-                            <button type="submit" class="btn btn-primary btn-lg px-5">Save Changes</button>
-                            
-                            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary btn-lg px-5">
-                                Cancel
-                            </a>
+                            <a href="{{ url_for('coach_pack', id=coach.id) }}" target="_blank" class="btn btn-outline-success btn-lg px-5">Coach Pack</a>
+                            <button form="coachEditForm" type="submit" class="btn btn-primary btn-lg px-5">Save Changes</button>
+                            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary btn-lg px-5">Cancel</a>
                         </div>
 
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -669,7 +541,5 @@
     }
 }
 </style>
-
-
 
 {% endblock %}

@@ -1471,6 +1471,133 @@ def coaches_edit(id):
     progress = coach.calculate_progress()
     return render_template("coaches_edit.html", coach=coach, progress=progress)
 
+@app.route("/coaches/<int:coach_id>/tasks/add", methods=["POST"])
+@login_required
+@role_required("admin", "editor")
+def coach_task_add(coach_id):
+    coach = Coach.query.get_or_404(coach_id)
+
+    phase = request.form.get("phase", "").strip()
+    section = request.form.get("section", "").strip()
+    task_text = request.form.get("task", "").strip()
+    hours_raw = request.form.get("hours", "0").strip()
+
+    if not phase or not section or not task_text:
+        flash("Phase, section, and task are required.", "danger")
+        return redirect(url_for("coaches_edit", id=coach.id))
+
+    try:
+        hours = float(hours_raw or 0)
+    except ValueError:
+        hours = 0.0
+
+    new_task = CompletionTask(
+        coach_id=coach.id,
+        coach_no=coach.coach_number,
+        coach_type=coach.coach_type,
+        phase=phase,
+        section=section,
+        task=task_text,
+        hours=hours,
+        completed=False,
+        completed_date=None,
+    )
+
+    db.session.add(new_task)
+    coach.sync_all_status()
+
+    log_coach_audit(
+        coach=coach,
+        action="coach_task_added",
+        changed_by=current_user.username,
+        details=f"Task added: {phase}/{section} - {task_text} ({hours} hrs)"
+    )
+
+    db.session.commit()
+    flash("Task added successfully.", "success")
+    return redirect(url_for("coaches_edit", id=coach.id))
+
+
+@app.route("/coaches/<int:coach_id>/tasks/<int:task_id>/edit", methods=["POST"])
+@login_required
+@role_required("admin", "editor")
+def coach_task_edit(coach_id, task_id):
+    coach = Coach.query.get_or_404(coach_id)
+
+    task = CompletionTask.query.filter_by(
+        id=task_id,
+        coach_id=coach.id
+    ).first_or_404()
+
+    old_details = f"{task.phase}/{task.section} - {task.task} ({task.hours} hrs)"
+
+    phase = request.form.get("phase", "").strip()
+    section = request.form.get("section", "").strip()
+    task_text = request.form.get("task", "").strip()
+    hours_raw = request.form.get("hours", "0").strip()
+    completed = "completed" in request.form
+
+    if not phase or not section or not task_text:
+        flash("Phase, section, and task are required.", "danger")
+        return redirect(url_for("coaches_edit", id=coach.id))
+
+    try:
+        hours = float(hours_raw or 0)
+    except ValueError:
+        hours = 0.0
+
+    task.phase = phase
+    task.section = section
+    task.task = task_text
+    task.hours = hours
+    task.completed = completed
+    task.completed_date = datetime.now().date() if completed else None
+
+    coach.sync_all_status()
+
+    new_details = f"{task.phase}/{task.section} - {task.task} ({task.hours} hrs)"
+
+    log_coach_audit(
+        coach=coach,
+        action="coach_task_updated",
+        changed_by=current_user.username,
+        details=f"Task updated: {old_details} -> {new_details}; completed={completed}"
+    )
+
+    db.session.commit()
+    flash("Task updated successfully.", "success")
+    return redirect(url_for("coaches_edit", id=coach.id))
+
+
+@app.route("/coaches/<int:coach_id>/tasks/<int:task_id>/delete", methods=["POST"])
+@login_required
+@role_required("admin", "editor")
+def coach_task_delete(coach_id, task_id):
+    coach = Coach.query.get_or_404(coach_id)
+
+    task = CompletionTask.query.filter_by(
+        id=task_id,
+        coach_id=coach.id
+    ).first_or_404()
+
+    old_details = f"{task.phase}/{task.section} - {task.task} ({task.hours} hrs)"
+
+    db.session.delete(task)
+    coach.sync_all_status()
+
+    log_coach_audit(
+        coach=coach,
+        action="coach_task_deleted",
+        changed_by=current_user.username,
+        details=f"Task deleted: {old_details}"
+    )
+
+    db.session.commit()
+    flash("Task deleted successfully.", "warning")
+    return redirect(url_for("coaches_edit", id=coach.id))
+
+
+
 
 @app.route("/coaches/<int:id>/pack")
 @login_required
