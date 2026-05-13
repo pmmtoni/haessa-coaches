@@ -1040,13 +1040,6 @@ def coaches_list():
     status_filter = request.args.get("status", "").strip().lower()
     show_archived = request.args.get("show_archived", "false").lower() == "true"
 
-    page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 10, type=int)
-    
-    if per_page not in [10, 20, 50, 100]:
-        per_page = 10
-    
-
     today = date.today()
 
     query = Coach.query
@@ -1105,23 +1098,6 @@ def coaches_list():
 
         if include:
             filtered_coaches.append(coach)
-            
-            total_filtered = len(filtered_coaches)
-            total_pages = max(1, math.ceil(total_filtered / per_page))
-            
-            if page < 1:
-                page = 1
-            
-            if page > total_pages:
-                page = total_pages
-            
-            start = (page - 1) * per_page
-            end = start + per_page
-            paged_coaches = filtered_coaches[start:end]            
-                        
-                        
-            
-            
 
     kpis = {
         "active_total": 0,
@@ -1163,7 +1139,7 @@ def coaches_list():
         kpis["avg_progress"] = round(sum(progress_values) / len(progress_values), 1)
 
     coach_progress_data = []
-    for coach in paged_coaches:
+    for coach in filtered_coaches:
         progress = coach.calculate_progress()
         flags = get_schedule_flags(coach, today)
 
@@ -1215,12 +1191,9 @@ def coaches_list():
 
     return render_template(
         "coaches_list.html",
-        coaches=paged_coaches,
+        coaches=filtered_coaches,
         coach_progress_data=coach_progress_data,
-        total=total_filtered,
-        page=page,
-        per_page=per_page,
-        total_pages=total_pages,
+        total=len(filtered_coaches),
         search_query=search_query,
         coach_type_filter=coach_type_filter,
         status_filter=status_filter,

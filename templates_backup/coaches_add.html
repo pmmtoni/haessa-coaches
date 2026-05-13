@@ -1,0 +1,104 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan 31 16:28:59 2026
+
+@author: Paul Mmtoni Barasa
+"""
+
+{% extends "base.html" %}
+{% block title %}Add New Coach{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-success text-white py-3">
+                    <h4 class="mb-0">Add New Coach</h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="POST" class="row g-4">
+
+                        <div class="col-md-6">
+                            <label for="coach_number" class="form-label fw-bold required">Coach Number</label>
+                            <input type="text" class="form-control" id="coach_number" name="coach_number" required autofocus>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="coach_type" class="form-label fw-bold required">Coach Type</label>
+                            <input type="text" class="form-control" id="coach_type" name="coach_type" required>
+                            <small class="text-muted">
+                                Use the exact coach type name that matches your CSV task templates.
+                            </small>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <h5 class="mb-3 border-bottom pb-2">Key Dates</h5>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Stripping Certificate Issued?</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="stripping_certificate_issued" name="stripping_certificate_issued">
+                                <label class="form-check-label" for="stripping_certificate_issued">Yes</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="stripping_date" class="form-label fw-bold">Stripping Date</label>
+                            <input type="date" class="form-control" id="stripping_date" name="stripping_date">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Completion Certificate Issued?</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="completion_certificate_issued" name="completion_certificate_issued">
+                                <label class="form-check-label" for="completion_certificate_issued">Yes</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="completion_date" class="form-label fw-bold">Completion Date</label>
+                            <input type="date" class="form-control" id="completion_date" name="completion_date">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="serviceworthy_date" class="form-label fw-bold">Serviceworthy Date</label>
+                            <input type="date" class="form-control" id="serviceworthy_date" name="serviceworthy_date">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="due_date" class="form-label fw-bold">Due Date</label>
+                            <input type="date" class="form-control" id="due_date" name="due_date">
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <h5 class="mb-3 border-bottom pb-2">Task Setup</h5>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <strong>Task creation is automatic.</strong><br>
+                                Stripping, Completion, Serviceworthy, and Retention tasks will be generated
+                                from your <code>coach_tasks.csv</code> template after this coach is saved.
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <label for="notes" class="form-label fw-bold">Notes / Remarks</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-5 d-flex gap-3 justify-content-end">
+                            <button type="submit" class="btn btn-success btn-lg px-5">Add Coach</button>
+                            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary btn-lg px-5">Cancel</a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

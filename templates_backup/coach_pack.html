@@ -214,7 +214,36 @@
     </div>
 
     <div class="card shadow-sm border-0 rounded-4">
- 
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Recent Audit History</h5>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Action</th>
+                        <th>User</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for audit in audits %}
+                    <tr>
+                        <td>{{ audit.created_at.strftime('%d %b %Y %H:%M') if audit.created_at else '—' }}</td>
+                        <td>{{ audit.action }}</td>
+                        <td>{{ audit.changed_by or '—' }}</td>
+                        <td style="white-space: pre-wrap;">{{ audit.details }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No audit records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
