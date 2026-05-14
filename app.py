@@ -519,6 +519,11 @@ def task_templates_list():
     q = request.args.get("q", "").strip()
     coach_type_filter = request.args.get("coach_type", "").strip()
     active_filter = request.args.get("active", "active").strip().lower()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
+    
+    if per_page not in [20, 50, 100, 200]:
+        per_page = 20    
 
     query = TaskTemplate.query
 
@@ -546,8 +551,12 @@ def task_templates_list():
         TaskTemplate.phase.asc(),
         TaskTemplate.section.asc(),
         TaskTemplate.task.asc(),
-    ).all()
-
+    ).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+        
     coach_types = sorted(
         {
             row.coach_type
@@ -563,6 +572,8 @@ def task_templates_list():
         coach_type_filter=coach_type_filter,
         active_filter=active_filter,
         coach_types=coach_types,
+        page=page,
+        per_page=per_page,
     )
 
 
@@ -1091,9 +1102,10 @@ def coaches_list():
             status_counts["in_progress"] += 1
 
     filtered_coaches = []
+    
     for coach in all_matching_coaches:
         flags = get_schedule_flags(coach, today)
-
+    
         include = (
             status_filter in ["", "all"]
             or (status_filter == "complete" and flags["is_complete"])
@@ -1102,26 +1114,35 @@ def coaches_list():
             or (status_filter == "not_started" and flags["is_not_started"])
             or (status_filter == "in_progress" and flags["is_in_progress"])
         )
-
+    
         if include:
             filtered_coaches.append(coach)
-            
-            total_filtered = len(filtered_coaches)
-            total_pages = max(1, math.ceil(total_filtered / per_page))
-            
-            if page < 1:
-                page = 1
-            
-            if page > total_pages:
-                page = total_pages
-            
-            start = (page - 1) * per_page
-            end = start + per_page
-            paged_coaches = filtered_coaches[start:end]            
-                        
-                        
-            
-            
+    
+    total_filtered = len(filtered_coaches)
+    total_pages = max(1, math.ceil(total_filtered / per_page))
+    
+    if page < 1:
+        page = 1
+    
+    if page > total_pages:
+        page = total_pages
+    
+    start = (page - 1) * per_page
+    end = start + per_page
+    paged_coaches = filtered_coaches[start:end]  
+
+# Debug                      
+    print("==== COACHES PAGINATION DEBUG ====")
+    print("ACTIVE APP FILE:", __file__)
+    print("PAGE:", page)
+    print("PER PAGE:", per_page)
+    print("TOTAL FILTERED:", total_filtered)
+    print("TOTAL PAGES:", total_pages)
+    print("START:", start)
+    print("END:", end)
+    print("PAGED COACHES:", [c.coach_number for c in paged_coaches])                            
+                    
+                
 
     kpis = {
         "active_total": 0,
@@ -1219,6 +1240,7 @@ def coaches_list():
         coach_progress_data=coach_progress_data,
         total=total_filtered,
         page=page,
+        current_page=page,
         per_page=per_page,
         total_pages=total_pages,
         search_query=search_query,
@@ -2508,6 +2530,7 @@ def delivery_graph():
         ageing_labels=ageing_labels,
         ageing_values=ageing_values,
         executive_actions=executive_actions,
+        
     )
 
 @app.route("/admin/export-database-csv")
