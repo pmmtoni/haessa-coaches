@@ -1291,8 +1291,17 @@ def coaches_list():
 @role_required("admin", "editor")
 def coaches_add():
     if request.method == "POST":
+        coach_number = request.form.get("coach_number", "").strip()
+        
+        existing = Coach.query.filter_by(coach_number=coach_number).first()
+        
+        if existing:
+            flash(f"Coach number {coach_number} already exists.", "danger")
+            return render_template("coaches_add.html")
+
+
         coach = Coach(
-            coach_number=request.form.get("coach_number", "").strip(),
+            coach_number=coach_number,  
             coach_type=request.form.get("coach_type", "").strip(),
             notes=request.form.get("notes") or None,
             stripping=False,
