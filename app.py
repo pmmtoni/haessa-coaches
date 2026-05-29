@@ -230,30 +230,61 @@ def load_task_templates(coach_type):
 
 def import_task_templates_from_csv(csv_path=None, replace_existing=False):
     """
-    Import templates from coach_tasks.csv into TaskTemplate table.
+    Fast CSV import into TaskTemplate table.
+    Avoids per-row database queries.
     """
     template_path = Path(csv_path) if csv_path else Path(app.root_path) / "coach_tasks.csv"
 
     if not template_path.exists():
         raise FileNotFoundError(f"Template file not found: {template_path}")
 
-    if replace_existing:
-        TaskTemplate.query.delete()
-        db.session.commit()
+    allowed_phases = {
+        "Stripping",
+        "Completion",
+        "Serviceworthy",
+        "Retention",
+    }
 
     imported_count = 0
+    skipped_count = 0
+
+    if replace_existing:
+        TaskTemplate.query.delete()
+        db.session.flush()
+
+    existing_templates = {}
+
+    if not replace_existing:
+        existing_rows = TaskTemplate.query.all()
+
+        for row in existing_rows:
+            key = (
+                row.coach_type,
+                row.phase,
+                row.section,
+                row.task,
+            )
+            existing_templates[key] = row
+
+    new_rows = []
 
     with open(template_path, mode="r", encoding="utf-8-sig", newline="") as file:
         reader = csv.DictReader(file)
 
         for idx, row in enumerate(reader, start=1):
             coach_type = (row.get("coach_type") or "").strip()
-            phase = (row.get("phase") or "").strip()
+            phase = (row.get("phase") or "").strip().title()
             section = (row.get("section") or "").strip()
             task = (row.get("task") or "").strip()
             row_hours = row.get("hours") or 0
 
             if not coach_type or not phase or not section or not task:
+                skipped_count += 1
+                continue
+
+            if phase not in allowed_phases:
+                print(f"Skipped CSV row {idx}: invalid phase '{phase}'")
+                skipped_count += 1
                 continue
 
             try:
@@ -261,19 +292,15 @@ def import_task_templates_from_csv(csv_path=None, replace_existing=False):
             except (TypeError, ValueError):
                 hours_value = 0.0
 
-            exists = TaskTemplate.query.filter_by(
-                coach_type=coach_type,
-                phase=phase,
-                section=section,
-                task=task
-            ).first()
+            key = (coach_type, phase, section, task)
 
-            if exists:
-                exists.hours = hours_value
-                exists.sort_order = idx
-                exists.is_active = True
+            if not replace_existing and key in existing_templates:
+                existing = existing_templates[key]
+                existing.hours = hours_value
+                existing.sort_order = idx
+                existing.is_active = True
             else:
-                db.session.add(
+                new_rows.append(
                     TaskTemplate(
                         coach_type=coach_type,
                         phase=phase,
@@ -287,9 +314,13 @@ def import_task_templates_from_csv(csv_path=None, replace_existing=False):
 
             imported_count += 1
 
-    db.session.commit()
-    return imported_count
+    if new_rows:
+        db.session.bulk_save_objects(new_rows)
 
+    db.session.commit()
+
+    print(f"CSV import complete: imported={imported_count}, skipped={skipped_count}")
+    return imported_count
 
 
 
