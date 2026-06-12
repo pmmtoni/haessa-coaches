@@ -1242,9 +1242,9 @@ Motor,Completion,BUP,UnderFrame - Support Brackets and Safety Loops Overhaul
 Motor,Completion,BUP,UnderFrame - Side Plunger Guide Bracket and Spring
 Motor,Completion,BUP,UnderFrame - Pull rod wheel
 Motor,Completion,BUP,"UnderFrame - Repair underFrame cradles, cabinets and grid covers"
-Motor,Completion,BUP,- Water/Toilet
-Motor,Completion,BUP,- Overhaul Toilet
-Motor,Completion,BUP,- Remove Toilet
+Motor,Completion,BUP,#NAME?
+Motor,Completion,BUP,#NAME?
+Motor,Completion,BUP,#NAME?
 Motor,Completion,BUP,Bogies - Bogies
 Motor,Completion,BUP,Bogies - Bogie (Motor Coach) Overhaul
 Motor,Completion,BUP,Bogies - Fit odometers - Motor Coach
@@ -1267,7 +1267,6 @@ Motor,Completion,BUP,"Bogies - Wheelsets, Motor - Overhaul"
 Motor,Completion,BUP,Bogies - Wheelset – renew oil sleeve bearing
 Motor,Completion,Coach Build,Emergency Equipment - Fire Protection/ emergency equipment
 Motor,Completion,Electrical,Emergency Equipment - Pantograph Hook stick Housing
-Motor,Completion,,
 Motor,Completion,Testing & Commissioning,General - Assemble Coach Complete and Stationary Functional Test
 Motor,Completion,Testing & Commissioning,General - Test coach under working conditions - Issue roadworthy certificate
 Motor,Completion,QC,"Traction Motor (1) Carcass - Standard Work - Strip, clean, mechanical checks, electrical tests, assess"
@@ -2760,3 +2759,76 @@ Trailer,Stripping,Coach Build,Roof
 Trailer,Stripping,Electrical,Components
 Trailer,Stripping,Electrical,Wiring
 Trailer,Stripping,QC,Documentation
+Motor,Completion,Electrical,HT Frame- HT Equipment and Fitment
+Motor,Completion,Electrical,HT Frame- Relay Current Balance 4DR – Refurbish
+Motor,Completion,Electrical,"HT Frame- Arc Chutes (Line Switch), Dough Moulded – Refurbish"
+Motor,Completion,Electrical,HT Frame- LS1 Arc Chute
+Motor,Completion,Electrical,HT Frame- LS2 Arc Chute
+Motor,Completion,Electrical,HT Frame- LS3 Arc Chute
+Motor,Completion,Electrical,HT Frame- LS4 Arc Chute
+Motor,Completion,Electrical,HT Frame- Line Switches - Refurbish
+Motor,Completion,Electrical,HT Frame- LS1
+Motor,Completion,Electrical,HT Frame- LS2 
+Motor,Completion,Electrical,HT Frame- LS3 
+Motor,Completion,Electrical,HT Frame- LS4 
+Motor,Completion,Electrical,HT Frame- Renew Inner and fit to old Outer Arc Chute (Combination Switch) - Refurbish
+Motor,Completion,Electrical,HT Frame- RS Arc Chute
+Motor,Completion,Electrical,HT Frame- JR1 Arc Chute
+Motor,Completion,Electrical,HT Frame- JR2 Arc Chute
+Motor,Completion,Electrical,HT Frame- J1
+Motor,Completion,Electrical,HT Frame- J2
+Motor,Completion,Electrical,HT Frame- P Arc Chute
+Motor,Completion,Electrical,HT Frame- G Arc Chute
+Motor,Completion,Electrical,HT Frame- Combination Switches - Refurbish
+Motor,Completion,Electrical,HT Frame- RS 
+Motor,Completion,Electrical,HT Frame- JR1 
+Motor,Completion,Electrical,HT Frame- JR1 
+Motor,Completion,Electrical,HT Frame- J1
+Motor,Completion,Electrical,HT Frame- J2
+Motor,Completion,Electrical,HT Frame- P
+Motor,Completion,Electrical,HT Frame- G 
+Motor,Completion,Electrical,HT Frame- Resistor Switches Arc Chutes - Refurbish
+Motor,Completion,Electrical,HT Frame- RR1
+Motor,Completion,Electrical,HT Frame- RR2
+Motor,Completion,Electrical,HT Frame- RR3
+Motor,Completion,Electrical,HT Frame- RR4
+Motor,Completion,Electrical,HT Frame- R1
+Motor,Completion,Electrical,HT Frame- R2
+Motor,Completion,Electrical,HT Frame- R3
+Motor,Completion,Electrical,HT Frame- R4
+Motor,Completion,Electrical,HT Frame- F1
+Motor,Completion,Electrical,HT Frame- F2
+Motor,Completion,Electrical,HT Frame- Resistor Switches - Refurbish
+Motor,Completion,Electrical,HT Frame- RR1
+Motor,Completion,Electrical,HT Frame- RR2
+Motor,Completion,Electrical,HT Frame- RR3
+Motor,Completion,Electrical,HT Frame- RR4
+Motor,Completion,Electrical,HT Frame- R1
+Motor,Completion,Electrical,HT Frame- R2
+Motor,Completion,Electrical,HT Frame- R3
+Motor,Completion,Electrical,HT Frame- R4
+Motor,Completion,Electrical,HT Frame- F1
+Motor,Completion,Electrical,HT Frame- F2
+Motor,Completion,Electrical,HT Frame- Heater Contactor New type Overhaul (new type or old)
+Motor,Completion,Electrical,HT Frame- Fuse HV 17CF Assembly (MA Control & Heater)
+Motor,Completion,Electrical,HT Frame- HT Interlock boxes 4 Finger
+Motor,Completion,Electrical,HT Frame- HT Interlock boxes 6 Finger
+Motor,Completion,Electrical,HT Frame- 23 Amp fuse
+Motor,Completion,Electrical,HT Frame- 6 Amp fuse
+Motor,Completion,Electrical,HT Frame- Shunt plates 
+Motor,Completion,Electrical,HT Frame- Yoke brackets Cable connection brackets & BARS
+Motor,Completion,Electrical,HT Frame- Magnet valve complete 
+Motor,Completion,Electrical,HT Frame- Steel frame HV
+Motor,Completion,Electrical,HT Frame- Door insulation hard wood
+Motor,Completion,Electrical,HT Frame- Air pressure switch ASCO
+Motor,Completion,Electrical,HT Frame- Airline Festo 35PSI
+Motor,Completion,Electrical,HT Frame- Switch Motor Cut-Out 18KS  - Refurbish
+Motor,Completion,Electrical,HT Frame- MCOS - 1 & 2
+Motor,Completion,Electrical,HT Frame- MCOS - 3 & 4
+Motor,Completion,Electrical,HT Frame- Shunt High Voltage Ammeter 11CP - Overhaul
+Motor,Completion,Electrical,HT Frame- Relay Traction Motor Overload 31TR - Overhaul
+Motor,Completion,Electrical,HT Frame- Switches Drum Reverser 19RS - Overhaul
+Motor,Completion,Electrical,HT Frame- Rewire HV frame complete
+Motor,Completion,Electrical,HT Frame- Flash Barriers HT - Overhaul (per set of 5)
+Motor,Completion,Electrical,"HT Frame- Refurbish Micro Processor Equipment complete box and cards 
+(AS PER MICRO PROCESSOR SCOPE OF WORK)"
