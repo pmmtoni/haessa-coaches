@@ -125,7 +125,109 @@
     }
 </style>
 
+<style>
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
+    }
 
+    html,
+    body {
+        width: 100% !important;
+        background: #ffffff !important;
+        font-size: 9px !important;
+        line-height: 1.2 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .navbar,
+    .no-print,
+    .btn,
+    .pagination,
+    form,
+    .flash-area,
+    .footer-note {
+        display: none !important;
+    }
+
+    main,
+    .container,
+    .container-fluid,
+    .page-fit,
+    .content-shell {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: auto !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #cccccc !important;
+        page-break-inside: avoid;
+        margin-bottom: 6px !important;
+    }
+
+    .card-body,
+    .card-header {
+        padding: 6px !important;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    table,
+    .table {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        font-size: 7px !important;
+    }
+
+    th,
+    td,
+    .table th,
+    .table td {
+        padding: 2px 3px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+        vertical-align: top !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+        line-height: 1.15 !important;
+    }
+
+    p,
+    .alert,
+    .badge,
+    .small,
+    small {
+        font-size: 8px !important;
+    }
+
+    .progress {
+        height: 8px !important;
+    }
+
+    a {
+        color: #000000 !important;
+        text-decoration: none !important;
+    }
+
+    * {
+        box-sizing: border-box !important;
+    }
+}
+</style>
 
 
 </head>
@@ -267,7 +369,15 @@
                                 | role={{ current_user.role }}
                             {% endif %}
                         </span>
+                        
+                        <button type="button"
+                                class="btn btn-outline-light btn-sm no-print"
+                                onclick="window.print()">
+                            Save as PDF
+                        </button>
+                        
                         <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+                        
                     {% endif %}
                 </div>
             </div>
