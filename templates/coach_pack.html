@@ -7,6 +7,8 @@
     <div class="d-flex justify-content-between align-items-start mb-4 no-print">
         <div>
             <h2 class="mb-1">Coach Pack</h2>
+            <div><strong>Coach Number:</strong> {{ coach.coach_number }}</div>
+
             <div class="text-muted">Formal coach record summary</div>
         </div>
 
@@ -17,7 +19,7 @@
     </div>
 
     <div class="print-header mb-4">
-        <h2>CTE Durban Coaches — Coach Pack</h2>
+        <h2>CTE Durban Coach Details</h2>
         <div><strong>Coach Number:</strong> {{ coach.coach_number }}</div>
         <div><strong>Coach Type:</strong> {{ coach.coach_type }}</div>
         <div><strong>Generated:</strong> {{ generated_at }}</div>
@@ -156,6 +158,48 @@
             </table>
         </div>
     </div>
+        
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Components / Suppliers / Installers</h5>
+        </div>
+    
+        <div class="card-body">
+    
+            {% if coach.component_installations %}
+    
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Component</th>
+                        <th>Supplier</th>
+                        <th>Installer / Service Provider</th>
+                    </tr>
+                </thead>
+    
+                <tbody>
+                    {% for item in coach.component_installations %}
+                    <tr>
+                        <td>{{ item.component }}</td>
+                        <td>{{ item.supplier or "—" }}</td>
+                        <td>{{ item.installer or "—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    
+            {% else %}
+    
+            <div class="text-muted">
+                No component traceability records captured.
+            </div>
+    
+            {% endif %}
+    
+        </div>
+    </div>    
+    
+    
 
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-header bg-white">

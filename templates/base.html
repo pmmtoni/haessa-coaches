@@ -165,17 +165,61 @@
                         </a>
                     </li>
 
+                    {% if current_user.role in ['admin', 'editor'] %}
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'delivery_schedule' %}active-link{% endif %}"
-                           href="{{ url_for('delivery_schedule') }}">
-                            Delivery Schedule
+                        <a class="nav-link {% if request.endpoint == 'coaches_add' %}active-link{% endif %}"
+                           href="{{ url_for('coaches_add') }}">
+                            Add Coach
                         </a>
                     </li>
+                    {% endif %}
 
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint in ['task_templates_list', 'task_templates_add', 'task_templates_edit'] %}active-link{% endif %}"
                            href="{{ url_for('task_templates_list') }}">
                             Task Templates
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ['production_locations_list', 'production_locations_add', 'production_locations_edit'] %}active-link{% endif %}"
+                           href="{{ url_for('production_locations_list') }}">
+                            Production Locations
+                        </a>
+                    </li>
+ 
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'coach_location_history' %}active-link{% endif %}"
+                           href="{{ url_for('coach_location_history') }}">
+                            Location History
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'coach_movement_timeline' %}active-link{% endif %}"
+                           href="{{ url_for('coach_movement_timeline') }}">
+                            Movement Timeline
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'production_bottlenecks' %}active-link{% endif %}"
+                           href="{{ url_for('production_bottlenecks') }}">
+                            Bottlenecks
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'coaches_map' %}active-link{% endif %}"
+                           href="{{ url_for('coaches_map') }}">
+                            Coach Map
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'delivery_schedule' %}active-link{% endif %}"
+                           href="{{ url_for('delivery_schedule') }}">
+                            Delivery Schedule
                         </a>
                     </li>
 
@@ -196,14 +240,6 @@
                     </li>
                     {% endif %}
 
-                    {% if current_user.role in ['admin', 'editor'] %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coaches_add' %}active-link{% endif %}"
-                           href="{{ url_for('coaches_add') }}">
-                            Add Coach
-                        </a>
-                    </li>
-                    {% endif %}
 
                     {% if current_user.role == 'admin' %}
                     <li class="nav-item">

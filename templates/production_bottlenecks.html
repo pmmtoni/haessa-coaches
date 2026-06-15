@@ -1,0 +1,146 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jun 14 16:29:31 2026
+
+@author: pmmto
+"""
+
+{% extends "base.html" %}
+{% block title %}Production Bottlenecks{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 page-fit">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+        <div>
+            <h2 class="mb-1">Production Bottleneck Analysis</h2>
+            <div class="text-muted">
+                Compares expected stationary days against actual stationary days by production location.
+            </div>
+        </div>
+
+        <div class="mt-3 mt-lg-0">
+            <a href="{{ url_for('coach_movement_timeline') }}" class="btn btn-outline-primary">
+                Movement Timeline
+            </a>
+            
+            <a href="{{ url_for('coaches_map') }}" class="btn btn-outline-secondary">
+                Coach Map
+            </a>
+
+            <a href="{{ url_for('production_bottlenecks_export', risk=risk_filter, location=location_filter, min_moves=min_moves) }}"
+               class="btn btn-outline-success">
+                Export CSV
+            </a>
+
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+    
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Risk</label>
+                    <select name="risk" class="form-select">
+                        <option value="">All risks</option>
+                        <option value="High" {% if risk_filter == "High" %}selected{% endif %}>High</option>
+                        <option value="Medium" {% if risk_filter == "Medium" %}selected{% endif %}>Medium</option>
+                        <option value="Low" {% if risk_filter == "Low" %}selected{% endif %}>Low</option>
+                    </select>
+                </div>
+    
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Location</label>
+                    <select name="location" class="form-select">
+                        <option value="">All locations</option>
+                        {% for loc in all_locations %}
+                            <option value="{{ loc }}" {% if location_filter == loc %}selected{% endif %}>
+                                {{ loc }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Minimum Movement Records</label>
+                    <input type="number"
+                           name="min_moves"
+                           value="{{ min_moves }}"
+                           min="0"
+                           class="form-control">
+                </div>
+    
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+    
+            </form>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between">
+            <strong>Bottleneck Summary</strong>
+            <span class="small text-muted">{{ bottlenecks|length }} location(s)</span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Production Location</th>
+                            <th>Movement Records</th>
+                            <th>Avg Expected Days</th>
+                            <th>Avg Actual Days</th>
+                            <th>Variance</th>
+                            <th>Overdue Count</th>
+                            <th>Risk</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% if bottlenecks %}
+                            {% for row in bottlenecks %}
+                            <tr>
+                                <td class="fw-bold">{{ row.location }}</td>
+                                <td>{{ row.moves }}</td>
+                                <td>{{ row.avg_expected }}</td>
+                                <td>{{ row.avg_actual }}</td>
+                                <td>
+                                    {% if row.variance > 0 %}
+                                        <span class="text-danger fw-bold">+{{ row.variance }}</span>
+                                    {% elif row.variance < 0 %}
+                                        <span class="text-success fw-bold">{{ row.variance }}</span>
+                                    {% else %}
+                                        <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ row.overdue_count }}</td>
+                                <td>
+                                    {% if row.risk == "High" %}
+                                        <span class="badge bg-danger">High</span>
+                                    {% elif row.risk == "Medium" %}
+                                        <span class="badge bg-warning text-dark">Medium</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Low</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    No movement data available yet.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

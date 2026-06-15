@@ -1,0 +1,231 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jun 14 16:03:02 2026
+
+@author: pmmto
+"""
+
+{% extends "base.html" %}
+{% block title %}Coach Movement Timeline{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 page-fit">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+        <div>
+            <h2 class="mb-1">Coach Movement Timeline</h2>
+            <div class="text-muted">
+                Timeline view of coach movements through production locations.
+            </div>
+        </div>
+
+        <div class="mt-3 mt-lg-0">
+            <a href="{{ url_for('coaches_map') }}" class="btn btn-outline-primary">
+                Back to Coach Map
+            </a>
+            <a href="{{ url_for('coach_location_history') }}" class="btn btn-outline-secondary">
+                Location History
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Search</label>
+                    <input type="text"
+                           name="q"
+                           value="{{ q }}"
+                           class="form-control"
+                           placeholder="Coach, activity, location, user">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Coach</label>
+                    <select name="coach" class="form-select">
+                        <option value="">All coaches</option>
+                        {% for coach_no in coach_numbers %}
+                            <option value="{{ coach_no }}" {% if coach_filter == coach_no %}selected{% endif %}>
+                                {{ coach_no }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary" type="submit">
+                        Filter
+                    </button>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <a href="{{ url_for('coach_movement_timeline') }}" class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    {% if timeline %}
+        {% for coach_no, rows in timeline.items() %}
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+                <div class="card-header bg-white d-flex flex-column flex-md-row justify-content-between">
+                    <div>
+                        <strong>{{ coach_no }}</strong>
+                    </div>
+                    <div class="small text-muted">
+                        {{ rows|length }} movement record(s)
+                    </div>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="timeline">
+
+                        {% for row in rows %}
+                            <div class="timeline-item">
+
+                                <div class="timeline-dot
+                                    {% if row.stationary_status == 'Overdue' %}bg-danger
+                                    {% elif row.stationary_status == 'Due Soon' %}bg-warning
+                                    {% elif row.stationary_status == 'Healthy' %}bg-success
+                                    {% else %}bg-secondary
+                                    {% endif %}">
+                                </div>
+
+                                <div class="timeline-content">
+                                    <div class="d-flex flex-column flex-lg-row justify-content-between">
+                                        <div>
+                                            <div class="fw-bold">
+                                                {{ row.production_location or "No location recorded" }}
+                                            </div>
+                                            <div class="text-muted small">
+                                                {{ row.activity or "No activity recorded" }}
+                                            </div>
+                                        </div>
+
+                                        <div class="text-lg-end small text-muted mt-2 mt-lg-0">
+                                            {% if row.moved_at %}
+                                                {{ row.moved_at.strftime("%d %b %Y %H:%M") }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-2 mt-2 small">
+                                        <div class="col-md-3">
+                                            <strong>Expected Days:</strong>
+                                            {{ row.expected_stationary_days if row.expected_stationary_days is not none else "—" }}
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <strong>Expected Move:</strong>
+                                            {% if row.expected_move_date %}
+                                                {{ row.expected_move_date.strftime("%d %b %Y") }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <strong>Actual Days:</strong>
+                                            {{ row.actual_days_stationary if row.actual_days_stationary is not none else "—" }}
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <strong>Status:</strong>
+                                            <span class="badge
+                                                {% if row.stationary_status == 'Overdue' %}bg-danger
+                                                {% elif row.stationary_status == 'Due Soon' %}bg-warning text-dark
+                                                {% elif row.stationary_status == 'Healthy' %}bg-success
+                                                {% else %}bg-secondary
+                                                {% endif %}">
+                                                {{ row.stationary_status or "No Target" }}
+                                            </span>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <strong>Latitude:</strong>
+                                            {{ "%.6f"|format(row.latitude) if row.latitude is not none else "—" }}
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <strong>Longitude:</strong>
+                                            {{ "%.6f"|format(row.longitude) if row.longitude is not none else "—" }}
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <strong>Moved By:</strong>
+                                            {{ row.moved_by or "—" }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body text-center text-muted py-5">
+                No coach movement records found.
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    margin-left: 1rem;
+    padding-left: 1.5rem;
+    border-left: 3px solid #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.75rem;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -2.15rem;
+    top: 0.25rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #adb5bd;
+}
+
+.timeline-content {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+    .timeline {
+        margin-left: 0.5rem;
+        padding-left: 1rem;
+    }
+
+    .timeline-dot {
+        left: -1.65rem;
+    }
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Add Production Location{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Production Location</h2>
+
+    <form method="POST" class="card shadow-sm border-0 rounded-4 mt-4">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Location</label>
+                <input type="text" name="location" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Default Stationary Days</label>
+                <input type="number" name="default_days" class="form-control" min="0" value="0" required>
+            </div>
+
+            <div class="form-check mb-3">
+                <input type="checkbox" name="is_active" class="form-check-input" id="is_active" checked>
+                <label for="is_active" class="form-check-label">Active</label>
+            </div>
+
+            <button class="btn btn-primary">Save</button>
+            <a href="{{ url_for('production_locations_list') }}" class="btn btn-outline-secondary">Cancel</a>
+
+        </div>
+    </form>
+</div>
+{% endblock %}

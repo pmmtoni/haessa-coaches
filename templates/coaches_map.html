@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% block title %}Coach Yard Map{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 page-fit">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+        <div>
+            <h2 class="mb-1">Coach Yard Map</h2>
+            <div class="text-muted">Manual coach location tracking for CTE Durban yard.</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+            <div class="col-lg-4">
+            
+                {% if current_user.role in ['admin', 'editor'] %}
+            
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-white">
+                        <strong>Update Coach Position</strong>
+                    </div>
+            
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('coaches_map') }}">
+
+
+
+
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Coach</label>
+                            <select name="coach_id" class="form-select" required>
+                                <option value="">Select coach</option>
+                                {% for coach in coaches %}
+                                    <option value="{{ coach.id }}">
+                                        {{ coach.coach_number }} - {{ coach.coach_type }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="alert alert-info small">
+                            Click on the map to capture the coach location. Latitude and longitude will auto-fill below.
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Latitude</label>
+                            <input type="number"
+                                   step="0.000001"
+                                   name="latitude"
+                                   id="latitude"
+                                   class="form-control"
+                                   required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Longitude</label>
+                            <input type="number"
+                                   step="0.000001"
+                                   name="longitude"
+                                   id="longitude"
+                                   class="form-control"
+                                   required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Activity</label>
+                            <input type="text" name="activity" class="form-control" placeholder="e.g. Stripping, Completion, Paint, Electrical">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Production Line Location</label>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Expected Stationary Days</label>
+
+
+                                <input type="number"
+                                       name="expected_stationary_days"
+                                       id="expected_stationary_days"
+                                       class="form-control"
+                                       min="0"
+                                       placeholder="Auto-filled from location, can override">
+                                <div class="form-text">
+                                    Enter how many days the coach is expected to remain at this location.
+                                </div>
+                            </div>
+
+                            <select name="production_location"
+                                    id="production_location"
+                                    class="form-select">
+                                <option value="">Select location</option>
+                                {% for rule in location_rules %}
+                                    <option value="{{ rule.location }}">
+                                        {{ rule.location }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            
+
+                        </div>
+                        
+
+
+
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Date</label>
+                            <input type="date" name="position_date" class="form-control">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Save Coach Position
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+    {% endif %}
+
+
+            <div class="card shadow-sm border-0 rounded-4 mt-4">
+                <div class="card-header bg-white">
+                    <strong>Mapped Coaches</strong>
+                </div>
+
+                <div class="card-body">
+                    {% if mapped_coaches %}
+                        <div class="list-group">
+                            {% for item in mapped_coaches %}
+                            <div class="list-group-item">
+                                <div class="fw-bold">{{ item.coach_number }}</div>
+                                <div class="small text-muted">{{ item.activity }}</div>
+
+                                <div class="small">{{ item.production_location }}</div>
+                                <div class="small">{{ item.position_date }}</div>
+                                <div class="small">
+                                    Status:
+                                    <span class="badge 
+                                        {% if item.stationary_status == 'Overdue' %}bg-danger
+                                        {% elif item.stationary_status == 'Due Soon' %}bg-warning text-dark
+                                        {% elif item.stationary_status == 'Healthy' %}bg-success
+                                        {% else %}bg-secondary
+                                        {% endif %}">
+                                        {{ item.stationary_status }}
+                                    </span>
+                                </div>
+
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-muted">No coach coordinates captured yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white d-flex flex-wrap gap-3 align-items-center">
+                    <strong class="me-2">Map Legend:</strong>
+                    <span><span class="legend-dot" style="background: orange;"></span> Stripping</span>
+                    <span><span class="legend-dot" style="background: blue;"></span> Completion</span>
+                    <span><span class="legend-dot" style="background: green;"></span> Serviceworthy</span>
+                    <span><span class="legend-dot" style="background: purple;"></span> Retention</span>
+                    <span><span class="legend-dot" style="background: gray;"></span> Unknown</span>
+                    <span class="ms-3 fw-bold">Stationary Risk:</span>
+                    <span><span class="legend-ring" style="border-color: green;"></span> Healthy</span>
+                    <span><span class="legend-ring" style="border-color: orange;"></span> Due Soon</span>
+                    <span><span class="legend-ring" style="border-color: red;"></span> Overdue</span>
+                </div>
+        
+                <div class="card-body p-0">
+                    <div id="coachMap"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+<style>
+#coachMap {
+    width: 100%;
+    height: 75vh;
+    min-height: 500px;
+    border-radius: 1rem;
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 4px;
+    border: 1px solid #ffffff;
+    box-shadow: 0 0 0 1px #999;
+}
+
+.legend-ring {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-right: 4px;
+    border: 3px solid #999;
+    background: white;
+}
+
+
+@media (max-width: 768px) {
+    #coachMap {
+        height: 60vh;
+        min-height: 360px;
+    }
+}
+</style>
+
+<script>
+const mappedCoaches = {{ mapped_coaches | tojson }};
+const locationDaysMap = {{ location_days_map | tojson }};
+const defaultLat = parseFloat("{{ default_lat }}");
+const defaultLng = parseFloat("{{ default_lng }}");
+
+function initCoachMap() {
+    const map = new google.maps.Map(document.getElementById("coachMap"), {
+        center: { lat: defaultLat, lng: defaultLng },
+        zoom: 16,
+        mapTypeId: "satellite"
+    });
+
+    const infoWindow = new google.maps.InfoWindow();
+
+    let selectedLocationMarker = null;
+    
+    map.addListener("click", (event) => {
+        const lat = event.latLng.lat().toFixed(6);
+        const lng = event.latLng.lng().toFixed(6);
+    
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lng;
+    
+        if (selectedLocationMarker) {
+            selectedLocationMarker.setMap(null);
+        }
+    
+        selectedLocationMarker = new google.maps.Marker({
+            position: event.latLng,
+            map: map,
+            title: "Selected coach location",
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: "#0d6efd",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 2
+            }
+        });
+    
+        infoWindow.setContent(`
+            <div style="min-width:200px;">
+                <strong>Selected Location</strong><br>
+                Latitude: ${lat}<br>
+                Longitude: ${lng}<br>
+                <small>Select a coach and click Save Coach Position.</small>
+            </div>
+        `);
+    
+        infoWindow.open(map, selectedLocationMarker);
+    });
+    
+
+    mappedCoaches.forEach(item => {
+
+        let markerColor = "gray";
+        
+        const activity = (item.activity || "").toLowerCase();
+        
+        if (activity.includes("stripping")) {
+            markerColor = "orange";
+        }
+        else if (activity.includes("completion")) {
+            markerColor = "blue";
+        }
+        else if (activity.includes("serviceworthy")) {
+            markerColor = "green";
+        }
+        else if (activity.includes("retention")) {
+            markerColor = "purple";
+        }
+        
+        let riskBorderColor = "#ffffff";
+        let riskStrokeWeight = 2;
+        
+        if (item.stationary_status === "Overdue") {
+            riskBorderColor = "red";
+            riskStrokeWeight = 5;
+        }
+        else if (item.stationary_status === "Due Soon") {
+            riskBorderColor = "orange";
+            riskStrokeWeight = 5;
+        }
+        else if (item.stationary_status === "Healthy") {
+            riskBorderColor = "green";
+            riskStrokeWeight = 4;
+        }
+        
+        const marker = new google.maps.Marker({
+            position: {
+                lat: parseFloat(item.latitude),
+                lng: parseFloat(item.longitude)
+            },
+            map: map,
+            title: item.coach_number,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 11,
+                fillColor: markerColor,
+                fillOpacity: 1,
+                strokeColor: riskBorderColor,
+                strokeWeight: riskStrokeWeight
+            }
+        });
+        
+
+        const content = `
+            <div style="min-width:220px;">
+                <strong>${item.coach_number}</strong><br>
+                <span>${item.coach_type || ""}</span><br>
+                <hr>
+                <strong>Date:</strong> ${item.position_date}<br>
+                <strong>Activity:</strong> ${item.activity}<br>
+
+                <strong>Location:</strong> ${item.production_location || "No location recorded"}<br>
+                <strong>Stationary Start:</strong> ${item.stationary_start_date}<br>
+                <strong>Expected Days:</strong> ${item.expected_stationary_days || "No target"}<br>
+                <strong>Expected Move:</strong> ${item.expected_move_date}<br>
+                <strong>Days Stationary:</strong> ${item.days_stationary !== null ? item.days_stationary : "—"}<br>
+                <strong>Status:</strong> ${item.stationary_status}<br>
+                <strong>Latitude:</strong> ${item.latitude}<br>
+
+                <strong>Longitude:</strong> ${item.longitude}
+            </div>
+        `;
+
+        marker.addListener("click", () => {
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const locationSelect = document.getElementById("production_location");
+    const expectedDaysInput = document.getElementById("expected_stationary_days");
+
+    if (locationSelect && expectedDaysInput) {
+        locationSelect.addEventListener("change", function () {
+            const selectedLocation = locationSelect.value;
+
+            if (locationDaysMap[selectedLocation] !== undefined) {
+                expectedDaysInput.value = locationDaysMap[selectedLocation];
+            } else {
+                expectedDaysInput.value = "";
+            }
+        });
+    }
+});
+
+</script>
+
+{% if google_maps_api_key %}
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initCoachMap">
+</script>
+{% else %}
+<div class="alert alert-warning mt-3">
+    Google Maps API key is missing. Set GOOGLE_MAPS_API_KEY in your environment variables.
+</div>
+{% endif %}
+
+{% endblock %}

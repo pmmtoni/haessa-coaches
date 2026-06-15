@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 31 16:28:59 2026
-
-@author: Paul Mmtoni Barasa
-"""
-
 {% extends "base.html" %}
 {% block title %}Add New Coach{% endblock %}
 
@@ -86,6 +79,62 @@ Created on Sat Jan 31 16:28:59 2026
                         </div>
 
                         <div class="col-12 mt-4">
+                            <h5 class="mb-3 border-bottom pb-2">
+                                Components / Suppliers / Installers
+                            </h5>
+                        
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle" id="componentTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:35%">Component</th>
+                                            <th style="width:30%">Supplier</th>
+                                            <th style="width:30%">Installer / Service Provider</th>
+                                            <th style="width:5%">Action</th>
+                                        </tr>
+                                    </thead>
+                        
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="text"
+                                                       name="component[]"
+                                                       class="form-control">
+                                            </td>
+                        
+                                            <td>
+                                                <input type="text"
+                                                       name="supplier[]"
+                                                       class="form-control">
+                                            </td>
+                        
+                                            <td>
+                                                <input type="text"
+                                                       name="installer[]"
+                                                       class="form-control">
+                                            </td>
+                        
+                                            <td>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-danger remove-row">
+                                                    ×
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        
+                            <button type="button"
+                                    class="btn btn-outline-primary"
+                                    id="addComponentRow">
+                                + Add Component
+                            </button>
+                        </div>
+
+
+
+                        <div class="col-12 mt-4">
                             <label for="notes" class="form-label fw-bold">Notes / Remarks</label>
                             <textarea class="form-control" id="notes" name="notes" rows="4"></textarea>
                         </div>
@@ -101,4 +150,59 @@ Created on Sat Jan 31 16:28:59 2026
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const addBtn = document.getElementById("addComponentRow");
+
+    if (addBtn) {
+
+        addBtn.addEventListener("click", function () {
+
+            const tbody =
+                document.querySelector("#componentTable tbody");
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>
+                    <input type="text"
+                           name="component[]"
+                           class="form-control">
+                </td>
+
+                <td>
+                    <input type="text"
+                           name="supplier[]"
+                           class="form-control">
+                </td>
+
+                <td>
+                    <input type="text"
+                           name="installer[]"
+                           class="form-control">
+                </td>
+
+                <td>
+                    <button type="button"
+                            class="btn btn-sm btn-danger remove-row">
+                        ×
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-row")) {
+                e.target.closest("tr").remove();
+            }
+        });
+    }
+});
+</script>
+
+
 {% endblock %}

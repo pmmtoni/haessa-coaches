@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Production Locations{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4 page-fit">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
+        <div>
+            <h2 class="mb-1">Production Locations</h2>
+            <div class="text-muted">Default stationary days used by Coach Map auto-fill.</div>
+        </div>
+
+        <div class="mt-3 mt-lg-0">
+            <a href="{{ url_for('production_locations_add') }}" class="btn btn-primary">
+                Add Location
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Search</label>
+                    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search location">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <select name="active" class="form-select">
+                        <option value="active" {% if active_filter == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if active_filter == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="all" {% if active_filter == 'all' %}selected{% endif %}>All</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Rows</label>
+                    <select name="per_page" class="form-select">
+                        <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-primary" type="submit">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white d-flex justify-content-between">
+            <strong>Location Rules</strong>
+            <span class="small text-muted">{{ locations.total }} record(s)</span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Location</th>
+                            <th>Default Days</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if locations.items %}
+                            {% for rule in locations.items %}
+                            <tr>
+                                <td class="fw-bold">{{ rule.location }}</td>
+                                <td>{{ rule.default_days }}</td>
+                                <td>
+                                    {% if rule.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('production_locations_edit', id=rule.id) }}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Edit
+                                    </a>
+
+                                    {% if current_user.role == 'admin' %}
+                                    <form method="POST"
+                                          action="{{ url_for('production_locations_delete', id=rule.id) }}"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Delete this production location?');">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            Delete
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    No production locations found.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center flex-wrap">
+            {% if locations.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('production_locations_list', page=locations.prev_num, q=q, active=active_filter, per_page=per_page) }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+
+            {% for p in locations.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                {% if p %}
+                    <li class="page-item {% if p == locations.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('production_locations_list', page=p, q=q, active=active_filter, per_page=per_page) }}">{{ p }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if locations.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('production_locations_list', page=locations.next_num, q=q, active=active_filter, per_page=per_page) }}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+</div>
+{% endblock %}
