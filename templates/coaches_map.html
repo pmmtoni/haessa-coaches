@@ -347,8 +347,11 @@ function initCoachMap() {
                 <strong>Location:</strong> ${item.production_location || "No location recorded"}<br>
                 <strong>Stationary Start:</strong> ${item.stationary_start_date}<br>
                 <strong>Expected Days:</strong> ${item.expected_stationary_days || "No target"}<br>
+
                 <strong>Expected Move:</strong> ${item.expected_move_date}<br>
-                <strong>Days Stationary:</strong> ${item.days_stationary !== null ? item.days_stationary : "—"}<br>
+
+
+                <strong>Days in Current Production Location:</strong> ${item.days_stationary !== null ? item.days_stationary : "—"}<br>
                 <strong>Status:</strong> ${item.stationary_status}<br>
                 <strong>Latitude:</strong> ${item.latitude}<br>
 

@@ -1854,13 +1854,20 @@ def coaches_map():
         coach.production_location = production_location or None
         coach.map_position_date = position_date or date.today()
 
+        # Production analytics reset:
+        # The clock starts from the date the coach is moved/placed
+        # into its current production location/activity.
         coach.stationary_start_date = coach.map_position_date
         coach.expected_stationary_days = expected_stationary_days
-
-        if expected_stationary_days is not None:
-            coach.expected_move_date = coach.stationary_start_date + timedelta(days=expected_stationary_days)
+        
+        if coach.stationary_start_date and expected_stationary_days is not None:
+            coach.expected_move_date = (
+                coach.stationary_start_date
+                + timedelta(days=expected_stationary_days)
+            )
         else:
             coach.expected_move_date = None
+
 
         today = date.today()
 
