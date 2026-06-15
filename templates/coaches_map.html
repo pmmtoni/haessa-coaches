@@ -72,6 +72,23 @@
                         <div class="mb-3">
                             <label class="form-label fw-bold">Production Line Location</label>
 
+
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Select Location</label>
+                                <select name="production_location"
+                                        id="production_location"
+                                        class="form-select">
+                                    <option value="">Select location</option>
+                            
+                                    {% for rule in location_rules %}
+                                        <option value="{{ rule.location }}">
+                                            {{ rule.location }} — {{ rule.default_days }} day(s)
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Expected Stationary Days</label>
 
@@ -87,24 +104,13 @@
                                 </div>
                             </div>
 
-                            <select name="production_location"
-                                    id="production_location"
-                                    class="form-select">
-                                <option value="">Select location</option>
-                                {% for rule in location_rules %}
-                                    <option value="{{ rule.location }}">
-                                        {{ rule.location }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            
 
+
+
+
+                       
                         </div>
                         
-
-
-
-
                         <div class="mb-3">
                             <label class="form-label fw-bold">Date</label>
                             <input type="date" name="position_date" class="form-control">
