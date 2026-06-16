@@ -1848,25 +1848,46 @@ def coaches_map():
 
         coach = Coach.query.get_or_404(coach_id)
 
+        old_activity = coach.map_activity or ""
+        old_location = coach.production_location or ""
+        
+        new_activity = activity or None
+        new_location = production_location or None
+        
+        activity_changed = old_activity != (new_activity or "")
+        location_changed = old_location != (new_location or "")
+        
         coach.latitude = latitude
         coach.longitude = longitude
-        coach.map_activity = activity or None
-        coach.production_location = production_location or None
+        coach.map_activity = new_activity
+        coach.production_location = new_location
         coach.map_position_date = position_date or date.today()
-
-        # Production analytics reset:
-        # The clock starts from the date the coach is moved/placed
-        # into its current production location/activity.
-        coach.stationary_start_date = coach.map_position_date
-        coach.expected_stationary_days = expected_stationary_days
         
-        if coach.stationary_start_date and expected_stationary_days is not None:
-            coach.expected_move_date = (
-                coach.stationary_start_date
-                + timedelta(days=expected_stationary_days)
-            )
+        # Reset production analytics only when the production activity/location changes.
+        # Updating coordinates alone must not reset the production clock.
+        if activity_changed or location_changed or not coach.stationary_start_date:
+            coach.stationary_start_date = coach.map_position_date
+            coach.expected_stationary_days = expected_stationary_days
+        
+            if coach.stationary_start_date and expected_stationary_days is not None:
+                coach.expected_move_date = (
+                    coach.stationary_start_date
+                    + timedelta(days=expected_stationary_days)
+                )
+            else:
+                coach.expected_move_date = None
         else:
-            coach.expected_move_date = None
+            coach.expected_stationary_days = expected_stationary_days
+        
+            if coach.stationary_start_date and expected_stationary_days is not None:
+                coach.expected_move_date = (
+                    coach.stationary_start_date
+                    + timedelta(days=expected_stationary_days)
+                )
+
+
+
+
 
 
         today = date.today()
@@ -1899,7 +1920,10 @@ def coaches_map():
                 f"date={coach.map_position_date}, "
                 f"expected_stationary_days={expected_stationary_days}, "
                 f"expected_move_date={coach.expected_move_date}, "
-                f"stationary_status={stationary_status}"
+                
+                f"stationary_status={stationary_status}, "
+                f"activity_changed={activity_changed}, "
+                f"location_changed={location_changed}"
             ),
         )
 
