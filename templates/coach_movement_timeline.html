@@ -135,7 +135,9 @@ Created on Sun Jun 14 16:03:02 2026
 
                                         <div class="col-md-3">
                                             <strong>Actual Days:</strong>
-                                            {{ row.actual_days_stationary if row.actual_days_stationary is not none else "—" }}
+
+                                            {{ row.display_actual_days_stationary if row.display_actual_days_stationary is not none else "—" }}
+
                                         </div>
 
                                         <div class="col-md-3">

@@ -2257,10 +2257,11 @@ def production_bottlenecks_export():
 
 
 
-
 @app.route("/coach-movement-timeline")
 @login_required
 def coach_movement_timeline():
+    from datetime import date
+
     q = request.args.get("q", "").strip()
     coach_filter = request.args.get("coach", "").strip()
 
@@ -2285,8 +2286,17 @@ def coach_movement_timeline():
     ).all()
 
     timeline = {}
+    today = date.today()
 
     for row in history_rows:
+        if row.stationary_start_date:
+            row.display_actual_days_stationary = max(
+                (today - row.stationary_start_date).days,
+                0
+            )
+        else:
+            row.display_actual_days_stationary = None
+
         timeline.setdefault(row.coach_number, []).append(row)
 
     coach_numbers = sorted({
@@ -2302,7 +2312,6 @@ def coach_movement_timeline():
         q=q,
         coach_filter=coach_filter,
     )
-
 
 
 @app.route("/coach-location-history")

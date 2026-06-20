@@ -236,12 +236,6 @@
 
 </head>
 
-
-
-
-
-
-
 <body>
 
     
@@ -281,12 +275,15 @@
                     </li>
                     {% endif %}
 
+                    {% if current_user.role in ['admin', 'editor'] %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint in ['task_templates_list', 'task_templates_add', 'task_templates_edit'] %}active-link{% endif %}"
                            href="{{ url_for('task_templates_list') }}">
                             Task Templates
                         </a>
                     </li>
+                    {% endif %}
+
 
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint in ['production_locations_list', 'production_locations_add', 'production_locations_edit'] %}active-link{% endif %}"
@@ -355,6 +352,9 @@
                             Manage Users
                         </a>
                     </li>
+                    {% endif %}
+
+                    {% if current_user.role in ['admin', 'editor'] %}                    
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('export_database_csv') }}">
                             Backup CSV
