@@ -35,6 +35,7 @@ from models import (
     CoachAudit,
     CoachLocationHistory,
     ProductionLocationRule,
+    WorkshopStation,
     TaskTemplate,
     CoachComponentInstallation,
 )
@@ -2040,11 +2041,25 @@ def coaches_map():
     }
 
 
+    workshop_stations = (
+        WorkshopStation.query
+        .filter_by(active=True)
+        .order_by(
+            WorkshopStation.sequence,
+            WorkshopStation.station
+        )
+        .all()
+    )
+
+
+
+
 
     return render_template(
         "coaches_map.html",
         coaches=coaches,
         mapped_coaches=mapped_coaches,
+        workshop_stations=workshop_stations,
         stationary_summary=stationary_summary,
         overdue_coaches=overdue_coaches,
         location_rules=location_rules,
@@ -2311,6 +2326,79 @@ def coach_movement_timeline():
         coach_numbers=coach_numbers,
         q=q,
         coach_filter=coach_filter,
+    )
+
+@app.route("/coach-journey")
+@login_required
+def coach_journey():
+
+    coach_id = request.args.get("coach_id", type=int)
+
+    coaches = (
+        Coach.query
+        .filter(Coach.archived.is_(False))
+        .order_by(Coach.coach_number)
+        .all()
+    )
+
+    selected_coach = None
+    history = []
+
+    if coach_id:
+
+        selected_coach = Coach.query.get_or_404(coach_id)
+
+        history = (
+            CoachLocationHistory.query
+            .filter_by(coach_id=coach_id)
+            .order_by(CoachLocationHistory.moved_at.asc())
+            .all()
+        )
+    
+    # =====================================================
+    # Production Journey
+    # =====================================================
+    
+    production_flow = [
+        "Stripping",
+        "Structural",
+        "Paint - Grit Blast",
+        "Paint - Body",
+        "Assembly - Coach Build",
+        "Assembly - Electrical",
+        "Assembly - BUP",
+        "Testing & Commissioning",
+    ]
+    
+    completed_stages = []
+    current_stage = None
+    
+    if history:
+    
+        # History should be oldest → newest
+        history = sorted(history, key=lambda h: h.moved_at)
+    
+        completed_stages = [
+            h.activity
+            for h in history[:-1]
+            if h.activity
+        ]
+    
+        current_stage = history[-1].activity
+    
+
+
+
+
+    
+    return render_template(
+        "coach_journey.html",
+        coaches=coaches,
+        selected_coach=selected_coach,
+        history=history,
+        production_flow=production_flow,
+        completed_stages=completed_stages,
+        current_stage=current_stage,
     )
 
 

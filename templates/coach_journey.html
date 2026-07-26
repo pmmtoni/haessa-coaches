@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        <i class="fas fa-route"></i>
+        Coach Journey
+    </h2>
+
+    <!-- Coach Selection -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            Select Coach
+        </div>
+
+        <div class="card-body">
+
+            <form method="GET">
+
+                <div class="row align-items-end">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label">
+                            Coach Number
+                        </label>
+
+                        <select
+                            class="form-select"
+                            name="coach_id"
+                            onchange="this.form.submit()">
+
+                            <option value="">
+                                -- Select Coach --
+                            </option>
+
+                            {% for coach in coaches %}
+
+                            <option
+                                value="{{ coach.id }}"
+                                {% if selected_coach and selected_coach.id == coach.id %}selected{% endif %}>
+
+                                {{ coach.coach_number }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    {% if not selected_coach %}
+
+    <div class="alert alert-info">
+
+        <i class="fas fa-info-circle"></i>
+
+        Please select a coach to view its production journey.
+
+    </div>
+
+    {% endif %}
+
+    {% if selected_coach %}
+
+<!-- ====================== -->
+<!-- Coach Information -->
+<!-- ====================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header bg-success text-white">
+        <i class="fas fa-train"></i>
+        Current Coach Information
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+                <strong>Coach Number</strong><br>
+                {{ selected_coach.coach_number }}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <strong>Coach Type</strong><br>
+                {{ selected_coach.coach_type or "Not recorded" }}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <strong>Current Activity</strong><br>
+                {{ selected_coach.map_activity or "Not recorded" }}
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4 mb-3">
+                <strong>Production Location</strong><br>
+                {{ selected_coach.production_location or "Not assigned" }}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <strong>Current Position Date</strong><br>
+                {{ selected_coach.map_position_date.strftime("%d %b %Y") if selected_coach.map_position_date else "Not recorded" }}
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <strong>Stationary Days</strong><br>
+                {{ selected_coach.actual_days_stationary or 0 }}
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4">
+                <strong>Status</strong><br>
+
+                {% if selected_coach.stationary_status == "Healthy" %}
+
+                    <span class="badge bg-success">
+                        Healthy
+                    </span>
+
+                {% elif selected_coach.stationary_status == "Due Soon" %}
+
+                    <span class="badge bg-warning text-dark">
+                        Due Soon
+                    </span>
+
+                {% elif selected_coach.stationary_status == "Overdue" %}
+
+                    <span class="badge bg-danger">
+                        Overdue
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-secondary">
+                        No Target
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ====================== -->
+<!-- Production Journey -->
+<!-- ====================== -->
+
+<div class="card mb-4">
+
+    <div class="card-header bg-dark text-white">
+
+        <i class="fas fa-project-diagram"></i>
+
+        Production Journey
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="production-flow">
+
+            {% for stage in production_flow %}
+
+                {% if stage == current_stage %}
+
+                    <div class="journey-stage current">
+
+                        <div class="stage-circle">
+                            ►
+                        </div>
+
+                        <div class="stage-name">
+                            {{ stage }}
+                        </div>
+
+                    </div>
+
+                {% elif stage in completed_stages %}
+
+                    <div class="journey-stage completed">
+
+                        <div class="stage-circle">
+                            ✓
+                        </div>
+
+                        <div class="stage-name">
+                            {{ stage }}
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="journey-stage pending">
+
+                        <div class="stage-circle">
+                            ○
+                        </div>
+
+                        <div class="stage-name">
+                            {{ stage }}
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ====================== -->
+<!-- End Coach Information -->
+<!-- ====================== -->
+
+    <!-- Movement History -->
+
+    <div class="card">
+
+        <div class="card-header bg-secondary text-white">
+
+            Movement History
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-striped table-hover">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>Date</th>
+                            <th>Activity</th>
+                            <th>Production Location</th>
+                            <th>Expected Days</th>
+                            <th>Actual Days</th>
+                            <th>Status</th>
+                            <th>Moved By</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% if history %}
+
+                            {% for item in history %}
+
+                            <tr>
+
+                                <td>
+                                    {{ item.moved_at.strftime("%d %b %Y") if item.moved_at else "" }}
+                                </td>
+
+                                <td>
+                                    {{ item.activity or "-" }}
+                                </td>
+
+                                <td>
+                                    {{ item.production_location or "-" }}
+                                </td>
+
+                                <td>
+                                    {{ item.expected_stationary_days or "-" }}
+                                </td>
+
+                                <td>
+                                    {{ item.actual_days_stationary or "-" }}
+                                </td>
+
+                                <td>
+
+                                    {% if item.stationary_status == "Healthy" %}
+
+                                        <span class="badge bg-success">
+                                            Healthy
+                                        </span>
+
+                                    {% elif item.stationary_status == "Due Soon" %}
+
+                                        <span class="badge bg-warning text-dark">
+                                            Due Soon
+                                        </span>
+
+                                    {% elif item.stationary_status == "Overdue" %}
+
+                                        <span class="badge bg-danger">
+                                            Overdue
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-secondary">
+                                            No Target
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+                                    {{ item.moved_by or "-" }}
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                        <tr>
+
+                            <td colspan="7" class="text-center text-muted">
+
+                                No movement history recorded for this coach.
+
+                            </td>
+
+                        </tr>
+
+                        {% endif %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

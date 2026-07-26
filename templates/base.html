@@ -321,6 +321,14 @@
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'coach_journey' %}active-link{% endif %}"
+                           href="{{ url_for('coach_journey') }}">
+                            <i class="fas fa-route"></i> Coach Journey
+                        </a>
+                    </li>
+
+
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'delivery_schedule' %}active-link{% endif %}"
                            href="{{ url_for('delivery_schedule') }}">
                             Delivery Schedule

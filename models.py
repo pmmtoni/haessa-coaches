@@ -229,6 +229,24 @@ class Coach(db.Model):
     stationary_start_date = db.Column(db.Date, nullable=True)
     expected_stationary_days = db.Column(db.Integer, nullable=True)
     expected_move_date = db.Column(db.Date, nullable=True)
+    # =====================================================
+    # Factory Production Tracking
+    # =====================================================
+    
+    production_stage = db.Column(db.String(100), nullable=True)
+    
+    workshop_station_id = db.Column(
+        db.Integer,
+        db.ForeignKey("workshop_station.id"),
+        nullable=True
+    )
+    
+    current_activity = db.Column(db.String(150), nullable=True)
+    
+    workshop_station = db.relationship(
+        "WorkshopStation",
+        backref="coaches"
+    )
 
 
     def calculate_progress(self):
@@ -447,8 +465,38 @@ class ProductionLocationRule(db.Model):
 
     def __repr__(self):
         return f"<ProductionLocationRule {self.location} = {self.default_days} days>"    
- 
-    
+
+
+class WorkshopStation(db.Model):
+    __tablename__ = "workshop_station"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    stage = db.Column(db.String(100), nullable=False)
+
+    station = db.Column(db.String(100), nullable=False)
+
+    capacity = db.Column(db.Integer, nullable=False, default=1)
+
+    sequence = db.Column(db.Integer, nullable=False)
+
+    active = db.Column(db.Boolean, default=True)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
+    def __repr__(self):
+        return f"<WorkshopStation {self.station}>"
+
+  
 class TaskTemplate(db.Model):
     __tablename__ = "task_template"
 
