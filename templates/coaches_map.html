@@ -25,19 +25,35 @@
                     <div class="card-body">
                         <form method="POST" action="{{ url_for('coaches_map') }}">
 
-
-
-
-
                         <div class="mb-3">
                             <label class="form-label fw-bold">Coach</label>
-                            <select name="coach_id" class="form-select" required>
+
+                            <select
+                                id="coach_id"
+                                name="coach_id"
+                                class="form-select"
+                                required>
+
+
                                 <option value="">Select coach</option>
+
+
                                 {% for coach in coaches %}
-                                    <option value="{{ coach.id }}">
-                                        {{ coach.coach_number }} - {{ coach.coach_type }}
-                                    </option>
+                                <option
+                                    value="{{ coach.id }}"
+                                    data-lat="{{ coach.latitude or '' }}"
+                                    data-lng="{{ coach.longitude or '' }}"
+                                    data-location="{{ coach.production_location or '' }}"
+                                    data-stage="{{ coach.production_stage or '' }}"
+                                    data-activity="{{ coach.current_activity or '' }}"
+                                    data-expected="{{ coach.expected_stationary_days or '' }}"
+                                >
+                                    {{ coach.coach_number }} - {{ coach.coach_type }}
+                                </option>
                                 {% endfor %}
+                                
+
+
                             </select>
                         </div>
 
@@ -369,6 +385,29 @@ function initCoachMap() {
 document.addEventListener("DOMContentLoaded", function () {
     const locationSelect = document.getElementById("production_location");
     const expectedDaysInput = document.getElementById("expected_stationary_days");
+    const coachSelect = document.getElementById("coach_id");
+    
+    function populateCoachData() {
+    
+        const option = coachSelect.options[coachSelect.selectedIndex];
+    
+        document.getElementById("latitude").value =
+            option.dataset.lat || "";
+    
+        document.getElementById("longitude").value =
+            option.dataset.lng || "";
+    
+        document.getElementById("production_location").value =
+            option.dataset.location || "";
+    
+        document.getElementById("expected_stationary_days").value =
+            option.dataset.expected || "";
+    }
+    
+    coachSelect.addEventListener("change", populateCoachData);
+    
+    // Populate immediately if a coach is already selected
+    populateCoachData();    
 
     if (locationSelect && expectedDaysInput) {
         locationSelect.addEventListener("change", function () {

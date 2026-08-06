@@ -241,7 +241,13 @@ class Coach(db.Model):
         nullable=True
     )
     
+   
     current_activity = db.Column(db.String(150), nullable=True)
+    
+    last_activity_date = db.Column(
+        db.DateTime,
+        nullable=True
+    )    
     
     workshop_station = db.relationship(
         "WorkshopStation",
@@ -444,6 +450,51 @@ class CoachLocationHistory(db.Model):
     def __repr__(self):
         return f"<CoachLocationHistory {self.coach_number} {self.production_location}>" 
 
+class CoachActivityLog(db.Model):
+    __tablename__ = "coach_activity_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    coach_id = db.Column(
+        db.Integer,
+        db.ForeignKey("coach.id"),
+        nullable=False
+    )
+
+    workshop_station_id = db.Column(
+        db.Integer,
+        db.ForeignKey("workshop_station.id"),
+        nullable=True
+    )
+
+    activity = db.Column(db.String(200), nullable=False)
+    remarks = db.Column(db.Text)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    created_by = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    coach = db.relationship(
+        "Coach",
+        backref=db.backref(
+            "activity_logs",
+            lazy=True,
+            order_by="desc(CoachActivityLog.created_at)"
+        )
+    )
+
+    workshop_station = db.relationship(
+        "WorkshopStation",
+        lazy="joined"
+    )
+
 
 class ProductionLocationRule(db.Model):
     __tablename__ = "production_location_rule"
@@ -519,4 +570,6 @@ class TaskTemplate(db.Model):
     )
 
     def __repr__(self):
-        return f"<TaskTemplate {self.coach_type} | {self.phase} | {self.section} | {self.task}>"    
+        return f"<TaskTemplate {self.coach_type} | {self.phase} | {self.section} | {self.task}>"   
+    
+    

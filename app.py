@@ -1835,119 +1835,181 @@ def coaches_map():
     from datetime import date
 
     if request.method == "POST":
+    
         if current_user.role not in ["admin", "editor"]:
             flash("You do not have permission to update coach locations.", "danger")
             return redirect(url_for("coaches_map"))
-
-        coach_id = request.form.get("coach_id", type=int)
+    
+        coach = Coach.query.get_or_404(
+            request.form.get("coach_id", type=int)
+        )
+    
+        today = date.today()
+    
         latitude = request.form.get("latitude", type=float)
         longitude = request.form.get("longitude", type=float)
-        activity = request.form.get("activity", "").strip()
-        production_location = request.form.get("production_location", "").strip()
-        position_date = parse_date(request.form.get("position_date"))
-        expected_stationary_days = request.form.get("expected_stationary_days", type=int)
-
-        coach = Coach.query.get_or_404(coach_id)
-
+    
+        activity = request.form.get("activity", "").strip() or None
+        production_location = request.form.get("production_location", "").strip() or None
+    
+        position_date = (
+            parse_date(request.form.get("position_date"))
+            or today
+        )
+    
+        expected_stationary_days = request.form.get(
+            "expected_stationary_days",
+            type=int
+        )
+    
+        # -------------------------------------------------
+        # Detect changes BEFORE updating coach
+        # -------------------------------------------------
+    
+        old_latitude = coach.latitude
+        old_longitude = coach.longitude
+    
         old_activity = coach.map_activity or ""
         old_location = coach.production_location or ""
-        
-        new_activity = activity or None
-        new_location = production_location or None
-        
-        activity_changed = old_activity != (new_activity or "")
-        location_changed = old_location != (new_location or "")
-        
+    
+        gps_changed = (
+            old_latitude != latitude or
+            old_longitude != longitude
+        )
+    
+        activity_changed = old_activity != (activity or "")
+    
+        location_changed = old_location != (production_location or "")
+    
+        # -------------------------------------------------
+        # Update Coach
+        # -------------------------------------------------
+    
         coach.latitude = latitude
         coach.longitude = longitude
-        coach.map_activity = new_activity
-        coach.production_location = new_location
-        coach.map_position_date = position_date or date.today()
-        
-        # Reset production analytics only when the production activity/location changes.
-        # Updating coordinates alone must not reset the production clock.
+        coach.map_activity = activity
+        coach.production_location = production_location
+        coach.map_position_date = position_date
+    
+        # -------------------------------------------------
+        # Reset stationary timer ONLY when production
+        # activity/location changes
+        # -------------------------------------------------
+    
         if activity_changed or location_changed or not coach.stationary_start_date:
-            coach.stationary_start_date = coach.map_position_date
+    
+            coach.stationary_start_date = position_date
             coach.expected_stationary_days = expected_stationary_days
-        
-            if coach.stationary_start_date and expected_stationary_days is not None:
-                coach.expected_move_date = (
-                    coach.stationary_start_date
-                    + timedelta(days=expected_stationary_days)
-                )
-            else:
-                coach.expected_move_date = None
+    
         else:
+    
             coach.expected_stationary_days = expected_stationary_days
-        
-            if coach.stationary_start_date and expected_stationary_days is not None:
-                coach.expected_move_date = (
-                    coach.stationary_start_date
-                    + timedelta(days=expected_stationary_days)
-                )
-
-
-
-
-
-
-        today = date.today()
-
+    
+        if (
+            coach.stationary_start_date
+            and coach.expected_stationary_days is not None
+        ):
+    
+            coach.expected_move_date = (
+                coach.stationary_start_date +
+                timedelta(days=coach.expected_stationary_days)
+            )
+    
+        else:
+    
+            coach.expected_move_date = None
+    
+        # -------------------------------------------------
+        # Stationary Status
+        # -------------------------------------------------
+    
         actual_days_stationary = None
         stationary_status = "No Target"
-
+    
         if coach.stationary_start_date:
-            actual_days_stationary = max((today - coach.stationary_start_date).days, 0)
-
+    
+            actual_days_stationary = max(
+                (today - coach.stationary_start_date).days,
+                0
+            )
+    
         if coach.expected_move_date:
-            days_remaining = (coach.expected_move_date - today).days
-
-            if days_remaining < 0:
+    
+            remaining = (
+                coach.expected_move_date - today
+            ).days
+    
+            if remaining < 0:
+    
                 stationary_status = "Overdue"
-            elif days_remaining <= 1:
+    
+            elif remaining <= 1:
+    
                 stationary_status = "Due Soon"
+    
             else:
+    
                 stationary_status = "Healthy"
-
+    
+        # -------------------------------------------------
+        # Audit
+        # -------------------------------------------------
+    
         log_coach_audit(
             coach=coach,
             action="coach_map_position_updated",
             changed_by=current_user.username,
             details=(
-                f"Map position updated: "
-                f"lat={latitude}, lng={longitude}, "
+                f"lat={latitude}, "
+                f"lng={longitude}, "
                 f"activity={activity}, "
                 f"location={production_location}, "
-                f"date={coach.map_position_date}, "
-                f"expected_stationary_days={expected_stationary_days}, "
-                f"expected_move_date={coach.expected_move_date}, "
-                
-                f"stationary_status={stationary_status}, "
+                f"gps_changed={gps_changed}, "
                 f"activity_changed={activity_changed}, "
-                f"location_changed={location_changed}"
+                f"location_changed={location_changed}, "
+                f"stationary_status={stationary_status}"
             ),
         )
-
-        db.session.add(
-            CoachLocationHistory(
-                coach_id=coach.id,
-                coach_number=coach.coach_number,
-                latitude=latitude,
-                longitude=longitude,
-                activity=activity or None,
-                production_location=production_location or None,
-                stationary_start_date=coach.stationary_start_date,
-                expected_stationary_days=coach.expected_stationary_days,
-                expected_move_date=coach.expected_move_date,
-                actual_days_stationary=actual_days_stationary,
-                stationary_status=stationary_status,
-                moved_by=current_user.username,
+    
+        # -------------------------------------------------
+        # Save movement ONLY when required
+        # -------------------------------------------------
+    
+        if gps_changed or location_changed:
+    
+            db.session.add(
+    
+                CoachLocationHistory(
+    
+                    coach_id=coach.id,
+                    coach_number=coach.coach_number,
+    
+                    latitude=latitude,
+                    longitude=longitude,
+    
+                    activity=activity,
+                    production_location=production_location,
+    
+                    stationary_start_date=coach.stationary_start_date,
+                    expected_stationary_days=coach.expected_stationary_days,
+                    expected_move_date=coach.expected_move_date,
+    
+                    actual_days_stationary=actual_days_stationary,
+                    stationary_status=stationary_status,
+    
+                    moved_by=current_user.username,
+                )
             )
-        )
-
+    
         db.session.commit()
-        flash("Coach map position updated successfully.", "success")
-        return redirect(url_for("coaches_map"))
+    
+        flash(
+            "Coach map updated successfully.",
+            "success"
+        )
+    
+        return redirect(url_for("coaches_map"))        
+            
 
     coaches = (
         Coach.query
@@ -2068,6 +2130,42 @@ def coaches_map():
         default_lat=os.environ.get("CTE_MAP_CENTER_LAT", "-29.634247"),
         default_lng=os.environ.get("CTE_MAP_CENTER_LNG", "30.351547"),
     )
+
+
+@app.route("/coach/<int:coach_id>/activity", methods=["POST"])
+@login_required
+def add_coach_activity(coach_id):
+
+    coach = Coach.query.get_or_404(coach_id)
+
+    activity = request.form.get("activity", "").strip()
+    remarks = request.form.get("remarks", "").strip()
+
+    if not activity:
+        flash("Activity is required.", "warning")
+        return redirect(url_for("coaches_map"))
+
+    log = CoachActivityLog(
+        coach_id=coach.id,
+        workshop_station_id=coach.workshop_station_id,
+        activity=activity,
+        remarks=remarks,
+        created_by=current_user.username
+    )
+
+    db.session.add(log)
+
+    # Update quick summary fields
+    coach.current_activity = activity
+    coach.last_activity_date = datetime.utcnow()
+
+    db.session.commit()
+
+    flash("Production activity recorded.", "success")
+
+    return redirect(url_for("coaches_map"))
+
+
 
 @app.route("/production-bottlenecks")
 @login_required
@@ -3609,6 +3707,110 @@ def export_database_csv():
         headers={
             "Content-Disposition": "attachment; filename=cte_durban_coaches_backup.csv"
         },
+    )
+
+@app.route("/workshop-stations")
+@login_required
+def workshop_stations_list():
+
+    search = request.args.get("search", "").strip()
+
+    stage = request.args.get("stage", "").strip()
+
+    query = WorkshopStation.query
+
+    if search:
+        query = query.filter(
+            db.or_(
+                WorkshopStation.stage.ilike(f"%{search}%"),
+                WorkshopStation.station.ilike(f"%{search}%")
+            )
+        )
+
+    if stage:
+        query = query.filter(
+            WorkshopStation.stage == stage
+        )
+
+    stations = query.order_by(
+        WorkshopStation.sequence
+    ).all()
+
+    stages = (
+        db.session.query(WorkshopStation.stage)
+        .distinct()
+        .order_by(WorkshopStation.stage)
+        .all()
+    )
+
+    return render_template(
+
+        "workshop_stations_list.html",
+
+        stations=stations,
+
+        stages=[s[0] for s in stages],
+
+        search=search,
+
+        selected_stage=stage
+
+    )
+
+
+@app.route("/workshop-stations/add", methods=["GET", "POST"])
+@login_required
+def workshop_station_add():
+
+    if request.method == "POST":
+
+        stage = request.form["stage"].strip()
+
+        station = request.form["station"].strip()
+
+        capacity = int(request.form["capacity"])
+
+        sequence = int(request.form["sequence"])
+
+        active = "active" in request.form
+
+        duplicate = WorkshopStation.query.filter_by(
+            stage=stage,
+            station=station
+        ).first()
+
+        if duplicate:
+            flash(
+                "This workshop station already exists.",
+                "warning"
+            )
+            return redirect(url_for("workshop_station_add"))
+
+        ws = WorkshopStation(
+            stage=stage,
+            station=station,
+            capacity=capacity,
+            sequence=sequence,
+            active=active,
+        )
+
+        db.session.add(ws)
+        db.session.commit()
+
+        flash(
+            "Workshop station added successfully.",
+            "success"
+        )
+
+        return redirect(url_for("workshop_stations_list"))
+
+    next_sequence = (
+        db.session.query(db.func.max(WorkshopStation.sequence)).scalar() or 0
+    ) + 10
+
+    return render_template(
+        "workshop_station_add.html",
+        next_sequence=next_sequence,
     )
 
 

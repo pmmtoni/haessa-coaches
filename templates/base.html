@@ -1,426 +1,441 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CTE Durban Coaches{% endblock %}</title>
 
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>
+        {% block title %}
+            CTE Durban Coaches
+        {% endblock %}
+    </title>
+
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link
         rel="stylesheet"
-    >
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<style>
-    body {
-        background-color: #f8f9fa;
-        padding-top: 76px;
-    }
+    <style>
 
-    .navbar {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    }
-
-    .navbar-brand {
-        font-weight: 700;
-        letter-spacing: 0.2px;
-    }
-
-    .navbar .nav-link {
-        border-radius: 0.5rem;
-        padding: 0.45rem 0.75rem;
-    }
-
-    .navbar .nav-link.active-link {
-        background-color: rgba(255, 255, 255, 0.12);
-        color: #fff !important;
-        font-weight: 600;
-    }
-
-    .container,
-    .container-fluid {
-        max-width: 98% !important;
-    }
-
-    .page-fit {
-        max-width: 98%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .content-shell {
-        min-height: calc(100vh - 72px);
-    }
-
-    .card {
-        border-radius: 1rem;
-    }
-
-    .card-body {
-        overflow-x: hidden;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .table td,
-    .table th {
-        vertical-align: middle;
-    }
-
-    .progress {
-        border-radius: 999px;
-        overflow: hidden;
-    }
-
-    .accordion-button:not(.collapsed) {
-        box-shadow: none;
-    }
-
-    .page-title {
-        font-weight: 700;
-    }
-
-    .flash-area .alert {
-        border-radius: 0.75rem;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 0.35rem 0.65rem;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-    }
-
-    .footer-note {
-        font-size: 0.85rem;
-        color: #6c757d;
-    }
-
-    @media (max-width: 768px) {
-        body {
-            padding-top: 86px;
+        body{
+            background:#f5f7fa;
+            padding-top:72px;
         }
 
-        .container,
-        .container-fluid,
-        .page-fit {
-            max-width: 100% !important;
-            padding-left: 8px !important;
-            padding-right: 8px !important;
+        .navbar{
+            box-shadow:0 2px 10px rgba(0,0,0,.18);
         }
 
-        .table {
-            font-size: 0.85rem;
+        .navbar-brand{
+            font-weight:700;
         }
 
-        .btn-lg {
-            width: 100%;
-            margin-bottom: 6px;
+        .dropdown-menu{
+            min-width:260px;
         }
 
-        .card-body {
-            padding: 1rem !important;
+        .card{
+            border-radius:14px;
+            border:none;
         }
 
-        .accordion-button {
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-    }
-
-    @media print {
-        @page {
-            size: A4 landscape;
-            margin: 8mm;
+        .table th{
+            white-space:nowrap;
         }
 
-        html,
-        body {
-            width: 100% !important;
-            background: #ffffff !important;
-            font-size: 9px !important;
-            line-height: 1.2 !important;
-            padding-top: 0 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+        .page-title{
+            font-weight:700;
         }
 
-        .navbar,
-        .no-print,
-        .btn,
-        .pagination,
-        form,
-        .flash-area,
-        .footer-note {
-            display: none !important;
+        .footer-note{
+            font-size:.85rem;
+            color:#777;
         }
 
-        main,
-        .container,
-        .container-fluid,
-        .page-fit,
-        .content-shell {
-            max-width: 100% !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            min-height: auto !important;
+        @media print{
+
+            .navbar,
+            .btn,
+            .pagination,
+            .footer-note,
+            .no-print{
+                display:none!important;
+            }
+
+            body{
+                padding-top:0;
+            }
+
         }
 
-        .card {
-            box-shadow: none !important;
-            border: 1px solid #cccccc !important;
-            page-break-inside: avoid;
-            margin-bottom: 6px !important;
-        }
-
-        .card-body,
-        .card-header {
-            padding: 6px !important;
-        }
-
-        .table-responsive {
-            overflow: visible !important;
-        }
-
-        table,
-        .table {
-            width: 100% !important;
-            max-width: 100% !important;
-            table-layout: fixed !important;
-            border-collapse: collapse !important;
-            font-size: 7px !important;
-        }
-
-        th,
-        td,
-        .table th,
-        .table td {
-            padding: 2px 3px !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-            overflow-wrap: anywhere !important;
-            vertical-align: top !important;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            margin-top: 4px !important;
-            margin-bottom: 4px !important;
-            line-height: 1.15 !important;
-        }
-
-        p,
-        .alert,
-        .badge,
-        .small,
-        small {
-            font-size: 8px !important;
-        }
-
-        .progress {
-            height: 8px !important;
-        }
-
-        a {
-            color: #000000 !important;
-            text-decoration: none !important;
-        }
-
-        * {
-            box-sizing: border-box !important;
-        }
-    }
-</style>
+    </style>
 
 </head>
 
 <body>
 
-    
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('coaches_list') }}">CTE Durban Coaches</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
 
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#mainNavbar"
-                aria-controls="mainNavbar"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<div class="container-fluid">
 
-            <div class="collapse navbar-collapse" id="mainNavbar">
-                {% if current_user.is_authenticated %}
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<a class="navbar-brand"
+   href="{{ url_for('coaches_list') }}">
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coaches_list' %}active-link{% endif %}"
-                           href="{{ url_for('coaches_list') }}">
-                            Coaches
-                        </a>
-                    </li>
+    CTE Durban Coaches
 
-                    {% if current_user.role in ['admin', 'editor'] %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coaches_add' %}active-link{% endif %}"
-                           href="{{ url_for('coaches_add') }}">
-                            Add Coach
-                        </a>
-                    </li>
-                    {% endif %}
+</a>
 
-                    {% if current_user.role in ['admin', 'editor'] %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint in ['task_templates_list', 'task_templates_add', 'task_templates_edit'] %}active-link{% endif %}"
-                           href="{{ url_for('task_templates_list') }}">
-                            Task Templates
-                        </a>
-                    </li>
-                    {% endif %}
+<button class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar">
+
+    <span class="navbar-toggler-icon"></span>
+
+</button>
+
+<div class="collapse navbar-collapse"
+     id="mainNavbar">
+
+{% if current_user.is_authenticated %}
+
+<ul class="navbar-nav me-auto">
+
+<!-- ========================= -->
+<!-- COACHES -->
+<!-- ========================= -->
+
+<li class="nav-item dropdown">
+
+<a class="nav-link dropdown-toggle"
+
+   href="#"
+
+   role="button"
+
+   data-bs-toggle="dropdown">
+
+<i class="bi bi-train-front"></i>
+
+Coaches
+
+</a>
+
+<ul class="dropdown-menu">
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('coaches_list') }}">
+Coach Register
+</a>
+</li>
+
+{% if current_user.role in ['admin','editor'] %}
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('coaches_add') }}">
+Add Coach
+</a>
+</li>
+
+{% endif %}
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('coach_journey') }}">
+Coach Journey
+</a>
+</li>
+
+<li><hr class="dropdown-divider"></li>
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('delivery_schedule') }}">
+Delivery Schedule
+</a>
+</li>
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('delivery_graph') }}">
+Delivery Graph
+</a>
+</li>
+
+</ul>
+
+</li>
+
+<!-- ========================= -->
+<!-- PRODUCTION -->
+<!-- ========================= -->
+
+<li class="nav-item dropdown">
+
+<a class="nav-link dropdown-toggle"
+
+href="#"
+
+role="button"
+
+data-bs-toggle="dropdown">
+
+<i class="bi bi-gear-wide-connected"></i>
+
+Production
+
+</a>
+
+<ul class="dropdown-menu">
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('workshop_stations_list') }}">
+Workshop Stations
+</a>
+</li>
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('production_locations_list') }}">
+Production Locations
+</a>
+</li>
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('coaches_map') }}">
+Coach Map
+</a>
+</li>
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('coach_location_history') }}">
+Location History
+</a>
+</li>
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('coach_movement_timeline') }}">
+Movement Timeline
+</a>
+</li>
+
+<li>
+<a class="dropdown-item"
+href="{{ url_for('production_bottlenecks') }}">
+Production Bottlenecks
+</a>
+</li>
+
+</ul>
+
+</li>
+
+<!-- ========================= -->
+<!-- ADMINISTRATION -->
+<!-- ========================= -->
+
+<li class="nav-item dropdown">
+
+<a class="nav-link dropdown-toggle"
+
+href="#"
+
+role="button"
+
+data-bs-toggle="dropdown">
+
+<i class="bi bi-shield-lock"></i>
+
+Administration
+
+</a>
+
+<ul class="dropdown-menu">
+
+{% if current_user.role in ['admin','editor'] %}
+
+<li>
+
+<a class="dropdown-item"
+
+href="{{ url_for('task_templates_list') }}">
+
+Task Templates
+
+</a>
+
+</li>
+
+<li>
+
+<a class="dropdown-item"
+
+href="{{ url_for('coach_audits') }}">
+
+Record Audits
+
+</a>
+
+</li>
+
+<li>
+
+<a class="dropdown-item"
+
+href="{{ url_for('export_database_csv') }}">
+
+Backup CSV
+
+</a>
+
+</li>
+
+{% endif %}
+
+{% if current_user.role=="admin" %}
+
+<li>
+
+<a class="dropdown-item"
+
+href="{{ url_for('manage_users') }}">
+
+Manage Users
+
+</a>
+
+</li>
+
+{% endif %}
+
+</ul>
+
+</li>
+
+</ul>
+
+{% endif %}
+
+<div class="d-flex align-items-center gap-2">
+
+{% if current_user.is_authenticated %}
+
+<span class="navbar-text text-white">
+
+{{ current_user.username }}
+
+({{ current_user.role }})
+
+</span>
+
+<button
+
+class="btn btn-outline-light btn-sm no-print"
+
+onclick="window.print()">
+
+PDF
+
+</button>
+
+<a
+
+href="{{ url_for('logout') }}"
+
+class="btn btn-outline-light btn-sm">
+
+Logout
+
+</a>
+
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+</nav>
 
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint in ['production_locations_list', 'production_locations_add', 'production_locations_edit'] %}active-link{% endif %}"
-                           href="{{ url_for('production_locations_list') }}">
-                            Production Locations
-                        </a>
-                    </li>
- 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coach_location_history' %}active-link{% endif %}"
-                           href="{{ url_for('coach_location_history') }}">
-                            Location History
-                        </a>
-                    </li>
+<main class="container-fluid">
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coach_movement_timeline' %}active-link{% endif %}"
-                           href="{{ url_for('coach_movement_timeline') }}">
-                            Movement Timeline
-                        </a>
-                    </li>
+    <!-- Flash Messages -->
+    <div class="mt-2">
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'production_bottlenecks' %}active-link{% endif %}"
-                           href="{{ url_for('production_bottlenecks') }}">
-                            Bottlenecks
-                        </a>
-                    </li>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coaches_map' %}active-link{% endif %}"
-                           href="{{ url_for('coaches_map') }}">
-                            Coach Map
-                        </a>
-                    </li>
+                {% for category, message in messages %}
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coach_journey' %}active-link{% endif %}"
-                           href="{{ url_for('coach_journey') }}">
-                            <i class="fas fa-route"></i> Coach Journey
-                        </a>
-                    </li>
+                    <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm">
 
+                        {{ message }}
 
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'delivery_schedule' %}active-link{% endif %}"
-                           href="{{ url_for('delivery_schedule') }}">
-                            Delivery Schedule
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'delivery_graph' %}active-link{% endif %}"
-                           href="{{ url_for('delivery_graph') }}">
-                            📊 Delivery Graph
-                        </a>
-                    </li>
-
-
-                    {% if current_user.role in ['admin', 'editor'] %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'coach_audits' %}active-link{% endif %}"
-                           href="{{ url_for('coach_audits') }}">
-                            Record Audits
-                        </a>
-                    </li>
-                    {% endif %}
-
-
-                    {% if current_user.role == 'admin' %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint in ['manage_users', 'add_user', 'edit_user'] %}active-link{% endif %}"
-                           href="{{ url_for('manage_users') }}">
-                            Manage Users
-                        </a>
-                    </li>
-                    {% endif %}
-
-                    {% if current_user.role in ['admin', 'editor'] %}                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('export_database_csv') }}">
-                            Backup CSV
-                        </a>
-                    </li>                    
-                              
-                    {% endif %}
-                </ul>
-                {% endif %}
-
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    {% if current_user.is_authenticated %}
-                        <span class="navbar-text text-white-50">
-                            Logged in as
-                            <strong class="text-white">{{ current_user.username }}</strong>
-                            {% if current_user.role %}
-                                | role={{ current_user.role }}
-                            {% endif %}
-                        </span>
-                        
-                        <button type="button"
-                                class="btn btn-outline-light btn-sm no-print"
-                                onclick="window.print()">
-                            Save as PDF
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert">
                         </button>
-                        
-                        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
-                        
-                    {% endif %}
-                </div>
-            </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+        {% endwith %}
+
+    </div>
+
+
+    <!-- Page Content -->
+
+    {% block content %}
+
+    {% endblock %}
+
+
+    <hr class="mt-5">
+
+
+    <footer class="text-center mb-4">
+
+        <div class="text-muted">
+
+            <strong>CTE Durban Coaches Management System</strong>
+
         </div>
-    </nav>
+
+        <small class="text-secondary">
+
+            Production Monitoring • Coach Tracking • Workshop Management
+
+        </small>
+
+    </footer>
+
+</main>
 
 
-    <main class="container mb-5 content-shell">
-        <div class="flash-area">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
 
-        {% block content %}{% endblock %}
-
-        <div class="mt-4 footer-note text-center">
-            CTE Durban Coaches Management System
-        </div>
-    </main>
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    ></script>
 </body>
+
 </html>

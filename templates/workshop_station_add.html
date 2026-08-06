@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<div class="card shadow">
+
+<div class="card-header bg-success text-white">
+
+<h3 class="mb-0">
+
+<i class="bi bi-plus-circle"></i>
+
+Add Workshop Station
+
+</h3>
+
+</div>
+
+<div class="card-body">
+
+<form method="POST">
+
+<div class="mb-3">
+
+<label class="form-label">Stage</label>
+
+<input
+class="form-control"
+name="stage"
+required>
+
+</div>
+
+<div class="mb-3">
+
+<label class="form-label">Station</label>
+
+<input
+class="form-control"
+name="station"
+required>
+
+</div>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label class="form-label">
+
+Capacity
+
+</label>
+
+<input
+type="number"
+class="form-control"
+name="capacity"
+value="1"
+min="1">
+
+</div>
+
+<div class="col-md-6">
+
+<label class="form-label">
+
+Sequence
+
+</label>
+
+<input
+type="number"
+class="form-control"
+name="sequence"
+value="{{ next_sequence }}">
+
+</div>
+
+</div>
+
+<div class="form-check mt-3">
+
+<input
+type="checkbox"
+class="form-check-input"
+name="active"
+checked>
+
+<label class="form-check-label">
+
+Active
+
+</label>
+
+</div>
+
+<hr>
+
+<button
+class="btn btn-success">
+
+Save Station
+
+</button>
+
+<a
+href="{{ url_for('workshop_stations_list') }}"
+class="btn btn-secondary">
+
+Cancel
+
+</a>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}
