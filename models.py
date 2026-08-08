@@ -388,6 +388,23 @@ class CoachComponentInstallation(db.Model):
         return f"<CoachComponentInstallation {self.component}>"
 
 
+# class CompletionTask(db.Model):
+#     __tablename__ = "completion_task"
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     coach_id = db.Column(db.Integer, db.ForeignKey("coach.id"), nullable=False)
+#     coach_no = db.Column(db.String(50), nullable=False)
+#     coach_type = db.Column(db.String(100), nullable=False)
+#     section = db.Column(db.String(100), nullable=False)
+#     phase = db.Column(db.String(100), nullable=False, default="Completion")
+#     task = db.Column(db.String(500), nullable=False)
+#     hours = db.Column(db.Float, default=0.0)
+#     completed = db.Column(db.Boolean, default=False)
+#     completed_date = db.Column(db.Date, nullable=True)
+
+#     def __repr__(self):
+#         return f"<CompletionTask {self.coach_no} - {self.phase} - {self.section} - {self.task}>"
+
 class CompletionTask(db.Model):
     __tablename__ = "completion_task"
 
@@ -404,6 +421,9 @@ class CompletionTask(db.Model):
 
     def __repr__(self):
         return f"<CompletionTask {self.coach_no} - {self.phase} - {self.section} - {self.task}>"
+
+
+
     
 class CoachAudit(db.Model):
     __tablename__ = "coach_audit"
@@ -449,6 +469,84 @@ class CoachLocationHistory(db.Model):
 
     def __repr__(self):
         return f"<CoachLocationHistory {self.coach_number} {self.production_location}>" 
+
+class ProductionWorkLog(db.Model):
+    __tablename__ = "production_work_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    coach_id = db.Column(
+        db.Integer,
+        db.ForeignKey("coach.id"),
+        nullable=False
+    )
+
+    coach = db.relationship(
+        "Coach",
+        backref=db.backref(
+            "production_logs",
+            lazy=True,
+            cascade="all, delete-orphan"
+        )
+    )
+
+    work_date = db.Column(
+        db.Date,
+        nullable=False,
+        default=datetime.utcnow().date
+    )
+
+    production_stage = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    workshop_station = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    activity = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    employee = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    hours = db.Column(
+        db.Float,
+        default=0
+    )
+
+    completed = db.Column(
+        db.Boolean,
+        default=True
+    )
+
+    remarks = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    created_by = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    def __repr__(self):
+        return f"<ProductionWorkLog {self.coach_id} {self.activity}>"
+
+
+
+
 
 class CoachActivityLog(db.Model):
     __tablename__ = "coach_activity_log"
