@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Production Tasks - {{ coach.coach_number }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Production Execution</h2>
+            <div class="text-muted">
+                Coach: <strong>{{ coach.coach_number }}</strong>
+                &nbsp; | &nbsp; Type: <strong>{{ coach.coach_type }}</strong>
+                {% if coach.production_stage %}
+                    &nbsp; | &nbsp; Stage: <strong>{{ coach.production_stage }}</strong>
+                {% endif %}
+                {% if coach.workshop_station %}
+                    &nbsp; | &nbsp; Station: <strong>{{ coach.workshop_station.station }}</strong>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{{ url_for('coach_pack', id=coach.id) }}" class="btn btn-secondary">
+            ← Back to Coach Pack
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        {% for label, value in [
+            ('TOTAL TASKS', total_count),
+            ('ASSIGNED', assigned_count),
+            ('IN PROGRESS', in_progress_count),
+            ('COMPLETED', completed_count),
+            ('OVERDUE', overdue_count),
+            ('COMPLETED DAYS', total_duration)
+        ] %}
+        <div class="col-md-2">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ label }}</div>
+                    <div class="fs-3 fw-bold {% if label == 'OVERDUE' and value %}text-danger{% endif %}">
+                        {{ value }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Daily production monitoring:</strong>
+        use <strong>Assign</strong> to establish the planned start and duration,
+        <strong>Start Activity</strong> when physical work begins, and
+        <strong>Complete Activity</strong> when the work is finished.
+        Dates and duration are recorded automatically.
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <strong>Production Activities</strong>
+        </div>
+
+        <div class="card-body p-0">
+            {% if production_tasks %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Phase</th>
+                            <th>Section</th>
+                            <th>Activity</th>
+                            <th>Assigned</th>
+                            <th>Started</th>
+                            <th>Due</th>
+                            <th>Completed</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Delay / Exception</th>
+                            <th style="min-width:360px; width:360px">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for task in production_tasks %}
+                        {% set timing = task_timing[task.id] %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ task.phase }}</td>
+                            <td>{{ task.section }}</td>
+                            <td><strong>{{ task.task }}</strong></td>
+                            <td>{{ timing.assigned_date.strftime('%d %b %Y') if timing.assigned_date else '—' }}</td>
+                            <td>{{ timing.started_date.strftime('%d %b %Y') if timing.started_date else '—' }}</td>
+                            <td>{{ timing.due_date.strftime('%d %b %Y') if timing.due_date else '—' }}</td>
+                            <td>{{ task.completed_date.strftime('%d %b %Y') if task.completed_date else '—' }}</td>
+                            <td>
+                                {% if task.completed %}
+                                    {{ timing.days_elapsed }} day{% if timing.days_elapsed != 1 %}s{% endif %}
+                                {% elif timing.status %}
+                                    {{ timing.day_label }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.completed %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% if timing.days_overdue %}
+                                        <div class="small text-danger fw-semibold">
+                                            {{ timing.days_overdue }} day{% if timing.days_overdue != 1 %}s{% endif %} late
+                                        </div>
+                                    {% endif %}
+                                {% elif timing.is_overdue %}
+                                    <span class="badge bg-danger">Overdue</span>
+                                    <div class="small text-danger">
+                                        {{ timing.days_overdue }} day{% if timing.days_overdue != 1 %}s{% endif %} overdue
+                                    </div>
+                                {% elif timing.status == "In Progress" %}
+                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                {% elif timing.status == "Assigned" %}
+                                    <span class="badge bg-primary">Assigned</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Not started</span>
+                                {% endif %}
+                            </td>
+                            <td style="min-width:240px">
+                                {% if task.delay_notes %}
+                                    <div style="white-space: pre-line;">{{ task.delay_notes }}</div>
+                                {% elif timing.days_overdue and task.completed %}
+                                    <span class="text-danger">Reason not recorded</span>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not task.completed %}
+                                    {% if not timing.assigned_date %}
+                                        <form method="post"
+                                              action="{{ url_for('coach_task_workflow', coach_id=coach.id, task_id=task.id) }}"
+                                              class="d-flex gap-1">
+                                            <input type="hidden" name="action" value="assign">
+                                            <input type="hidden" name="return_to" value="production">
+                                            <input type="date" name="assigned_date"
+                                                   class="form-control form-control-sm"
+                                                   required>
+                                            <div style="width:95px; min-width:95px;">
+                                                <label class="form-label small mb-1">Days</label>
+                                                <input type="number" name="expected_days"
+                                                       class="form-control form-control-sm"
+                                                       min="1" value="{{ timing.expected_days or 1 }}"
+                                                       style="width:95px; min-width:95px;"
+                                                       title="Scheduled days">
+                                            </div>
+                                            <button type="submit" class="btn btn-sm btn-primary mt-4">Assign</button>
+                                        </form>
+                                    {% elif timing.status != "In Progress" %}
+                                        <form method="post"
+                                              action="{{ url_for('coach_task_workflow', coach_id=coach.id, task_id=task.id) }}">
+                                            <input type="hidden" name="action" value="start">
+                                            <input type="hidden" name="return_to" value="production">
+                                            <button type="submit" class="btn btn-sm btn-warning w-100">
+                                                Start Activity
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <div class="d-grid gap-2">
+                                            <form method="post"
+                                                  action="{{ url_for('coach_task_workflow', coach_id=coach.id, task_id=task.id) }}">
+                                                <input type="hidden" name="action" value="record_delay">
+                                                <input type="hidden" name="return_to" value="production">
+                                                <label class="form-label small fw-semibold mb-1 {% if timing.is_overdue %}text-danger{% endif %}">
+                                                    {% if timing.is_overdue %}
+                                                        Delay / Exception — record reason
+                                                    {% else %}
+                                                        Delay / Exception (optional)
+                                                    {% endif %}
+                                                </label>
+                                                <textarea name="delay_reason"
+                                                          class="form-control form-control-sm mb-2"
+                                                          rows="2"
+                                                          required
+                                                          placeholder="e.g. Generator failure, machine breakdown, industrial action..."></textarea>
+                                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                    Record Delay / Exception
+                                                </button>
+                                            </form>
+
+                                            <form method="post"
+                                                  action="{{ url_for('coach_task_workflow', coach_id=coach.id, task_id=task.id) }}">
+                                                <input type="hidden" name="action" value="complete">
+                                                <input type="hidden" name="return_to" value="production">
+                                                <button type="submit" class="btn btn-sm btn-success w-100">
+                                                    Complete Activity
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-secondary w-100" disabled>
+                                        Activity Completed
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-5 text-center">
+                <h5>No production tasks available</h5>
+                <p class="text-muted">This coach has no Completion Tasks.</p>
+                <a href="{{ url_for('coaches_edit', id=coach.id) }}" class="btn btn-primary">
+                    Open Coach Task Maintenance
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

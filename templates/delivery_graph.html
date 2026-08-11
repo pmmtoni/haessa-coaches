@@ -249,9 +249,7 @@
     
     {% if ageing_items %}
     <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom">
-            <h5 class="mb-0">Phase & Section Ageing Intelligence</h5>
-        </div>
+        
     
         <div class="card-body">
             <div class="chart-box mb-4">
@@ -313,20 +311,19 @@
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100">
-                <div class="card-header bg-white border-bottom"><h5 class="mb-0">Phase Bottleneck</h5></div>
-                <div class="card-body chart-box"><canvas id="bottleneckChart"></canvas></div>
-            </div>
-        </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100">
-                <div class="card-header bg-white border-bottom"><h5 class="mb-0">Monthly Due-Date Load</h5></div>
-                <div class="card-body chart-box"><canvas id="dueLoadChart"></canvas></div>
+        <div class="row g-4 mb-4">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 text-center">Monthly Due-Date Load</h5>
+                </div>
+                <div class="card-body chart-box">
+                    <canvas id="dueLoadChart"></canvas>
+                </div>
             </div>
         </div>
+    </div>
     </div>
 
         <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -344,26 +341,6 @@
         </div>
         
 
-
-
-
-
-
-
-
-
-
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom">
-            <h5 class="mb-0">Section / Department Bottleneck</h5>
-        </div>
-        <div class="card-body section-chart-box">
-            <canvas id="sectionBottleneckChart"></canvas>
-        </div>
-        <div class="card-footer bg-white small text-muted">
-            Shows the departments/sections with the highest number of incomplete tasks across incomplete coaches.
-        </div>
-    </div>
 
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-header bg-white border-bottom">
@@ -453,18 +430,7 @@
     </div>
 
     <div class="card shadow-sm border-0 rounded-4 print-page-break">
-        <div class="card-body">
-            <h5>How to read this dashboard</h5>
-            <ul class="mb-0">
-                <li><strong>Actual Completed</strong> counts coaches with a completion date.</li>
-                <li><strong>Desired Plan</strong> follows the rate entered above.</li>
-                <li><strong>Required Plan</strong> is recalculated from incomplete coaches and remaining months.</li>
-                <li><strong>Remaining Coaches</strong> should trend down to zero before the final due date.</li>
-                <li><strong>Phase Bottleneck</strong> shows where incomplete coaches are currently stuck.</li>
-                <li><strong>Section / Department Bottleneck</strong> shows which sections have the most incomplete tasks.</li>
-                <li><strong>Monthly Due-Date Load</strong> shows pressure by due month.</li>
-            </ul>
-        </div>
+        
     </div>
 
 </div>

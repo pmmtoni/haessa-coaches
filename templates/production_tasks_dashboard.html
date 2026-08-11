@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}
+Production Tasks
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+<h2 class="mb-4">
+
+Production Tasks Dashboard
+
+</h2>
+
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<table class="table table-hover">
+
+<thead>
+
+<tr>
+
+<th>Coach</th>
+
+<th>Stage</th>
+
+<th>Workshop</th>
+
+<th>Completed</th>
+
+<th>Outstanding</th>
+
+<th>Hours</th>
+
+<th></th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for row in coach_summary %}
+
+<tr>
+
+<td>{{ row.coach.coach_number }}</td>
+
+<td>{{ row.coach.production_stage }}</td>
+
+<td>
+
+{{ row.coach.workshop_station.station
+if row.coach.workshop_station else "—" }}
+
+</td>
+
+<td>{{ row.completed_tasks }}</td>
+
+<td>{{ row.outstanding_tasks }}</td>
+
+<td>{{ "%.1f"|format(row.total_hours) }}</td>
+
+<td>
+
+<a
+
+class="btn btn-sm btn-primary"
+
+href="{{ url_for('production_tasks',
+coach_id=row.coach.id) }}">
+
+Open
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

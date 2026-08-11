@@ -24,7 +24,29 @@ from flask_login import (
     current_user,
 )
 
-from models import db, User, Coach, CompletionTask, CoachAudit, TaskTemplate
+
+#from models import db, User, Coach, CompletionTask, CoachAudit, CoachLocationHistory, ProductionLocationRule, TaskTemplate
+
+from models import (
+    db,
+    User,
+    Coach,
+    CompletionTask,
+    CoachAudit,
+    CoachLocationHistory,
+    ProductionLocationRule,
+    WorkshopStation,
+    TaskTemplate,
+    CoachComponentInstallation,
+    ProductionWorkLog,
+)
+
+#from production_engine import generate_completion_tasks
+from production_engine import (
+    generate_completion_tasks,
+    get_selected_production_tasks,
+)
+
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or "coaches_secret_key_change_me_in_prod"
@@ -137,6 +159,138 @@ def parse_date(value):
     except ValueError:
         return None
 
+def get_task_timing(task, today=None):
+    """Return live workflow/timing information for a completion task."""
+    today = today or datetime.now().date()
+    status = (getattr(task, "status", None) or "").strip() or None
+    assigned_date = getattr(task, "assigned_date", None)
+    started_date = getattr(task, "started_date", None)
+    expected_days = getattr(task, "expected_days", None)
+    due_date = getattr(task, "due_date", None)
+
+    if task.completed:
+        completed_on = task.completed_date or today
+        base = started_date or assigned_date or completed_on
+        days_elapsed = max((completed_on - base).days + 1, 1)
+        days_overdue = max((completed_on - due_date).days, 0) if due_date else 0
+        return {"status": "Completed", "percent": 100, "assigned_date": assigned_date,
+                "started_date": started_date, "expected_days": expected_days, "due_date": due_date,
+                "days_elapsed": days_elapsed, "days_remaining": 0, "days_overdue": days_overdue,
+                "is_overdue": days_overdue > 0, "day_label": "Completed"}
+
+    if not status:
+        return {"status": None, "percent": getattr(task, "percent_complete", None),
+                "assigned_date": assigned_date, "started_date": started_date,
+                "expected_days": expected_days, "due_date": due_date, "days_elapsed": 0,
+                "days_remaining": None, "days_overdue": 0, "is_overdue": False,
+                "day_label": "Not assigned"}
+
+    base_date = started_date or assigned_date
+    if not base_date:
+        return {"status": status, "percent": getattr(task, "percent_complete", 0) or 0,
+                "assigned_date": assigned_date, "started_date": started_date,
+                "expected_days": expected_days, "due_date": due_date, "days_elapsed": 0,
+                "days_remaining": expected_days, "days_overdue": 0, "is_overdue": False,
+                "day_label": "Awaiting start"}
+
+    days_elapsed = max((today - base_date).days + 1, 1)
+    calculated_due = due_date or (base_date + timedelta(days=max(expected_days - 1, 0)) if expected_days else None)
+    days_remaining = None; days_overdue = 0; is_overdue = False
+    if calculated_due:
+        delta = (calculated_due - today).days
+        if delta >= 0: days_remaining = delta
+        else: days_remaining = 0; days_overdue = abs(delta); is_overdue = True
+
+    live_status = "Overdue" if is_overdue else ("In Progress" if status == "In Progress" else "Assigned")
+    day_label = (f"Day {days_elapsed} of {expected_days}" if is_overdue else f"Day {min(days_elapsed, expected_days)} of {expected_days}") if expected_days else f"Day {days_elapsed}"
+    percent = getattr(task, "percent_complete", None)
+    if live_status == "In Progress" and expected_days:
+        percent = min(round((days_elapsed / expected_days) * 100), 99)
+    return {"status": live_status, "percent": percent if percent is not None else 0,
+            "assigned_date": assigned_date, "started_date": started_date, "expected_days": expected_days,
+            "due_date": calculated_due, "days_elapsed": days_elapsed, "days_remaining": days_remaining,
+            "days_overdue": days_overdue, "is_overdue": is_overdue, "day_label": day_label}
+
+
+def save_component_installations(coach):
+    """
+    Replaces the coach's component/supplier/installer rows
+    from the submitted edit form.
+    """
+    components = request.form.getlist("component[]")
+    suppliers = request.form.getlist("supplier[]")
+    installers = request.form.getlist("installer[]")
+
+    # Clear existing rows for this coach
+    CoachComponentInstallation.query.filter_by(coach_id=coach.id).delete()
+
+    for component, supplier, installer in zip(components, suppliers, installers):
+        component = (component or "").strip()
+        supplier = (supplier or "").strip()
+        installer = (installer or "").strip()
+
+        # Skip completely blank rows
+        if not component and not supplier and not installer:
+            continue
+
+        # Component is required if supplier/installer is entered
+        if not component:
+            continue
+
+        db.session.add(
+            CoachComponentInstallation(
+                coach_id=coach.id,
+                component=component,
+                supplier=supplier or None,
+                installer=installer or None,
+            )
+        )
+
+def get_component_installation_snapshot(coach):
+    rows = []
+
+    for item in coach.component_installations:
+        rows.append(
+            {
+                "component": item.component or "",
+                "supplier": item.supplier or "",
+                "installer": item.installer or "",
+            }
+        )
+
+    return rows
+
+
+def describe_component_installation_changes(old_rows, new_rows):
+    old_set = {
+        (row["component"], row["supplier"], row["installer"])
+        for row in old_rows
+    }
+
+    new_set = {
+        (row["component"], row["supplier"], row["installer"])
+        for row in new_rows
+    }
+
+    added = sorted(new_set - old_set)
+    removed = sorted(old_set - new_set)
+
+    changes = []
+
+    for component, supplier, installer in added:
+        changes.append(
+            f"Component added: {component} | {supplier or '—'} | {installer or '—'}"
+        )
+
+    for component, supplier, installer in removed:
+        changes.append(
+            f"Component removed: {component} | {supplier or '—'} | {installer or '—'}"
+        )
+
+    return changes
+
+
+
 
 def get_inspection_date(coach):
     """
@@ -230,30 +384,61 @@ def load_task_templates(coach_type):
 
 def import_task_templates_from_csv(csv_path=None, replace_existing=False):
     """
-    Import templates from coach_tasks.csv into TaskTemplate table.
+    Fast CSV import into TaskTemplate table.
+    Avoids per-row database queries.
     """
     template_path = Path(csv_path) if csv_path else Path(app.root_path) / "coach_tasks.csv"
 
     if not template_path.exists():
         raise FileNotFoundError(f"Template file not found: {template_path}")
 
-    if replace_existing:
-        TaskTemplate.query.delete()
-        db.session.commit()
+    allowed_phases = {
+        "Stripping",
+        "Completion",
+        "Serviceworthy",
+        "Retention",
+    }
 
     imported_count = 0
+    skipped_count = 0
+
+    if replace_existing:
+        TaskTemplate.query.delete()
+        db.session.flush()
+
+    existing_templates = {}
+
+    if not replace_existing:
+        existing_rows = TaskTemplate.query.all()
+
+        for row in existing_rows:
+            key = (
+                row.coach_type,
+                row.phase,
+                row.section,
+                row.task,
+            )
+            existing_templates[key] = row
+
+    new_rows = []
 
     with open(template_path, mode="r", encoding="utf-8-sig", newline="") as file:
         reader = csv.DictReader(file)
 
         for idx, row in enumerate(reader, start=1):
             coach_type = (row.get("coach_type") or "").strip()
-            phase = (row.get("phase") or "").strip()
+            phase = (row.get("phase") or "").strip().title()
             section = (row.get("section") or "").strip()
             task = (row.get("task") or "").strip()
             row_hours = row.get("hours") or 0
 
             if not coach_type or not phase or not section or not task:
+                skipped_count += 1
+                continue
+
+            if phase not in allowed_phases:
+                print(f"Skipped CSV row {idx}: invalid phase '{phase}'")
+                skipped_count += 1
                 continue
 
             try:
@@ -261,19 +446,15 @@ def import_task_templates_from_csv(csv_path=None, replace_existing=False):
             except (TypeError, ValueError):
                 hours_value = 0.0
 
-            exists = TaskTemplate.query.filter_by(
-                coach_type=coach_type,
-                phase=phase,
-                section=section,
-                task=task
-            ).first()
+            key = (coach_type, phase, section, task)
 
-            if exists:
-                exists.hours = hours_value
-                exists.sort_order = idx
-                exists.is_active = True
+            if not replace_existing and key in existing_templates:
+                existing = existing_templates[key]
+                existing.hours = hours_value
+                existing.sort_order = idx
+                existing.is_active = True
             else:
-                db.session.add(
+                new_rows.append(
                     TaskTemplate(
                         coach_type=coach_type,
                         phase=phase,
@@ -287,9 +468,13 @@ def import_task_templates_from_csv(csv_path=None, replace_existing=False):
 
             imported_count += 1
 
-    db.session.commit()
-    return imported_count
+    if new_rows:
+        db.session.bulk_save_objects(new_rows)
 
+    db.session.commit()
+
+    print(f"CSV import complete: imported={imported_count}, skipped={skipped_count}")
+    return imported_count
 
 
 
@@ -519,6 +704,11 @@ def task_templates_list():
     q = request.args.get("q", "").strip()
     coach_type_filter = request.args.get("coach_type", "").strip()
     active_filter = request.args.get("active", "active").strip().lower()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
+    
+    if per_page not in [20, 50, 100, 200]:
+        per_page = 20    
 
     query = TaskTemplate.query
 
@@ -546,8 +736,12 @@ def task_templates_list():
         TaskTemplate.phase.asc(),
         TaskTemplate.section.asc(),
         TaskTemplate.task.asc(),
-    ).all()
-
+    ).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+        
     coach_types = sorted(
         {
             row.coach_type
@@ -563,6 +757,8 @@ def task_templates_list():
         coach_type_filter=coach_type_filter,
         active_filter=active_filter,
         coach_types=coach_types,
+        page=page,
+        per_page=per_page,
     )
 
 
@@ -1040,6 +1236,13 @@ def coaches_list():
     status_filter = request.args.get("status", "").strip().lower()
     show_archived = request.args.get("show_archived", "false").lower() == "true"
 
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+    
+    if per_page not in [10, 20, 50, 100]:
+        per_page = 10
+    
+
     today = date.today()
 
     query = Coach.query
@@ -1084,9 +1287,10 @@ def coaches_list():
             status_counts["in_progress"] += 1
 
     filtered_coaches = []
+    
     for coach in all_matching_coaches:
         flags = get_schedule_flags(coach, today)
-
+    
         include = (
             status_filter in ["", "all"]
             or (status_filter == "complete" and flags["is_complete"])
@@ -1095,9 +1299,35 @@ def coaches_list():
             or (status_filter == "not_started" and flags["is_not_started"])
             or (status_filter == "in_progress" and flags["is_in_progress"])
         )
-
+    
         if include:
             filtered_coaches.append(coach)
+    
+    total_filtered = len(filtered_coaches)
+    total_pages = max(1, math.ceil(total_filtered / per_page))
+    
+    if page < 1:
+        page = 1
+    
+    if page > total_pages:
+        page = total_pages
+    
+    start = (page - 1) * per_page
+    end = start + per_page
+    paged_coaches = filtered_coaches[start:end]  
+
+# Debug                      
+    print("==== COACHES PAGINATION DEBUG ====")
+    print("ACTIVE APP FILE:", __file__)
+    print("PAGE:", page)
+    print("PER PAGE:", per_page)
+    print("TOTAL FILTERED:", total_filtered)
+    print("TOTAL PAGES:", total_pages)
+    print("START:", start)
+    print("END:", end)
+    print("PAGED COACHES:", [c.coach_number for c in paged_coaches])                            
+                    
+                
 
     kpis = {
         "active_total": 0,
@@ -1139,7 +1369,7 @@ def coaches_list():
         kpis["avg_progress"] = round(sum(progress_values) / len(progress_values), 1)
 
     coach_progress_data = []
-    for coach in filtered_coaches:
+    for coach in paged_coaches:
         progress = coach.calculate_progress()
         flags = get_schedule_flags(coach, today)
 
@@ -1191,9 +1421,13 @@ def coaches_list():
 
     return render_template(
         "coaches_list.html",
-        coaches=filtered_coaches,
+        coaches=paged_coaches,
         coach_progress_data=coach_progress_data,
-        total=len(filtered_coaches),
+        total=total_filtered,
+        page=page,
+        current_page=page,
+        per_page=per_page,
+        total_pages=total_pages,
         search_query=search_query,
         coach_type_filter=coach_type_filter,
         status_filter=status_filter,
@@ -1211,9 +1445,22 @@ def coaches_list():
 @role_required("admin", "editor")
 def coaches_add():
     if request.method == "POST":
+        coach_number = request.form.get("coach_number", "").strip()
+
+        existing = Coach.query.filter_by(coach_number=coach_number).first()
+
+        if existing:
+            flash(f"Coach number {coach_number} already exists.", "danger")
+            return render_template("coaches_add.html")
+
         coach = Coach(
-            coach_number=request.form.get("coach_number", "").strip(),
+            coach_number=coach_number,
             coach_type=request.form.get("coach_type", "").strip(),
+
+            # Old single-value fields kept empty for backward compatibility.
+            component_service_supplier=None,
+            service_provider=None,
+
             notes=request.form.get("notes") or None,
             stripping=False,
             stripping_certificate_issued="stripping_certificate_issued" in request.form,
@@ -1236,25 +1483,49 @@ def coaches_add():
         db.session.add(coach)
         db.session.flush()
 
-        template_tasks = load_task_templates(coach.coach_type)
+        # Save initial Component / Supplier / Installer rows.
+        save_component_installations(coach)
 
-        if not template_tasks:
-            flash(f"No task template found for coach type '{coach.coach_type}'.", "warning")
-        else:
-            for item in template_tasks:
-                db.session.add(
-                    CompletionTask(
-                        coach_id=coach.id,
-                        coach_no=coach.coach_number,
-                        coach_type=coach.coach_type,
-                        phase=item["phase"],
-                        section=item["section"],
-                        task=item["task"],
-                        hours=item["hours"],
-                        completed=False,
-                        completed_date=None,
-                    )
-                )
+        component_count = CoachComponentInstallation.query.filter_by(
+            coach_id=coach.id
+        ).count()
+
+        # template_tasks = load_task_templates(coach.coach_type)
+
+        # if not template_tasks:
+        #     flash(
+        #         f"No task template found for coach type '{coach.coach_type}'.",
+        #         "warning"
+        #     )
+        # else:
+        #     for item in template_tasks:
+        #         db.session.add(
+        #             CompletionTask(
+        #                 coach_id=coach.id,
+        #                 coach_no=coach.coach_number,
+        #                 coach_type=coach.coach_type,
+        #                 phase=item["phase"],
+        #                 section=item["section"],
+        #                 task=item["task"],
+        #                 hours=item["hours"],
+        #                 completed=False,
+        #                 completed_date=None,
+        #             )
+        #         )
+
+
+        # Generate coach-specific production tasks from TaskTemplate
+        task_result = generate_completion_tasks(coach)
+
+        if task_result["created"] == 0 and task_result["existing"] == 0:
+            flash(
+                task_result["message"],
+                "warning"
+            )
+
+
+
+
 
         coach.sync_all_status()
 
@@ -1262,7 +1533,21 @@ def coaches_add():
             coach=coach,
             action="coach_created",
             changed_by=current_user.username,
-            details=f"Coach created. Type={coach.coach_type}, due_date={coach.due_date}, tasks_loaded={len(template_tasks)}"
+            # details=(
+            #     f"Coach created. "
+            #     f"Type={coach.coach_type}, "
+            #     f"due_date={coach.due_date}, "
+            #     f"tasks_loaded={len(template_tasks)}, "
+            #     f"component_rows={component_count}"
+            # )
+            details=(
+                f"Coach created. "
+                f"Type={coach.coach_type}, "
+                f"due_date={coach.due_date}, "
+                f"tasks_loaded={task_result['created']}, "
+                f"component_rows={component_count}"
+            )
+
         )
 
         db.session.commit()
@@ -1271,7 +1556,6 @@ def coaches_add():
         return redirect(url_for("coaches_list"))
 
     return render_template("coaches_add.html")
-
 
 @app.route("/coaches/archive/<int:id>", methods=["POST"])
 @login_required
@@ -1358,6 +1642,10 @@ def coaches_edit(id):
     coach = Coach.query.get_or_404(id)
 
     if request.method == "POST":
+        print("\n########## ACTIVE COACHES_EDIT POST ##########")
+        print("POST endpoint hit for coach id:", id)
+        print("TASK CHECKBOXES RECEIVED:",
+      [key for key in request.form.keys() if key.startswith("task_")])
         old_values = {
             "coach_number": coach.coach_number,
             "coach_type": coach.coach_type,
@@ -1382,17 +1670,58 @@ def coaches_edit(id):
             task.id: task.completed
             for task in coach.completion_tasks
         }
-
+        
+        old_component_rows = get_component_installation_snapshot(coach)
         coach.coach_number = (request.form.get("coach_number") or "").strip()
         coach.coach_type = (request.form.get("coach_type") or "").strip()
         coach.due_date = parse_date(request.form.get("due_date"))
         coach.notes = (request.form.get("notes") or "").strip() or None
 
+        save_component_installations(coach)
+        
+        db.session.flush()
+        
+        new_component_rows = []
+        
+        for item in CoachComponentInstallation.query.filter_by(
+            coach_id=coach.id
+        ).all():
+            new_component_rows.append(
+                {
+                    "component": item.component or "",
+                    "supplier": item.supplier or "",
+                    "installer": item.installer or "",
+                }
+            )
+
         for task in coach.completion_tasks:
             field_name = f"task_{task.id}"
             checked = field_name in request.form
+            was_completed = bool(task.completed)
             task.completed = checked
-            task.completed_date = datetime.now().date() if checked else None
+
+            if checked:
+                task.completed_date = datetime.now().date()
+                task.status = "Completed"
+                task.percent_complete = 100
+                task.assigned_date = task.assigned_date or task.completed_date
+                task.started_date = task.started_date or task.assigned_date
+
+                # Capture a reason when a task finishes after its scheduled due date.
+                delay_note_field = f"task_delay_notes_{task.id}"
+                submitted_delay_note = (request.form.get(delay_note_field) or "").strip()
+
+                if task.due_date and task.completed_date > task.due_date:
+                    task.delay_notes = submitted_delay_note or task.delay_notes
+                elif not submitted_delay_note:
+                    task.delay_notes = task.delay_notes
+                else:
+                    task.delay_notes = submitted_delay_note
+
+            elif was_completed:
+                task.completed_date = None
+                task.status = "In Progress" if task.started_date else ("Assigned" if task.assigned_date else None)
+                task.percent_complete = 0 if task.status else None
 
         coach.stripping_certificate_issued = "stripping_certificate_issued" in request.form
         coach.stripping_date = parse_date(request.form.get("stripping_date"))
@@ -1420,6 +1749,7 @@ def coaches_edit(id):
             "coach_number": coach.coach_number,
             "coach_type": coach.coach_type,
             "due_date": coach.due_date.isoformat() if coach.due_date else None,
+
             "notes": coach.notes,
             "stripping_certificate_issued": coach.stripping_certificate_issued,
             "stripping_date": coach.stripping_date.isoformat() if coach.stripping_date else None,
@@ -1440,6 +1770,12 @@ def coaches_edit(id):
             new_val = new_values[field]
             if old_val != new_val:
                 changes.append(f"{field}: {old_val} -> {new_val}")
+                
+
+        component_changes = describe_component_installation_changes(
+            old_component_rows,
+            new_component_rows
+        )
 
         task_changes = []
         for task in coach.completion_tasks:
@@ -1454,6 +1790,13 @@ def coaches_edit(id):
             details_parts.append("Field changes: " + " | ".join(changes))
         if task_changes:
             details_parts.append("Task changes: " + " | ".join(task_changes))
+
+        if component_changes:
+            details_parts.append(
+                "Component/Supplier/Installer changes: "
+                + " | ".join(component_changes)
+            )            
+            
         if not details_parts:
             details_parts.append("No material changes recorded")
 
@@ -1469,7 +1812,44 @@ def coaches_edit(id):
         return redirect(url_for("coaches_list", updated=coach.coach_number))
 
     progress = coach.calculate_progress()
-    return render_template("coaches_edit.html", coach=coach, progress=progress)
+    task_timing = {task.id: get_task_timing(task) for task in coach.completion_tasks}
+    return render_template("coaches_edit.html", coach=coach, progress=progress, task_timing=task_timing)
+
+@app.route("/coaches/<int:coach_id>/tasks/<int:task_id>/workflow", methods=["POST"])
+@login_required
+@role_required("admin", "editor")
+def coach_task_workflow(coach_id, task_id):
+    coach = Coach.query.get_or_404(coach_id)
+    task = CompletionTask.query.filter_by(id=task_id, coach_id=coach.id).first_or_404()
+    action = (request.form.get("action") or "").strip().lower()
+    today = datetime.now().date()
+    if action == "assign":
+        task.assigned_date = parse_date(request.form.get("assigned_date")) or today
+        task.expected_days = request.form.get("expected_days", type=int) or task.expected_days or (max(math.ceil(float(task.hours or 0) / 8), 1) if float(task.hours or 0) > 0 else None)
+        task.due_date = (task.assigned_date + timedelta(days=max(task.expected_days - 1, 0))) if task.expected_days else task.due_date
+        task.started_date = None; task.completed = False; task.completed_date = None
+        task.status = "Assigned"; task.percent_complete = 0
+    elif action == "start":
+        task.assigned_date = task.assigned_date or today
+        task.expected_days = request.form.get("expected_days", type=int) or task.expected_days or (max(math.ceil(float(task.hours or 0) / 8), 1) if float(task.hours or 0) > 0 else None)
+        task.started_date = task.started_date or today
+        task.due_date = (task.started_date + timedelta(days=max(task.expected_days - 1, 0))) if task.expected_days else task.due_date
+        task.completed = False; task.completed_date = None; task.status = "In Progress"
+        task.percent_complete = max(getattr(task, "percent_complete", 0) or 0, 1)
+    elif action == "complete":
+        task.assigned_date = task.assigned_date or today
+        task.started_date = task.started_date or task.assigned_date
+        task.completed = True; task.completed_date = today; task.status = "Completed"; task.percent_complete = 100
+    elif action == "reset":
+        task.completed = False; task.completed_date = None; task.status = None; task.percent_complete = None
+        task.assigned_date = None; task.started_date = None; task.due_date = None
+    else:
+        flash("Unknown task workflow action.", "danger")
+        return redirect(url_for("coaches_edit", id=coach.id))
+    db.session.commit()
+    flash(f"Task status updated to {task.status or 'Not assigned'}.", "success")
+    return redirect(url_for("coaches_edit", id=coach.id))
+
 
 @app.route("/coaches/<int:coach_id>/tasks/add", methods=["POST"])
 @login_required
@@ -1595,6 +1975,740 @@ def coach_task_delete(coach_id, task_id):
     db.session.commit()
     flash("Task deleted successfully.", "warning")
     return redirect(url_for("coaches_edit", id=coach.id))
+
+@app.route("/coaches-map", methods=["GET", "POST"])
+@login_required
+def coaches_map():
+    from datetime import date
+
+    if request.method == "POST":
+    
+        if current_user.role not in ["admin", "editor"]:
+            flash("You do not have permission to update coach locations.", "danger")
+            return redirect(url_for("coaches_map"))
+    
+        coach = Coach.query.get_or_404(
+            request.form.get("coach_id", type=int)
+        )
+    
+        today = date.today()
+    
+        latitude = request.form.get("latitude", type=float)
+        longitude = request.form.get("longitude", type=float)
+    
+        activity = request.form.get("activity", "").strip() or None
+        production_location = request.form.get("production_location", "").strip() or None
+    
+        position_date = (
+            parse_date(request.form.get("position_date"))
+            or today
+        )
+    
+        expected_stationary_days = request.form.get(
+            "expected_stationary_days",
+            type=int
+        )
+    
+        # -------------------------------------------------
+        # Detect changes BEFORE updating coach
+        # -------------------------------------------------
+    
+        old_latitude = coach.latitude
+        old_longitude = coach.longitude
+    
+        old_activity = coach.map_activity or ""
+        old_location = coach.production_location or ""
+    
+        gps_changed = (
+            old_latitude != latitude or
+            old_longitude != longitude
+        )
+    
+        activity_changed = old_activity != (activity or "")
+    
+        location_changed = old_location != (production_location or "")
+    
+        # -------------------------------------------------
+        # Update Coach
+        # -------------------------------------------------
+    
+        coach.latitude = latitude
+        coach.longitude = longitude
+        coach.map_activity = activity
+        coach.production_location = production_location
+        coach.map_position_date = position_date
+    
+        # -------------------------------------------------
+        # Reset stationary timer ONLY when production
+        # activity/location changes
+        # -------------------------------------------------
+    
+        if activity_changed or location_changed or not coach.stationary_start_date:
+    
+            coach.stationary_start_date = position_date
+            coach.expected_stationary_days = expected_stationary_days
+    
+        else:
+    
+            coach.expected_stationary_days = expected_stationary_days
+    
+        if (
+            coach.stationary_start_date
+            and coach.expected_stationary_days is not None
+        ):
+    
+            coach.expected_move_date = (
+                coach.stationary_start_date +
+                timedelta(days=coach.expected_stationary_days)
+            )
+    
+        else:
+    
+            coach.expected_move_date = None
+    
+        # -------------------------------------------------
+        # Stationary Status
+        # -------------------------------------------------
+    
+        actual_days_stationary = None
+        stationary_status = "No Target"
+    
+        if coach.stationary_start_date:
+    
+            actual_days_stationary = max(
+                (today - coach.stationary_start_date).days,
+                0
+            )
+    
+        if coach.expected_move_date:
+    
+            remaining = (
+                coach.expected_move_date - today
+            ).days
+    
+            if remaining < 0:
+    
+                stationary_status = "Overdue"
+    
+            elif remaining <= 1:
+    
+                stationary_status = "Due Soon"
+    
+            else:
+    
+                stationary_status = "Healthy"
+    
+        # -------------------------------------------------
+        # Audit
+        # -------------------------------------------------
+    
+        log_coach_audit(
+            coach=coach,
+            action="coach_map_position_updated",
+            changed_by=current_user.username,
+            details=(
+                f"lat={latitude}, "
+                f"lng={longitude}, "
+                f"activity={activity}, "
+                f"location={production_location}, "
+                f"gps_changed={gps_changed}, "
+                f"activity_changed={activity_changed}, "
+                f"location_changed={location_changed}, "
+                f"stationary_status={stationary_status}"
+            ),
+        )
+    
+        # -------------------------------------------------
+        # Save movement ONLY when required
+        # -------------------------------------------------
+    
+        if gps_changed or location_changed:
+    
+            db.session.add(
+    
+                CoachLocationHistory(
+    
+                    coach_id=coach.id,
+                    coach_number=coach.coach_number,
+    
+                    latitude=latitude,
+                    longitude=longitude,
+    
+                    activity=activity,
+                    production_location=production_location,
+    
+                    stationary_start_date=coach.stationary_start_date,
+                    expected_stationary_days=coach.expected_stationary_days,
+                    expected_move_date=coach.expected_move_date,
+    
+                    actual_days_stationary=actual_days_stationary,
+                    stationary_status=stationary_status,
+    
+                    moved_by=current_user.username,
+                )
+            )
+    
+        db.session.commit()
+    
+        flash(
+            "Coach map updated successfully.",
+            "success"
+        )
+    
+        return redirect(url_for("coaches_map"))        
+            
+
+    coaches = (
+        Coach.query
+        .filter(Coach.archived.is_(False))
+        .order_by(Coach.coach_number.asc())
+        .all()
+    )
+
+    today = date.today()
+
+    stationary_summary = {
+        "Healthy": 0,
+        "Due Soon": 0,
+        "Overdue": 0,
+        "No Target": 0,
+    }
+
+    mapped_coaches = []
+    overdue_coaches = []
+
+    for coach in coaches:
+        if coach.latitude is None or coach.longitude is None:
+            continue
+
+        days_stationary = None
+        if coach.stationary_start_date:
+            days_stationary = max((today - coach.stationary_start_date).days, 0)
+
+        if coach.expected_move_date:
+            days_remaining = (coach.expected_move_date - today).days
+
+            if days_remaining < 0:
+                stationary_status = "Overdue"
+            elif days_remaining <= 1:
+                stationary_status = "Due Soon"
+            else:
+                stationary_status = "Healthy"
+        else:
+            stationary_status = "No Target"
+
+        stationary_summary[stationary_status] = stationary_summary.get(stationary_status, 0) + 1
+
+        overdue_days = 0
+        if stationary_status == "Overdue" and coach.expected_move_date:
+            overdue_days = max((today - coach.expected_move_date).days, 0)
+
+            overdue_coaches.append(
+                {
+                    "coach_number": coach.coach_number,
+                    "activity": coach.map_activity or "No activity recorded",
+                    "production_location": coach.production_location or "No location recorded",
+                    "days_stationary": days_stationary,
+                    "overdue_days": overdue_days,
+                }
+            )
+
+        mapped_coaches.append(
+            {
+                "id": coach.id,
+                "coach_number": coach.coach_number,
+                "coach_type": coach.coach_type,
+                "latitude": coach.latitude,
+                "longitude": coach.longitude,
+                "activity": coach.map_activity or "No activity recorded",
+                "production_location": coach.production_location or "No location recorded",
+                "position_date": coach.map_position_date.strftime("%d %b %Y") if coach.map_position_date else "No date recorded",
+                "stationary_start_date": coach.stationary_start_date.strftime("%d %b %Y") if coach.stationary_start_date else "No start date",
+                "expected_stationary_days": coach.expected_stationary_days,
+                "expected_move_date": coach.expected_move_date.strftime("%d %b %Y") if coach.expected_move_date else "No expected move date",
+                "days_stationary": days_stationary,
+                "stationary_status": stationary_status,
+            }
+        )
+
+    overdue_coaches = sorted(
+        overdue_coaches,
+        key=lambda row: row["overdue_days"],
+        reverse=True
+    )[:10]
+
+    location_rules = (
+        ProductionLocationRule.query
+        .filter(ProductionLocationRule.is_active.is_(True))
+        .order_by(ProductionLocationRule.location.asc())
+        .all()
+    )
+    
+    location_days_map = {
+        rule.location: rule.default_days
+        for rule in location_rules
+    }
+
+
+    workshop_stations = (
+        WorkshopStation.query
+        .filter_by(active=True)
+        .order_by(
+            WorkshopStation.sequence,
+            WorkshopStation.station
+        )
+        .all()
+    )
+
+
+
+
+
+    return render_template(
+        "coaches_map.html",
+        coaches=coaches,
+        mapped_coaches=mapped_coaches,
+        workshop_stations=workshop_stations,
+        stationary_summary=stationary_summary,
+        overdue_coaches=overdue_coaches,
+        location_rules=location_rules,
+        location_days_map=location_days_map,
+        google_maps_api_key=os.environ.get("GOOGLE_MAPS_API_KEY", ""),
+        default_lat=os.environ.get("CTE_MAP_CENTER_LAT", "-29.634247"),
+        default_lng=os.environ.get("CTE_MAP_CENTER_LNG", "30.351547"),
+    )
+
+
+@app.route("/coach/<int:coach_id>/activity", methods=["POST"])
+@login_required
+def add_coach_activity(coach_id):
+
+    coach = Coach.query.get_or_404(coach_id)
+
+    activity = request.form.get("activity", "").strip()
+    remarks = request.form.get("remarks", "").strip()
+
+    if not activity:
+        flash("Activity is required.", "warning")
+        return redirect(url_for("coaches_map"))
+
+    log = CoachActivityLog(
+        coach_id=coach.id,
+        workshop_station_id=coach.workshop_station_id,
+        activity=activity,
+        remarks=remarks,
+        created_by=current_user.username
+    )
+
+    db.session.add(log)
+
+    # Update quick summary fields
+    coach.current_activity = activity
+    coach.last_activity_date = datetime.utcnow()
+
+    db.session.commit()
+
+    flash("Production activity recorded.", "success")
+
+    return redirect(url_for("coaches_map"))
+
+
+
+@app.route("/production-bottlenecks")
+@login_required
+def production_bottlenecks():
+    risk_filter = request.args.get("risk", "").strip()
+    location_filter = request.args.get("location", "").strip()
+    min_moves = request.args.get("min_moves", 0, type=int)
+
+    rows = (
+        CoachLocationHistory.query
+        .filter(CoachLocationHistory.production_location.isnot(None))
+        .all()
+    )
+
+    summary = {}
+
+    for row in rows:
+        location = row.production_location or "No location recorded"
+
+        if location not in summary:
+            summary[location] = {
+                "location": location,
+                "moves": 0,
+                "expected_total": 0,
+                "actual_total": 0,
+                "overdue_count": 0,
+            }
+
+        expected = row.expected_stationary_days or 0
+        actual = row.actual_days_stationary or 0
+
+        summary[location]["moves"] += 1
+        summary[location]["expected_total"] += expected
+        summary[location]["actual_total"] += actual
+
+        if row.stationary_status == "Overdue":
+            summary[location]["overdue_count"] += 1
+
+    bottlenecks = []
+
+    for item in summary.values():
+        moves = item["moves"] or 1
+        avg_expected = round(item["expected_total"] / moves, 1)
+        avg_actual = round(item["actual_total"] / moves, 1)
+        variance = round(avg_actual - avg_expected, 1)
+
+        if variance > 3 or item["overdue_count"] >= 3:
+            risk = "High"
+        elif variance > 1 or item["overdue_count"] >= 1:
+            risk = "Medium"
+        else:
+            risk = "Low"
+
+        row = {
+            "location": item["location"],
+            "moves": item["moves"],
+            "avg_expected": avg_expected,
+            "avg_actual": avg_actual,
+            "variance": variance,
+            "overdue_count": item["overdue_count"],
+            "risk": risk,
+        }
+
+        if risk_filter and row["risk"] != risk_filter:
+            continue
+
+        if location_filter and row["location"] != location_filter:
+            continue
+
+        if min_moves and row["moves"] < min_moves:
+            continue
+
+        bottlenecks.append(row)
+
+    bottlenecks = sorted(
+        bottlenecks,
+        key=lambda row: (row["variance"], row["overdue_count"]),
+        reverse=True
+    )
+
+    all_locations = sorted(summary.keys())
+
+    return render_template(
+        "production_bottlenecks.html",
+        bottlenecks=bottlenecks,
+        all_locations=all_locations,
+        risk_filter=risk_filter,
+        location_filter=location_filter,
+        min_moves=min_moves,
+    )
+
+@app.route("/production-bottlenecks/export")
+@login_required
+def production_bottlenecks_export():
+    risk_filter = request.args.get("risk", "").strip()
+    location_filter = request.args.get("location", "").strip()
+    min_moves = request.args.get("min_moves", 0, type=int)
+
+    rows = (
+        CoachLocationHistory.query
+        .filter(CoachLocationHistory.production_location.isnot(None))
+        .all()
+    )
+
+    summary = {}
+
+    for row in rows:
+        location = row.production_location or "No location recorded"
+
+        if location not in summary:
+            summary[location] = {
+                "location": location,
+                "moves": 0,
+                "expected_total": 0,
+                "actual_total": 0,
+                "overdue_count": 0,
+            }
+
+        expected = row.expected_stationary_days or 0
+        actual = row.actual_days_stationary or 0
+
+        summary[location]["moves"] += 1
+        summary[location]["expected_total"] += expected
+        summary[location]["actual_total"] += actual
+
+        if row.stationary_status == "Overdue":
+            summary[location]["overdue_count"] += 1
+
+    bottlenecks = []
+
+    for item in summary.values():
+        moves = item["moves"] or 1
+        avg_expected = round(item["expected_total"] / moves, 1)
+        avg_actual = round(item["actual_total"] / moves, 1)
+        variance = round(avg_actual - avg_expected, 1)
+
+        if variance > 3 or item["overdue_count"] >= 3:
+            risk = "High"
+        elif variance > 1 or item["overdue_count"] >= 1:
+            risk = "Medium"
+        else:
+            risk = "Low"
+
+        row = {
+            "location": item["location"],
+            "moves": item["moves"],
+            "avg_expected": avg_expected,
+            "avg_actual": avg_actual,
+            "variance": variance,
+            "overdue_count": item["overdue_count"],
+            "risk": risk,
+        }
+
+        if risk_filter and row["risk"] != risk_filter:
+            continue
+
+        if location_filter and row["location"] != location_filter:
+            continue
+
+        if min_moves and row["moves"] < min_moves:
+            continue
+
+        bottlenecks.append(row)
+
+    bottlenecks = sorted(
+        bottlenecks,
+        key=lambda row: (row["variance"], row["overdue_count"]),
+        reverse=True
+    )
+
+    output = StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow([
+        "Production Location",
+        "Movement Records",
+        "Average Expected Days",
+        "Average Actual Days",
+        "Variance",
+        "Overdue Count",
+        "Risk",
+    ])
+
+    for row in bottlenecks:
+        writer.writerow([
+            row["location"],
+            row["moves"],
+            row["avg_expected"],
+            row["avg_actual"],
+            row["variance"],
+            row["overdue_count"],
+            row["risk"],
+        ])
+
+    return Response(
+        output.getvalue(),
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=production_bottlenecks.csv"
+        },
+    )
+
+
+
+@app.route("/coach-movement-timeline")
+@login_required
+def coach_movement_timeline():
+    from datetime import date
+
+    q = request.args.get("q", "").strip()
+    coach_filter = request.args.get("coach", "").strip()
+
+    query = CoachLocationHistory.query
+
+    if q:
+        query = query.filter(
+            db.or_(
+                CoachLocationHistory.coach_number.ilike(f"%{q}%"),
+                CoachLocationHistory.activity.ilike(f"%{q}%"),
+                CoachLocationHistory.production_location.ilike(f"%{q}%"),
+                CoachLocationHistory.moved_by.ilike(f"%{q}%"),
+            )
+        )
+
+    if coach_filter:
+        query = query.filter(CoachLocationHistory.coach_number == coach_filter)
+
+    history_rows = query.order_by(
+        CoachLocationHistory.coach_number.asc(),
+        CoachLocationHistory.moved_at.desc()
+    ).all()
+
+    timeline = {}
+    today = date.today()
+
+    for row in history_rows:
+        if row.stationary_start_date:
+            row.display_actual_days_stationary = max(
+                (today - row.stationary_start_date).days,
+                0
+            )
+        else:
+            row.display_actual_days_stationary = None
+
+        timeline.setdefault(row.coach_number, []).append(row)
+
+    coach_numbers = sorted({
+        row.coach_number
+        for row in CoachLocationHistory.query.with_entities(CoachLocationHistory.coach_number).all()
+        if row.coach_number
+    })
+
+    return render_template(
+        "coach_movement_timeline.html",
+        timeline=timeline,
+        coach_numbers=coach_numbers,
+        q=q,
+        coach_filter=coach_filter,
+    )
+
+@app.route("/coach-journey")
+@login_required
+def coach_journey():
+
+    coach_id = request.args.get("coach_id", type=int)
+
+    coaches = (
+        Coach.query
+        .filter(Coach.archived.is_(False))
+        .order_by(Coach.coach_number)
+        .all()
+    )
+
+    selected_coach = None
+    history = []
+
+    if coach_id:
+
+        selected_coach = Coach.query.get_or_404(coach_id)
+
+        history = (
+            CoachLocationHistory.query
+            .filter_by(coach_id=coach_id)
+            .order_by(CoachLocationHistory.moved_at.asc())
+            .all()
+        )
+    
+    # =====================================================
+    # Production Journey
+    # =====================================================
+    
+    production_flow = [
+        "Stripping",
+        "Structural",
+        "Paint - Grit Blast",
+        "Paint - Body",
+        "Assembly - Coach Build",
+        "Assembly - Electrical",
+        "Assembly - BUP",
+        "Testing & Commissioning",
+    ]
+    
+    completed_stages = []
+    current_stage = None
+    
+    if history:
+    
+        # History should be oldest → newest
+        history = sorted(history, key=lambda h: h.moved_at)
+    
+        completed_stages = [
+            h.activity
+            for h in history[:-1]
+            if h.activity
+        ]
+    
+        current_stage = history[-1].activity
+    
+
+
+
+
+    
+    return render_template(
+        "coach_journey.html",
+        coaches=coaches,
+        selected_coach=selected_coach,
+        history=history,
+        production_flow=production_flow,
+        completed_stages=completed_stages,
+        current_stage=current_stage,
+    )
+
+
+@app.route("/coach-location-history")
+@login_required
+def coach_location_history():
+    q = request.args.get("q", "").strip()
+    location_filter = request.args.get("location", "").strip()
+    activity_filter = request.args.get("activity", "").strip()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
+
+    if per_page not in [20, 50, 100]:
+        per_page = 20
+
+    query = CoachLocationHistory.query
+
+    if q:
+        query = query.filter(
+            db.or_(
+                CoachLocationHistory.coach_number.ilike(f"%{q}%"),
+                CoachLocationHistory.moved_by.ilike(f"%{q}%"),
+                CoachLocationHistory.activity.ilike(f"%{q}%"),
+                CoachLocationHistory.production_location.ilike(f"%{q}%"),
+            )
+        )
+
+    if location_filter:
+        query = query.filter(CoachLocationHistory.production_location == location_filter)
+
+    if activity_filter:
+        query = query.filter(CoachLocationHistory.activity == activity_filter)
+
+    history = query.order_by(
+        CoachLocationHistory.moved_at.desc()
+    ).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    locations = sorted({
+        row.production_location
+        for row in CoachLocationHistory.query.with_entities(CoachLocationHistory.production_location).all()
+        if row.production_location
+    })
+
+    activities = sorted({
+        row.activity
+        for row in CoachLocationHistory.query.with_entities(CoachLocationHistory.activity).all()
+        if row.activity
+    })
+
+    return render_template(
+        "coach_location_history.html",
+        history=history,
+        q=q,
+        location_filter=location_filter,
+        activity_filter=activity_filter,
+        locations=locations,
+        activities=activities,
+        per_page=per_page,
+    )
+
+
 
 
 
@@ -1862,6 +2976,164 @@ def coach_audits():
         per_page=per_page,
         actions=actions,
     )
+
+@app.route("/production-locations")
+@login_required
+@role_required("admin", "editor")
+def production_locations_list():
+    q = request.args.get("q", "").strip()
+    active_filter = request.args.get("active", "active").strip().lower()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
+
+    if per_page not in [20, 50, 100]:
+        per_page = 20
+
+    query = ProductionLocationRule.query
+
+    if q:
+        query = query.filter(ProductionLocationRule.location.ilike(f"%{q}%"))
+
+    if active_filter == "active":
+        query = query.filter(ProductionLocationRule.is_active.is_(True))
+    elif active_filter == "inactive":
+        query = query.filter(ProductionLocationRule.is_active.is_(False))
+
+    locations = query.order_by(
+        ProductionLocationRule.location.asc()
+    ).paginate(
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+    return render_template(
+        "production_locations_list.html",
+        locations=locations,
+        q=q,
+        active_filter=active_filter,
+        per_page=per_page,
+    )
+
+
+@app.route("/production-locations/add", methods=["GET", "POST"])
+@login_required
+@role_required("admin", "editor")
+def production_locations_add():
+    if request.method == "POST":
+        location = request.form.get("location", "").strip()
+        default_days = request.form.get("default_days", type=int)
+        is_active = "is_active" in request.form
+
+        if not location:
+            flash("Location is required.", "danger")
+            return render_template("production_locations_add.html")
+
+        if default_days is None or default_days < 0:
+            flash("Default days must be zero or greater.", "danger")
+            return render_template("production_locations_add.html")
+
+        exists = ProductionLocationRule.query.filter_by(location=location).first()
+
+        if exists:
+            flash("That production location already exists.", "warning")
+            return render_template("production_locations_add.html")
+
+        rule = ProductionLocationRule(
+            location=location,
+            default_days=default_days,
+            is_active=is_active,
+        )
+
+        db.session.add(rule)
+
+        log_system_audit(
+            action="production_location_created",
+            changed_by=current_user.username,
+            details=f"Location created: {location}; default_days={default_days}; active={is_active}"
+        )
+
+        db.session.commit()
+        flash("Production location added successfully.", "success")
+        return redirect(url_for("production_locations_list"))
+
+    return render_template("production_locations_add.html")
+
+
+@app.route("/production-locations/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+@role_required("admin", "editor")
+def production_locations_edit(id):
+    rule = ProductionLocationRule.query.get_or_404(id)
+
+    if request.method == "POST":
+        old_location = rule.location
+        old_default_days = rule.default_days
+        old_is_active = rule.is_active
+
+        location = request.form.get("location", "").strip()
+        default_days = request.form.get("default_days", type=int)
+        is_active = "is_active" in request.form
+
+        if not location:
+            flash("Location is required.", "danger")
+            return render_template("production_locations_edit.html", rule=rule)
+
+        if default_days is None or default_days < 0:
+            flash("Default days must be zero or greater.", "danger")
+            return render_template("production_locations_edit.html", rule=rule)
+
+        duplicate = ProductionLocationRule.query.filter(
+            ProductionLocationRule.id != rule.id,
+            ProductionLocationRule.location == location,
+        ).first()
+
+        if duplicate:
+            flash("Another production location already uses that name.", "danger")
+            return render_template("production_locations_edit.html", rule=rule)
+
+        rule.location = location
+        rule.default_days = default_days
+        rule.is_active = is_active
+
+        changes = []
+        if old_location != rule.location:
+            changes.append(f"location: {old_location} -> {rule.location}")
+        if old_default_days != rule.default_days:
+            changes.append(f"default_days: {old_default_days} -> {rule.default_days}")
+        if old_is_active != rule.is_active:
+            changes.append(f"is_active: {old_is_active} -> {rule.is_active}")
+
+        log_system_audit(
+            action="production_location_updated",
+            changed_by=current_user.username,
+            details=f"Location ID {rule.id}; " + (" | ".join(changes) if changes else "No material changes")
+        )
+
+        db.session.commit()
+        flash("Production location updated successfully.", "success")
+        return redirect(url_for("production_locations_list"))
+
+    return render_template("production_locations_edit.html", rule=rule)
+
+
+@app.route("/production-locations/delete/<int:id>", methods=["POST"])
+@login_required
+@role_required("admin")
+def production_locations_delete(id):
+    rule = ProductionLocationRule.query.get_or_404(id)
+
+    log_system_audit(
+        action="production_location_deleted",
+        changed_by=current_user.username,
+        details=f"Location deleted: {rule.location}; default_days={rule.default_days}"
+    )
+
+    db.session.delete(rule)
+    db.session.commit()
+
+    flash("Production location deleted successfully.", "warning")
+    return redirect(url_for("production_locations_list"))
 
 
 @app.route("/task-templates/export")
@@ -2481,6 +3753,7 @@ def delivery_graph():
         ageing_labels=ageing_labels,
         ageing_values=ageing_values,
         executive_actions=executive_actions,
+        
     )
 
 @app.route("/admin/export-database-csv")
@@ -2521,7 +3794,8 @@ def export_database_csv():
     writer.writerow([
         "id", "coach_id", "coach_no", "coach_type",
         "phase", "section", "task", "hours",
-        "completed", "completed_date"
+        "status", "percent_complete", "assigned_date", "started_date", "expected_days", "due_date",
+        "completed", "completed_date", "delay_notes"
     ])
 
     for t in CompletionTask.query.order_by(CompletionTask.coach_no.asc(), CompletionTask.phase.asc(), CompletionTask.section.asc()).all():
@@ -2534,8 +3808,15 @@ def export_database_csv():
             t.section,
             t.task,
             t.hours,
+            getattr(t, "status", None),
+            getattr(t, "percent_complete", None),
+            getattr(t, "assigned_date", None),
+            getattr(t, "started_date", None),
+            getattr(t, "expected_days", None),
+            getattr(t, "due_date", None),
             t.completed,
             t.completed_date,
+            getattr(t, "delay_notes", None),
         ])
 
     writer.writerow([])
@@ -2582,6 +3863,327 @@ def export_database_csv():
             "Content-Disposition": "attachment; filename=cte_durban_coaches_backup.csv"
         },
     )
+
+@app.route("/workshop-stations")
+@login_required
+def workshop_stations_list():
+
+    search = request.args.get("search", "").strip()
+
+    stage = request.args.get("stage", "").strip()
+
+    query = WorkshopStation.query
+
+    if search:
+        query = query.filter(
+            db.or_(
+                WorkshopStation.stage.ilike(f"%{search}%"),
+                WorkshopStation.station.ilike(f"%{search}%")
+            )
+        )
+
+    if stage:
+        query = query.filter(
+            WorkshopStation.stage == stage
+        )
+
+    stations = query.order_by(
+        WorkshopStation.sequence
+    ).all()
+
+    stages = (
+        db.session.query(WorkshopStation.stage)
+        .distinct()
+        .order_by(WorkshopStation.stage)
+        .all()
+    )
+
+    return render_template(
+
+        "workshop_stations_list.html",
+
+        stations=stations,
+
+        stages=[s[0] for s in stages],
+
+        search=search,
+
+        selected_stage=stage
+
+    )
+
+
+@app.route("/workshop-stations/add", methods=["GET", "POST"])
+@login_required
+def workshop_station_add():
+
+    if request.method == "POST":
+
+        stage = request.form["stage"].strip()
+
+        station = request.form["station"].strip()
+
+        capacity = int(request.form["capacity"])
+
+        sequence = int(request.form["sequence"])
+
+        active = "active" in request.form
+
+        duplicate = WorkshopStation.query.filter_by(
+            stage=stage,
+            station=station
+        ).first()
+
+        if duplicate:
+            flash(
+                "This workshop station already exists.",
+                "warning"
+            )
+            return redirect(url_for("workshop_station_add"))
+
+        ws = WorkshopStation(
+            stage=stage,
+            station=station,
+            capacity=capacity,
+            sequence=sequence,
+            active=active,
+        )
+
+        db.session.add(ws)
+        db.session.commit()
+
+        flash(
+            "Workshop station added successfully.",
+            "success"
+        )
+
+        return redirect(url_for("workshop_stations_list"))
+
+    next_sequence = (
+        db.session.query(db.func.max(WorkshopStation.sequence)).scalar() or 0
+    ) + 10
+
+    return render_template(
+        "workshop_station_add.html",
+        next_sequence=next_sequence,
+    )
+
+# @app.route("/coach/<int:coach_id>/production-tasks")
+# @login_required
+# def production_tasks(coach_id):
+
+#     coach = Coach.query.get_or_404(coach_id)
+
+#     # Production work history
+#     tasks = (
+#         ProductionWorkLog.query
+#         .filter_by(coach_id=coach.id)
+#         .order_by(
+#             ProductionWorkLog.work_date.desc(),
+#             ProductionWorkLog.created_at.desc()
+#         )
+#         .all()
+#     )
+
+#     # Outstanding Completion Tasks only
+#     available_tasks = (
+#         CompletionTask.query
+#         .filter_by(
+#             coach_id=coach.id,
+#             completed=False
+#         )
+#         .order_by(
+#             CompletionTask.phase,
+#             CompletionTask.section,
+#             CompletionTask.task
+#         )
+#         .all()
+#     )
+
+#     # Optional statistics
+#     completed_tasks = (
+#         CompletionTask.query
+#         .filter_by(
+#             coach_id=coach.id,
+#             completed=True
+#         )
+#         .count()
+#     )
+
+#     outstanding_tasks = len(available_tasks)
+
+#     total_hours = (
+#         db.session.query(
+#             db.func.coalesce(
+#                 db.func.sum(ProductionWorkLog.hours),
+#                 0
+#             )
+#         )
+#         .filter(
+#             ProductionWorkLog.coach_id == coach.id
+#         )
+#         .scalar()
+#     )
+
+#     return render_template(
+#         "production_tasks.html",
+#         coach=coach,
+#         tasks=tasks,
+#         available_tasks=available_tasks,
+#         completed_tasks=completed_tasks,
+#         outstanding_tasks=outstanding_tasks,
+#         total_hours=total_hours
+#     )
+
+@app.route("/coach/<int:coach_id>/production-tasks")
+@login_required
+def production_tasks(coach_id):
+
+    coach = Coach.query.get_or_404(coach_id)
+
+    # Existing production work history
+    tasks = (
+        ProductionWorkLog.query
+        .filter_by(coach_id=coach.id)
+        .order_by(
+            ProductionWorkLog.work_date.desc(),
+            ProductionWorkLog.created_at.desc()
+        )
+        .all()
+    )
+
+    # ONLY tasks that have been checked/selected
+    selected_tasks = get_selected_production_tasks(coach)
+
+    selected_task_count = len(selected_tasks)
+
+    selected_hours = sum(
+        float(task.hours or 0)
+        for task in selected_tasks
+    )
+
+    total_hours = (
+        db.session.query(
+            db.func.coalesce(
+                db.func.sum(ProductionWorkLog.hours),
+                0
+            )
+        )
+        .filter(
+            ProductionWorkLog.coach_id == coach.id
+        )
+        .scalar()
+    )
+
+    return render_template(
+        "production_tasks.html",
+        coach=coach,
+        tasks=tasks,
+        selected_tasks=selected_tasks,
+        completed_tasks=selected_task_count,
+        outstanding_tasks=0,
+        total_hours=selected_hours
+    )
+
+
+
+@app.route("/coach/<int:coach_id>/production-tasks/add", methods=["POST"])
+@login_required
+def add_production_task(coach_id):
+
+    if current_user.role not in ["admin", "editor"]:
+        flash("Permission denied.", "danger")
+        return redirect(url_for("production_tasks", coach_id=coach_id))
+
+    coach = Coach.query.get_or_404(coach_id)
+
+    work = ProductionWorkLog(
+        coach_id=coach.id,
+        
+        work_date=parse_date(request.form.get("work_date")) or datetime.today().date(),
+        production_stage=coach.production_stage,
+        workshop_station=coach.workshop_station.station if coach.workshop_station else None,
+        activity=request.form.get("activity"),
+        employee=request.form.get("employee"),
+        hours=request.form.get("hours", type=float) or 0,
+        remarks=request.form.get("remarks"),
+        created_by=current_user.username
+    )
+
+    db.session.add(work)
+    db.session.commit()
+
+    flash("Production task added.", "success")
+
+    return redirect(url_for("production_tasks", coach_id=coach.id))
+
+@app.route("/production-tasks")
+@login_required
+def production_tasks_dashboard():
+
+    coaches = (
+        Coach.query
+        .filter(Coach.archived.is_(False))
+        .order_by(Coach.coach_number.asc())
+        .all()
+    )
+
+    coach_summary = []
+
+    for coach in coaches:
+
+        outstanding_tasks = (
+            CompletionTask.query
+            .filter_by(
+                coach_id=coach.id,
+                completed=False
+            )
+            .count()
+        )
+
+        completed_tasks = (
+            CompletionTask.query
+            .filter_by(
+                coach_id=coach.id,
+                completed=True
+            )
+            .count()
+        )
+
+        total_hours = (
+            db.session.query(
+                db.func.coalesce(
+                    db.func.sum(ProductionWorkLog.hours),
+                    0
+                )
+            )
+            .filter(
+                ProductionWorkLog.coach_id == coach.id
+            )
+            .scalar()
+        )
+
+        coach_summary.append({
+
+            "coach": coach,
+
+            "completed_tasks": completed_tasks,
+
+            "outstanding_tasks": outstanding_tasks,
+
+            "total_hours": total_hours
+
+        })
+
+    return render_template(
+
+        "production_tasks_dashboard.html",  
+
+        coach_summary=coach_summary
+
+    )
+
+
 
 
 

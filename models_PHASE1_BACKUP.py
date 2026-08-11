@@ -110,6 +110,9 @@ class Coach(db.Model):
     invoice_retention = db.Column(db.Boolean, default=False)
     invoice_current_escalation = db.Column(db.Boolean, default=False)
 
+    component_service_supplier = db.Column(db.String(255), nullable=True)
+    service_provider = db.Column(db.String(255), nullable=True)
+
     notes = db.Column(db.Text, nullable=True)
 
     # 🔴 ARCHIVING
@@ -126,6 +129,15 @@ class Coach(db.Model):
         lazy=True,
         cascade="all, delete-orphan",
         order_by="CompletionTask.phase, CompletionTask.section, CompletionTask.id",
+    )
+
+    component_installations = db.relationship(
+        "CoachComponentInstallation",
+        backref="coach",
+        lazy=True,
+        cascade="all, delete-orphan",
+        order_by="CoachComponentInstallation.id",
+    
     )
 
     def __repr__(self):
@@ -206,6 +218,42 @@ class Coach(db.Model):
     def sync_all_status(self):
         self.sync_active_phase_status()
         self.sync_passive_status()
+
+    # Coach Map fields
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    map_activity = db.Column(db.String(255), nullable=True)
+    map_position_date = db.Column(db.Date, nullable=True)
+    production_location = db.Column(db.String(255), nullable=True)
+    
+    stationary_start_date = db.Column(db.Date, nullable=True)
+    expected_stationary_days = db.Column(db.Integer, nullable=True)
+    expected_move_date = db.Column(db.Date, nullable=True)
+    # =====================================================
+    # Factory Production Tracking
+    # =====================================================
+    
+    production_stage = db.Column(db.String(100), nullable=True)
+    
+    workshop_station_id = db.Column(
+        db.Integer,
+        db.ForeignKey("workshop_station.id"),
+        nullable=True
+    )
+    
+   
+    current_activity = db.Column(db.String(150), nullable=True)
+    
+    last_activity_date = db.Column(
+        db.DateTime,
+        nullable=True
+    )    
+    
+    workshop_station = db.relationship(
+        "WorkshopStation",
+        backref="coaches"
+    )
+
 
     def calculate_progress(self):
         self.sync_all_status()
@@ -316,6 +364,29 @@ class Coach(db.Model):
             "final_stage": "Serviceworthy" if self._is_trailer() else "Retention",
         }
 
+class CoachComponentInstallation(db.Model):
+    __tablename__ = "coach_component_installation"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    coach_id = db.Column(
+        db.Integer,
+        db.ForeignKey("coach.id"),
+        nullable=False
+    )
+
+    component = db.Column(db.String(200), nullable=False)
+    supplier = db.Column(db.String(200), nullable=True)
+    installer = db.Column(db.String(200), nullable=True)
+
+    installed_date = db.Column(db.Date, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<CoachComponentInstallation {self.component}>"
+
 
 class CompletionTask(db.Model):
     __tablename__ = "completion_task"
@@ -348,7 +419,213 @@ class CoachAudit(db.Model):
     def __repr__(self):
         return f"<CoachAudit {self.action} coach={self.coach_number}>"    
     
+class CoachLocationHistory(db.Model):
+    __tablename__ = "coach_location_history"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    coach_id = db.Column(
+        db.Integer,
+        db.ForeignKey("coach.id"),
+        nullable=False
+    )
+
+    coach_number = db.Column(db.String(100), nullable=False)
+
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+
+    activity = db.Column(db.String(255), nullable=True)
+    production_location = db.Column(db.String(255), nullable=True)
+
+    moved_by = db.Column(db.String(100), nullable=True)
+    moved_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
+    stationary_start_date = db.Column(db.Date, nullable=True)
+    expected_stationary_days = db.Column(db.Integer, nullable=True)
+    expected_move_date = db.Column(db.Date, nullable=True)
+    actual_days_stationary = db.Column(db.Integer, nullable=True)
+    stationary_status = db.Column(db.String(50), nullable=True)    
+
+    def __repr__(self):
+        return f"<CoachLocationHistory {self.coach_number} {self.production_location}>" 
+
+class ProductionWorkLog(db.Model):
+    __tablename__ = "production_work_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    coach_id = db.Column(
+        db.Integer,
+        db.ForeignKey("coach.id"),
+        nullable=False
+    )
+
+    coach = db.relationship(
+        "Coach",
+        backref=db.backref(
+            "production_logs",
+            lazy=True,
+            cascade="all, delete-orphan"
+        )
+    )
+
+    work_date = db.Column(
+        db.Date,
+        nullable=False,
+        default=datetime.utcnow().date
+    )
+
+    production_stage = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    workshop_station = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    activity = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    employee = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    hours = db.Column(
+        db.Float,
+        default=0
+    )
+
+    completed = db.Column(
+        db.Boolean,
+        default=True
+    )
+
+    remarks = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    created_by = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    def __repr__(self):
+        return f"<ProductionWorkLog {self.coach_id} {self.activity}>"
+
+
+
+
+
+class CoachActivityLog(db.Model):
+    __tablename__ = "coach_activity_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    coach_id = db.Column(
+        db.Integer,
+        db.ForeignKey("coach.id"),
+        nullable=False
+    )
+
+    workshop_station_id = db.Column(
+        db.Integer,
+        db.ForeignKey("workshop_station.id"),
+        nullable=True
+    )
+
+    activity = db.Column(db.String(200), nullable=False)
+    remarks = db.Column(db.Text)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    created_by = db.Column(
+        db.String(100),
+        nullable=True
+    )
+
+    coach = db.relationship(
+        "Coach",
+        backref=db.backref(
+            "activity_logs",
+            lazy=True,
+            order_by="desc(CoachActivityLog.created_at)"
+        )
+    )
+
+    workshop_station = db.relationship(
+        "WorkshopStation",
+        lazy="joined"
+    )
+
+
+class ProductionLocationRule(db.Model):
+    __tablename__ = "production_location_rule"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    location = db.Column(db.String(255), unique=True, nullable=False)
+    default_days = db.Column(db.Integer, nullable=False, default=0)
+
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return f"<ProductionLocationRule {self.location} = {self.default_days} days>"    
+
+
+class WorkshopStation(db.Model):
+    __tablename__ = "workshop_station"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    stage = db.Column(db.String(100), nullable=False)
+
+    station = db.Column(db.String(100), nullable=False)
+
+    capacity = db.Column(db.Integer, nullable=False, default=1)
+
+    sequence = db.Column(db.Integer, nullable=False)
+
+    active = db.Column(db.Boolean, default=True)
+
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
+    def __repr__(self):
+        return f"<WorkshopStation {self.station}>"
+
+  
 class TaskTemplate(db.Model):
     __tablename__ = "task_template"
 
@@ -371,4 +648,6 @@ class TaskTemplate(db.Model):
     )
 
     def __repr__(self):
-        return f"<TaskTemplate {self.coach_type} | {self.phase} | {self.section} | {self.task}>"    
+        return f"<TaskTemplate {self.coach_type} | {self.phase} | {self.section} | {self.task}>"   
+    
+    

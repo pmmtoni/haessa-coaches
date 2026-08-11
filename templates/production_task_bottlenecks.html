@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Production Task Bottlenecks{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Production Task Bottlenecks</h2>
+            <p class="text-muted mb-0">
+                Task-level monitoring using actual production dates and recorded delay events.
+            </p>
+        </div>
+        <a href="{{ url_for('production_bottlenecks') }}" class="btn btn-outline-secondary">
+            Workshop Location Bottlenecks
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>How this works:</strong>
+        bottlenecks are identified from scheduled duration, actual duration,
+        overdue days and the number of timestamped Delay / Exception events.
+        No hours entry is used.
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="small text-muted">TOTAL TASKS</div>
+                    <div class="fs-3 fw-bold">{{ summary.total_tasks }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="small text-muted">ACTIVE</div>
+                    <div class="fs-3 fw-bold">{{ summary.active_tasks }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="small text-muted">COMPLETED</div>
+                    <div class="fs-3 fw-bold">{{ summary.completed_tasks }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="small text-muted">OVERDUE</div>
+                    <div class="fs-3 fw-bold text-danger">{{ summary.overdue_tasks }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="small text-muted">DELAY EVENTS</div>
+                    <div class="fs-3 fw-bold">{{ summary.delay_events }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="small text-muted">HIGH RISK</div>
+                    <div class="fs-3 fw-bold text-danger">{{ summary.high_risk }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Phase</label>
+                    <select name="phase" class="form-select">
+                        <option value="">All phases</option>
+                        {% for phase in phases %}
+                            <option value="{{ phase }}" {% if phase_filter == phase %}selected{% endif %}>
+                                {{ phase }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All statuses</option>
+                        {% for status in statuses %}
+                            <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>
+                                {{ status }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Minimum delay events</label>
+                    <input type="number" name="min_delay_events" class="form-control"
+                           min="0" value="{{ min_delay_events }}">
+                </div>
+
+                <div class="col-md-3">
+                    <button class="btn btn-primary me-2" type="submit">Apply Filters</button>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('production_task_bottlenecks') }}">
+                        Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <strong>Activity Bottleneck Ranking</strong>
+        </div>
+        <div class="card-body p-0">
+            {% if bottlenecks %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Risk</th>
+                            <th>Phase</th>
+                            <th>Section</th>
+                            <th>Activity</th>
+                            <th>Occurrences</th>
+                            <th>Active</th>
+                            <th>Completed</th>
+                            <th>Overdue</th>
+                            <th>Delay Events</th>
+                            <th>Avg Variance</th>
+                            <th>Max Overdue</th>
+                            <th>Coaches</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in bottlenecks %}
+                        <tr>
+                            <td>
+                                {% if row.risk == "High" %}
+                                    <span class="badge bg-danger">High</span>
+                                {% elif row.risk == "Medium" %}
+                                    <span class="badge bg-warning text-dark">Medium</span>
+                                {% elif row.risk == "Watch" %}
+                                    <span class="badge bg-info text-dark">Watch</span>
+                                {% else %}
+                                    <span class="badge bg-success">Low</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ row.phase }}</td>
+                            <td>{{ row.section }}</td>
+                            <td><strong>{{ row.task }}</strong></td>
+                            <td>{{ row.count }}</td>
+                            <td>{{ row.active_count }}</td>
+                            <td>{{ row.completed_count }}</td>
+                            <td>
+                                {% if row.overdue_count %}
+                                    <span class="text-danger fw-semibold">{{ row.overdue_count }}</span>
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.delay_events %}
+                                    <span class="fw-semibold">{{ row.delay_events }}</span>
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.avg_variance > 0 %}
+                                    +{{ row.avg_variance }} day{% if row.avg_variance != 1 %}s{% endif %}
+                                {% else %}
+                                    {{ row.avg_variance }} days
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.max_overdue %}
+                                    {{ row.max_overdue }} day{% if row.max_overdue != 1 %}s{% endif %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ row.coach_count }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="p-5 text-center text-muted">
+                    No bottleneck records match the selected filters.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <strong>Task-Level Detail</strong>
+        </div>
+        <div class="card-body p-0">
+            {% if activity_rows %}
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Coach</th>
+                            <th>Phase</th>
+                            <th>Section</th>
+                            <th>Activity</th>
+                            <th>Status</th>
+                            <th>Assigned</th>
+                            <th>Due</th>
+                            <th>Completed</th>
+                            <th>Expected</th>
+                            <th>Actual</th>
+                            <th>Variance</th>
+                            <th>Overdue</th>
+                            <th>Delay Events</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in activity_rows %}
+                        <tr>
+                            <td>{{ row.coach_no or row.coach_id }}</td>
+                            <td>{{ row.phase }}</td>
+                            <td>{{ row.section }}</td>
+                            <td>{{ row.task }}</td>
+                            <td>{{ row.status }}</td>
+                            <td>{{ row.assigned.strftime('%d %b %Y') if row.assigned else '—' }}</td>
+                            <td>{{ row.due.strftime('%d %b %Y') if row.due else '—' }}</td>
+                            <td>{{ row.completed.strftime('%d %b %Y') if row.completed else '—' }}</td>
+                            <td>{{ row.expected_days or '—' }}</td>
+                            <td>{{ row.actual_days or '—' }}</td>
+                            <td>
+                                {% if row.variance > 0 %}
+                                    <span class="text-danger">+{{ row.variance }}</span>
+                                {% else %}
+                                    {{ row.variance }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if row.overdue_days %}
+                                    <span class="text-danger fw-semibold">
+                                        {{ row.overdue_days }}
+                                    </span>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ row.delay_events or '—' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="p-5 text-center text-muted">
+                    No task detail matches the selected filters.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

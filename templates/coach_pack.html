@@ -15,7 +15,33 @@
             <button onclick="window.print()" class="btn btn-success">Save PDF</button>
             <a href="{{ url_for('coaches_edit', id=coach.id) }}" class="btn btn-outline-secondary">Back</a>
         </div>
+        
     </div>
+    
+    <div class="d-flex gap-2">
+    
+        <a href="{{ url_for('production_tasks', coach_id=coach.id) }}"
+           class="btn btn-primary">
+            <i class="bi bi-list-check"></i>
+            Production Tasks
+        </a>
+    
+        <button onclick="window.print()"
+                class="btn btn-success">
+            Save PDF
+        </button>
+    
+        <a href="{{ url_for('coaches_edit', id=coach.id) }}"
+           class="btn btn-outline-secondary">
+            Back
+        </a>
+    
+    </div>
+
+
+
+
+
 
     <div class="print-header mb-4">
         <h2>CTE Durban Coach Details</h2>
