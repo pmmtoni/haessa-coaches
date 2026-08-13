@@ -1,6 +1,5 @@
 from models import db, TaskTemplate, CompletionTask
 
-
 def generate_completion_tasks(coach):
     """
     Synchronize CompletionTask records for a coach from the active
@@ -37,9 +36,9 @@ def generate_completion_tasks(coach):
     # Build identity set for existing tasks.
     existing_keys = {
         (
-            task.phase.strip().lower(),
-            task.section.strip().lower(),
-            task.task.strip().lower(),
+            (task.phase or "").strip().lower(),
+            (task.section or "").strip().lower(),
+            (task.task or "").strip().lower(),
         )
         for task in existing_tasks
     }
@@ -50,9 +49,9 @@ def generate_completion_tasks(coach):
     for template in templates:
 
         key = (
-            template.phase.strip().lower(),
-            template.section.strip().lower(),
-            template.task.strip().lower(),
+            (template.phase or "").strip().lower(),
+            (template.section or "").strip().lower(),
+            (template.task or "").strip().lower(),
         )
 
         if key in existing_keys:
@@ -73,11 +72,13 @@ def generate_completion_tasks(coach):
 
             status="Pending",
             percent_complete=0,
-            assigned_to=None,
-            workshop_station_id=None,
-            started_at=None,
-            completed_at=None,
-            remarks=None,
+
+            assigned_date=None,
+            started_date=None,
+            expected_days=template.expected_days,
+            due_date=None,
+
+            delay_notes=None,
         )
 
         db.session.add(task)
@@ -94,7 +95,6 @@ def generate_completion_tasks(coach):
             f"{existing} existing tasks retained."
         ),
     }
-
 
 def get_selected_production_tasks(coach):
     """

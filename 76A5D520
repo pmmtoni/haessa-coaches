@@ -1,0 +1,1702 @@
+﻿coach_type,phase,section,task
+Motor,Completion,BUP,Air - 3 - Way Cocks A16/A20
+Motor,Completion,BUP,Air - Air Filter A12 Fit 
+Motor,Completion,BUP,Air - Air Filter A15 Fit 
+Motor,Completion,BUP,Air - Compressor: Rotary Screw Type
+Motor,Completion,BUP,Air - Door Pressure Reducing Valve A18 - 
+Motor,Completion,BUP,Air - Drivers Air Pressure Gauge 0-1000 Kpa 
+Motor,Completion,BUP,Air - Drivers Air Pressure Gauge A21 - 
+Motor,Completion,BUP,Air - Duplex Check Valve A14 - 
+Motor,Completion,BUP,Air - Fit  Rotary Screw Compressor C/W Ac Motor Drive & Invertor
+Motor,Completion,BUP,Air - Fit Auxiliary Compressor & Piping
+Motor,Completion,BUP,Air - Foot Valve  (Festo Type)
+Motor,Completion,BUP,Air - Hooter  & Fit Dual Foot Pedal/Valve
+Motor,Completion,BUP,Air - Intercooler Pipe 
+Motor,Completion,BUP,"Air - Isolating Cocks  1/2"""
+Motor,Completion,BUP,"Air - Isolating Cocks  3/4"" "
+Motor,Completion,BUP,Air - Motor Coach; Air Reservoirs - 
+Motor,Completion,BUP,Air - Motor Coaches: Air Supply Pipes & Hoses
+Motor,Completion,BUP,Air - Pressure Governor (Main) A11
+Motor,Completion,BUP,Air - Safety Valve 
+Motor,Completion,BUP,Air - Test Air Supply System
+Motor,Completion,BUP,"Air - Windscreen, Wiper Motor & Controller, Pneumatic"
+Motor,Completion,Coach Build,Body -  Card Clip
+Motor,Completion,Coach Build,Body -  Co mmode Handle Coach End
+Motor,Completion,Coach Build,"Body -  Co mmode Handle Complete, Driver'S Sides"
+Motor,Completion,Structural,Body -  Corrugated Metal Floor & Support Frames
+Motor,Completion,Coach Build,Body -  Driver'S Stone Guard Screen
+Motor,Completion,Coach Build,Body -  Floors (Saloon & Drivers)
+Motor,Completion,Coach Build,Body -  Lamp Bracket
+Motor,Completion,Structural,Body -  Repairs
+Motor,Completion,Testing & Commissioning,Body - 10M Testing
+Motor,Completion,Structural,Body - Body Framework Repairs (Refer To Cr 001)
+Motor,Completion,Coach Build,Body - Bodyside & Ceiling Insulation
+Motor,Completion,Structural,Body - Bodywork & Attachments (Excluding Interior Trim)
+Motor,Completion,BUP,Body - Bogie Pin Cover Plate
+Motor,Completion,Coach Build,Body - Co mmode Handles 
+Motor,Completion,Electrical,Body - Coupling Protector (Heater Cables) 
+Motor,Completion,Coach Build,Body - Drivers Glass (10 mm Safety) 
+Motor,Completion,Coach Build,Body - Exterior Equipment
+Motor,Completion,Coach Build,Body - Exterior Steps Inspect & 
+Motor,Completion,Coach Build,Body - Fit  Gangway Plate
+Motor,Completion,Coach Build,Body - Fit  Steps
+Motor,Completion,Coach Build,Body - Fit 10M Cab Complete
+Motor,Completion,Coach Build,Body - Fit Windows Passenger
+Motor,Completion,Coach Build,Body - Gangway Plate 
+Motor,Completion,Paint,Body - Grit Blast Body Shell & Underframe Equipment
+Motor,Completion,QC,Body - H.T. Compartment- 
+Motor,Completion,QC,Body - H.T. Steel Frame 55F
+Motor,Completion,Paint,Body - Internal & External Signs & Labelling
+Motor,Completion,Electrical,"Body - Lens, Headlight "
+Motor,Completion,Electrical,"Body - Lens, Train Number Indicator "
+Motor,Completion,Coach Build,Body - Monsoon Ventilator 
+Motor,Completion,Paint,Body - Paint Coach & Autocote (Primer Incl.)
+Motor,Completion,Structural,Body - Repairs
+Motor,Completion,Structural,Body - Roof Equipment Examine & Repair
+Motor,Completion,Coach Build,"Body - Roof Mounted Louvres & Bracketry, "
+Motor,Completion,Structural,Body - Rust Repairs Body Cladding (Side & End)
+Motor,Completion,Structural,"Body - Rust Repairs, Gutters & Splash Plates"
+Motor,Completion,Structural,"Body - Rust Repairs, Roof"
+Motor,Completion,Coach Build,"Body - Settling Chamber, Clean & Refit"
+Motor,Completion,BUP,Body - Shaft Encoders -  (Plastic Type) Only Encoder
+Motor,Completion,Paint,Body - Stencilling
+Motor,Completion,Testing & Commissioning,Body - Vehicle Compliance
+Motor,Completion,QC,Body - Water Test
+Motor,Completion,Coach Build,Body & Replace Compl. Coach Floor Covering Material (Marley)Saloon After Condition Assessment
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Aliminium Window Shroud In Bar & Kitchen
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Baggage Compartment Obsevation Glass Plus Rubber
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Big
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Card Clip Small
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co  mmode Handles
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Co mmode Handles (Ends)
+Baggage Van,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+Power Car,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Corrugated Metal Floor
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Double Glazed Windows Dining Car
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Double Glazed Windows Dining Car (Hopper)
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Extractor Fan In Canopy
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Frosted Bar Window
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Grp Pane & Shroud Including Window Rubber
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Grp Pane & Shroud Including Window Rubber
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Protection Bar Baggage Compartment
+Baggage Van,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+Power Car,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) -  Repairs
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Safety Gate At Kitchen (Bronze)
+Kitchen,Completion,Coach Build,"Bodywork & Attachments (Excl. Interior Trim) -  Small Hooper Window (Pantry, Scullery & Kitchen)"
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Vinyl Shrouds & Roller Screens
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) -  Window Blinds Dining Car
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 1st Colour Application (Purple)
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd    Colour Application (Graphite Grey)
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd   Colour Application (Graphite Grey)
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd   Colour Application (Graphite Grey)
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd   Colour Application (Graphite Grey)
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd   Colour Application (Graphite Grey)
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd   Colour Application (Graphite Grey)
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd   Colour Application (Graphite Grey)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 2nd   Colour Application (Graphite Grey)
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 3rd  Colour Application (Turquoise Blue)
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - 4th  Colour Application (Yellow)
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - 95 Square Cabling For Mainline
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Affix Decals
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Apply Autocoat
+Baggage Van,Completion,BUP,Bodywork & Attachments (Excl. Interior Trim) - Block Bumper Rubber Block
+KP-1 to Car Carrier,Completion,BUP,Bodywork & Attachments (Excl. Interior Trim) - Block Bumper Rubber Block
+Power Car,Completion,BUP,Bodywork & Attachments (Excl. Interior Trim) - Block Bumper Rubber Block
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Body Filling & Rub
+Baggage Van,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+Power Car,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Body Framework Repairs
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co  mmode Handles 
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co mmode Handles 
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co mmode Handles 
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co mmode Handles 
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co mmode Handles 
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co mmode Handles 
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co mmode Handles 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Co mmode Handles 
+Baggage Van,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+Diner,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+Kitchen,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+KP-1 to Car Carrier,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+Power Car,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+Sitter,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+Sleeper,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Complete Coach Strip
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Cross Over Treat Plate Rubber
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Cross Over Treat Plate Rubber
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Electrical Conduits - 
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - External Signs & Decals
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Paint Preperation
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Final Touch-Up
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Floor Plates At End
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit  Lamp Side  With L.E.D. Type
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit  Lamp Side  With L.E.D. Type
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit  Lamp Side  With L.E.D. Type
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500  mm) L/H Or R/H
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500 mm) L/H Or R/H
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500 mm) L/H Or R/H
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500 mm) L/H Or R/H
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500 mm) L/H Or R/H
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500 mm) L/H Or R/H
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500 mm) L/H Or R/H
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars (500 mm) L/H Or R/H
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Pillars Full Size
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Side Steps - Entrance
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Spark Plates Toilet Floor
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Spark Plates Toilet Floor
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit  Spark Plates Toilet Floor
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit 220 Volt Extractor Fan In Kitchen & Diner
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit 220 Volt Extractor Fan In Kitchen & Diner
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit Communication System Speakers
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit Communication System Speakers
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit Communication System Speakers
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit Communication System Speakers
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit Communication System Speakers
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit Communication System Speakers
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Fit Communication System Speakers
+Diner,Completion,Electrical,"Bodywork & Attachments (Excl. Interior Trim) - Fit Desk Top Pager, Amplifier"
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Monsoon Ventilators
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Monsoon Ventilators
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Monsoon Ventilators
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Monsoon Ventilators
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Monsoon Ventilators
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Monsoon Ventilators
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Monsoon Ventilators
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Reclaimed Window In Guards Compartment
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Vinyl Canopy Between Kitchen & Diner Wegman
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Vinyl Canopy Between Kitchen & Diner Wegman
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Drop
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Drop
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Drop
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Drop
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Drop
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Drop
+Kitchen,Completion,Coach Build,"Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Toilet Half Drop (Toilet,Shower)"
+Sitter,Completion,Coach Build,"Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Toilet Half Drop (Toilet,Shower)"
+Sleeper,Completion,Coach Build,"Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Toilet Half Drop (Toilet,Shower)"
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,"Bodywork & Attachments (Excl. Interior Trim) - Fit Windows Mainline Toilet Half Drop (Toilet,Shower)"
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate 
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate 
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate 
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate 
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate 
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate 
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate Hinged 
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gangway Plate Hinged 
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass (200 X 200) For Emergency & Fire Ext
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass (200 X 200) For Emergency & Fire Ext
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass (200 X 200) For Emergency & Fire Ext
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass (200 X 200) For Emergency & Fire Ext
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass (200 X 200) For Emergency & Fire Ext
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass (200 X 200) For Emergency & Fire Ext
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass (200 X 200) For Emergency & Fire Ext
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass Exit/Entrance Side Door (Including Rubber)
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass Exit/Entrance Side Door (Including Rubber)
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass Exit/Entrance Side Door (Including Rubber)
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass Exit/Entrance Side Door (Including Rubber)
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass Exit/Entrance Side Door (Including Rubber)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Glass Exit/Entrance Side Door (Including Rubber)
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Body Shell
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Grit Blast Under Frame Equipment/Components
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gu  mmies Rubber Diaphragms -  (Including Steel Plates)
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gu mmies Rubber Diaphragms -  (Including Steel Plates)
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gu mmies Rubber Diaphragms -  (Including Steel Plates)
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gu mmies Rubber Diaphragms -  (Including Steel Plates)
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gu mmies Rubber Diaphragms -  (Including Steel Plates)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Gu mmies Rubber Diaphragms -  (Including Steel Plates)
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Install Interior Lighting  (Kit)
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Inter Coach Connectors (Recepticals)
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - LT Rewiring
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main Buss Junction & Receptical Boxes - Fit 
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Main DB Complete
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Paint Loose Components
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Destination (2.5  mm X 125  mm X 625  mm)
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Destination (2.5 mm X 125 mm X 625 mm)
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Destination (2.5 mm X 125 mm X 625 mm)
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Destination (2.5 mm X 125 mm X 625 mm)
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Destination (2.5 mm X 125 mm X 625 mm)
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Destination (2.5 mm X 125 mm X 625 mm)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Destination (2.5 mm X 125 mm X 625 mm)
+Sitter,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6  mm X 135  mm X 600  mm)
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6 mm X 135 mm X 600 mm)
+Diner,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6 mm X 135 mm X 600 mm)
+Kitchen,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6 mm X 135 mm X 600 mm)
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6 mm X 135 mm X 600 mm)
+Power Car,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6 mm X 135 mm X 600 mm)
+Sleeper,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6 mm X 135 mm X 600 mm)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Plate Patch Sole Bar (6 mm X 135 mm X 600 mm)
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5  mm X 125  mm X 800  mm)
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5 mm X 125 mm X 800 mm)
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5 mm X 125 mm X 800 mm)
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5 mm X 125 mm X 800 mm)
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5 mm X 125 mm X 800 mm)
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5 mm X 125 mm X 800 mm)
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5 mm X 125 mm X 800 mm)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Plate Stencil (2.5 mm X 125 mm X 800 mm)
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Polish Coach
+KP-1 to Car Carrier,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - Railings Tracks
+Baggage Van,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+Power Car,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Repairs
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Roof Modification For Lights & Air-Conditioning
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Roof Modification For Lights & Air-Conditioning
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Roof Modification For Lights & Air-Conditioning
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Roof Modification For Lights & Air-Conditioning
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Roof Modification For Lights & Air-Conditioning
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Rub & Prime
+Baggage Van,Completion,BUP,Bodywork & Attachments (Excl. Interior Trim) - Rubber Stop Bumper
+KP-1 to Car Carrier,Completion,BUP,Bodywork & Attachments (Excl. Interior Trim) - Rubber Stop Bumper
+Power Car,Completion,BUP,Bodywork & Attachments (Excl. Interior Trim) - Rubber Stop Bumper
+Baggage Van,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+Power Car,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repair Gutters
+Baggage Van,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+Power Car,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Body (Side & Ends)
+Baggage Van,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+Power Car,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+Sitter,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+Sleeper,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) - Rust Repairs Roof
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Solar Panel Kit
+Baggage Van,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+Diner,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+Kitchen,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+KP-1 to Car Carrier,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+Power Car,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+Sitter,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+Sleeper,Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Bodywork & Attachments (Excl. Interior Trim) - Stencilling
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Tail Light & Wing Light (Led Type)
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Tail Light & Wing Light (Led Type)
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) - Tail Light & Wing Light (Led Type)
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - View Reflectors (K & G Types) Remove & Close Up
+Baggage Van,Completion,Coach Build,Bodywork & Attachments (Excl. Interior Trim) - View Relectors (K & G Types) 
+Baggage Van,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+Diner,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+Kitchen,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+KP-1 to Car Carrier,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+Power Car,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+Sitter,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+Sleeper,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (1st)
+Baggage Van,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+Diner,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+Kitchen,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+KP-1 to Car Carrier,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+Power Car,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+Sitter,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+Sleeper,Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,QC,Bodywork & Attachments (Excl. Interior Trim) - Water Test (2nd )
+KP-1 to Car Carrier,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) Co mmode Handles (Ends)
+Diner,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) Cowl & Cover
+Kitchen,Completion,Structural,Bodywork & Attachments (Excl. Interior Trim) Cowl & Cover
+Baggage Van,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+Diner,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+Kitchen,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+KP-1 to Car Carrier,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+Power Car,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+Sitter,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+Sleeper,Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Bodywork & Attachments (Excl. Interior Trim) -Fit Jumper Cables Complete 
+Motor,Completion,BUP,Bogies -  Fit Spring Cups
+Baggage Van,Completion,BUP,Bogies - Fit  Anchor Bolts
+Diner,Completion,BUP,Bogies - Fit  Anchor Bolts
+Kitchen,Completion,BUP,Bogies - Fit  Anchor Bolts
+KP-1 to Car Carrier,Completion,BUP,Bogies - Fit  Anchor Bolts
+Power Car,Completion,BUP,Bogies - Fit  Anchor Bolts
+Sitter,Completion,BUP,Bogies - Fit  Anchor Bolts
+Sleeper,Completion,BUP,Bogies - Fit  Anchor Bolts
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Bogies - Fit  Anchor Bolts
+Baggage Van,Completion,BUP,Bogies - Fit  Swing Hanger
+Diner,Completion,BUP,Bogies - Fit  Swing Hanger
+Kitchen,Completion,BUP,Bogies - Fit  Swing Hanger
+KP-1 to Car Carrier,Completion,BUP,Bogies - Fit  Swing Hanger
+Power Car,Completion,BUP,Bogies - Fit  Swing Hanger
+Sitter,Completion,BUP,Bogies - Fit  Swing Hanger
+Sleeper,Completion,BUP,Bogies - Fit  Swing Hanger
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Bogies - Fit  Swing Hanger
+Baggage Van,Completion,BUP,Bogies - Fit Bolster 
+Diner,Completion,BUP,Bogies - Fit Bolster 
+Kitchen,Completion,BUP,Bogies - Fit Bolster 
+KP-1 to Car Carrier,Completion,BUP,Bogies - Fit Bolster 
+Power Car,Completion,BUP,Bogies - Fit Bolster 
+Sitter,Completion,BUP,Bogies - Fit Bolster 
+Sleeper,Completion,BUP,Bogies - Fit Bolster 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Bogies - Fit Bolster 
+Baggage Van,Completion,BUP,Bogies - Fit Earth Straps
+Diner,Completion,BUP,Bogies - Fit Earth Straps
+Kitchen,Completion,BUP,Bogies - Fit Earth Straps
+KP-1 to Car Carrier,Completion,BUP,Bogies - Fit Earth Straps
+Motor,Completion,BUP,Bogies - Fit Earth Straps
+Power Car,Completion,BUP,Bogies - Fit Earth Straps
+Sitter,Completion,BUP,Bogies - Fit Earth Straps
+Sleeper,Completion,BUP,Bogies - Fit Earth Straps
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Bogies - Fit Earth Straps
+Baggage Van,Completion,BUP,Bogies - Fit Equalising Beam 
+Diner,Completion,BUP,Bogies - Fit Equalising Beam 
+Kitchen,Completion,BUP,Bogies - Fit Equalising Beam 
+KP-1 to Car Carrier,Completion,BUP,Bogies - Fit Equalising Beam 
+Power Car,Completion,BUP,Bogies - Fit Equalising Beam 
+Sitter,Completion,BUP,Bogies - Fit Equalising Beam 
+Sleeper,Completion,BUP,Bogies - Fit Equalising Beam 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Bogies - Fit Equalising Beam 
+Motor,Completion,BUP,Bogies - Fit Odometers - Motor Coach
+Baggage Van,Completion,BUP,Bogies - Fit Pedestal Liners
+Diner,Completion,BUP,Bogies - Fit Pedestal Liners
+Kitchen,Completion,BUP,Bogies - Fit Pedestal Liners
+KP-1 to Car Carrier,Completion,BUP,Bogies - Fit Pedestal Liners
+Motor,Completion,BUP,Bogies - Fit Pedestal Liners
+Power Car,Completion,BUP,Bogies - Fit Pedestal Liners
+Sitter,Completion,BUP,Bogies - Fit Pedestal Liners
+Sleeper,Completion,BUP,Bogies - Fit Pedestal Liners
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Bogies - Fit Pedestal Liners
+Baggage Van,Completion,BUP,Bogies - Fit Snubbers
+Diner,Completion,BUP,Bogies - Fit Snubbers
+Kitchen,Completion,BUP,Bogies - Fit Snubbers
+KP-1 to Car Carrier,Completion,BUP,Bogies - Fit Snubbers
+Power Car,Completion,BUP,Bogies - Fit Snubbers
+Sitter,Completion,BUP,Bogies - Fit Snubbers
+Sleeper,Completion,BUP,Bogies - Fit Snubbers
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Bogies - Fit Snubbers
+Motor,Completion,BUP,"Bogies - Fit Springs, Metro Class, Mc, Equalising Beam, "
+Baggage Van,Completion,BUP,Bogies - Fit Wheels
+Motor,Completion,BUP,Bogies - Shaft Encoders -  Fit (Plastic Type) Complete Kit
+Motor,Completion,BUP,Bogies -Fit Wheels
+Motor,Completion,BUP,Brake - Brakes – Fit Air/Vacuum Pipes
+Motor,Completion,BUP,Brake - Double Vacuum Gauge
+Motor,Completion,BUP,Brake - Driver’S Brake Valve B1 -  (Emergency)
+Motor,Completion,BUP,Brake - Exhauster Cut-Out Valve 
+Motor,Completion,BUP,Brake - Exhauster Cut-Out Valve  
+Motor,Completion,BUP,Brake - Fit  Vacuum Brake Release Wire
+Motor,Completion,BUP,Brake - Fit Brake Blocks 
+Motor,Completion,BUP,Brake - Fit Motor Coach Handbrake
+Motor,Completion,BUP,Brake - Fit QSA 
+Motor,Completion,BUP,Brake - Fit EVV
+Motor,Completion,BUP,Brake - Fit Slack Adjuster
+Motor,Completion,BUP,Brake - Fit Snifter Valve B10
+Motor,Completion,BUP,Brake - Fit Vacuum Chamber B17 
+Motor,Completion,BUP,Brake - Fit Vacuum Emergency Valve B2 - 
+Motor,Completion,BUP,Brake - Fit Vacuum Hoses 
+Motor,Completion,BUP,Brake - Fit Vacuum Piping –  & Test
+Motor,Completion,BUP,Brake - Perform  Vacuum Test & Brake Adjustment
+Motor,Completion,BUP,Brake - Perform Underframe Brake Rigging  – Motor Coach
+Motor,Completion,BUP,Brake - Valve Vacuum Regulator (Snifter )  Type
+Motor,Completion,BUP,Brake -Fit  Vacuum Cylinder 
+Motor,Completion,BUP,Brake -Fit Trunnion & Brackets
+Motor,Completion,Electrical,Collector - Busbar Insulator Roof – 
+Motor,Completion,Electrical,Collector - Collector Equipment
+Motor,Completion,Electrical,Collector - Fit Pantograph
+Motor,Completion,Electrical,Collector - Insulator Pantograph – 
+Motor,Completion,Electrical,Collector - Insulator Roof Through - 
+Motor,Completion,Electrical,Collector - Pantograph Operating Valve - Festo 
+Motor,Completion,Electrical,Collector - Pantograph Operating Valve Festo - 
+Motor,Completion,Electrical,Collector - Roof Bus-Bars – 
+Motor,Completion,Electrical,Compressor O/L 30Tr - 
+Motor,Completion,QC,Datapack Compressor
+Motor,Completion,QC,Datapack Exhauster
+Motor,Completion,QC,Datapack MA
+Motor,Completion,QC,Datapack MG
+Motor,Completion,QC,Datapack Pantograph
+Motor,Completion,QC,Datapack QSA
+Motor,Completion,QC,Datapack Traction Motor (1) 
+Motor,Completion,QC,Datapack Traction Motor (2) 
+Motor,Completion,QC,Datapack Traction Motor (3) 
+Motor,Completion,QC,Datapack Traction Motor (4) 
+Motor,Completion,QC,Datapack Wheel set (1) 
+Motor,Completion,QC,Datapack Wheel set (2) 
+Motor,Completion,QC,Datapack Wheel set (3) 
+Motor,Completion,QC,Datapack Wheel set (4) 
+Baggage Van,Completion,Coach Build,Doors -  Barrel Bolts
+Diner,Completion,Coach Build,Doors -  Barrel Bolts
+Kitchen,Completion,Coach Build,Doors -  Barrel Bolts
+KP-1 to Car Carrier,Completion,Coach Build,Doors -  Barrel Bolts
+Motor,Completion,Coach Build,Doors -  Cab Doors
+Diner,Completion,Coach Build,Doors -  Cupboard Locks
+Kitchen,Completion,Coach Build,Doors -  Cupboard Locks
+Diner,Completion,Coach Build,Doors -  Door Kick Plate
+Kitchen,Completion,Coach Build,Doors -  Door Kick Plate
+Sitter,Completion,Coach Build,Doors -  Door Kick Plate
+Sleeper,Completion,Coach Build,Doors -  Door Kick Plate
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors -  Door Kick Plate
+Diner,Completion,Coach Build,Doors -  Door Pull Handles: (Bow Type)
+Kitchen,Completion,Coach Build,Doors -  Door Pull Handles: (Bow Type)
+Diner,Completion,Coach Build,Doors -  Escutcheons
+Kitchen,Completion,Coach Build,Doors -  Escutcheons
+Motor,Completion,Coach Build,Doors -  Mini Gu mmie - Motor
+Motor,Completion,Electrical,Doors -  Outside Sliding Door Mechanisms
+Motor,Completion,Coach Build,Doors -  Sliding Door Drop Window
+Baggage Van,Completion,Coach Build,Doors -  Vestibule Exit Door (Including  Window & Rubber)
+Diner,Completion,Coach Build,Doors -  Vestibule Exit Door (Including  Window & Rubber)
+Kitchen,Completion,Coach Build,Doors -  Vestibule Exit Door (Including  Window & Rubber)
+Sitter,Completion,Coach Build,Doors -  Vestibule Exit Door (Including  Window & Rubber)
+Sleeper,Completion,Coach Build,Doors -  Vestibule Exit Door (Including  Window & Rubber)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors -  Vestibule Exit Door (Including  Window & Rubber)
+Motor,Completion,Coach Build,Doors - Barrel Bolt - Fit 
+Sleeper,Completion,Coach Build,Doors - Compartment Sliding Door Complete - Refurbish
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Compartment Sliding Door Complete - Refurbish
+Baggage Van,Completion,Coach Build,"Doors - Db, Broom & Compartment Doors - "
+Diner,Completion,Coach Build,"Doors - Db, Broom & Compartment Doors - "
+Kitchen,Completion,Coach Build,"Doors - Db, Broom & Compartment Doors - "
+Sitter,Completion,Coach Build,"Doors - Db, Broom & Compartment Doors - "
+Sleeper,Completion,Coach Build,"Doors - Db, Broom & Compartment Doors - "
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,"Doors - Db, Broom & Compartment Doors - "
+Baggage Van,Completion,Coach Build,Doors - Door Controllers -  - (Vestibule Door)
+Diner,Completion,Coach Build,Doors - Door Controllers -  - (Vestibule Door)
+Kitchen,Completion,Coach Build,Doors - Door Controllers -  - (Vestibule Door)
+Sitter,Completion,Coach Build,Doors - Door Controllers -  - (Vestibule Door)
+Sleeper,Completion,Coach Build,Doors - Door Controllers -  - (Vestibule Door)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Door Controllers -  - (Vestibule Door)
+Motor,Completion,Coach Build,Doors - End Door System  Fit
+Motor,Completion,Coach Build,Doors - Fit  Outside Sliding Door Leaves
+Sleeper,Completion,Coach Build,Doors - Fit  Shower Door - Internal
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit  Shower Door - Internal
+Baggage Van,Completion,Coach Build,Doors - Fit  Sliding Door 
+KP-1 to Car Carrier,Completion,Coach Build,Doors - Fit  Sliding Door 
+Power Car,Completion,Coach Build,Doors - Fit  Sliding Door 
+Baggage Van,Completion,Coach Build,Doors - Fit  Weather Strip
+Diner,Completion,Coach Build,Doors - Fit  Weather Strip
+Kitchen,Completion,Coach Build,Doors - Fit  Weather Strip
+KP-1 to Car Carrier,Completion,Coach Build,Doors - Fit  Weather Strip
+Sitter,Completion,Coach Build,Doors - Fit  Weather Strip
+Sleeper,Completion,Coach Build,Doors - Fit  Weather Strip
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit  Weather Strip
+Motor,Completion,Electrical,Doors - Fit Door Mechanisms
+Baggage Van,Completion,Coach Build,Doors - Fit Door Stops
+Diner,Completion,Coach Build,Doors - Fit Door Stops
+Kitchen,Completion,Coach Build,Doors - Fit Door Stops
+Motor,Completion,Coach Build,Doors - Fit Door Stops
+Sitter,Completion,Coach Build,Doors - Fit Door Stops
+Sleeper,Completion,Coach Build,Doors - Fit Door Stops
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit Door Stops
+Motor,Completion,Coach Build,Doors - Fit Doors
+Baggage Van,Completion,Coach Build,Doors - Fit Doors Hinged Interior 
+Diner,Completion,Coach Build,Doors - Fit Doors Hinged Interior 
+Kitchen,Completion,Coach Build,Doors - Fit Doors Hinged Interior 
+Sitter,Completion,Coach Build,Doors - Fit Doors Hinged Interior 
+Sleeper,Completion,Coach Build,Doors - Fit Doors Hinged Interior 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit Doors Hinged Interior 
+Baggage Van,Completion,Coach Build,Doors - Fit Doors Hinged Spring Loaded
+Diner,Completion,Coach Build,Doors - Fit Doors Hinged Spring Loaded
+Kitchen,Completion,Coach Build,Doors - Fit Doors Hinged Spring Loaded
+Sitter,Completion,Coach Build,Doors - Fit Doors Hinged Spring Loaded
+Sleeper,Completion,Coach Build,Doors - Fit Doors Hinged Spring Loaded
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit Doors Hinged Spring Loaded
+Motor,Completion,Electrical,Doors - Fit Filter Regulator Unit
+Baggage Van,Completion,Coach Build,Doors - Fit Lock Mortice
+Kitchen,Completion,Coach Build,Doors - Fit Lock Mortice
+Sitter,Completion,Coach Build,Doors - Fit Lock Mortice
+Sleeper,Completion,Coach Build,Doors - Fit Lock Mortice
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit Lock Mortice
+Baggage Van,Completion,Coach Build,"Doors - Fit Lock Toilet, Shower, Communication Door Comp."
+Sitter,Completion,Coach Build,"Doors - Fit Lock Toilet, Shower, Communication Door Comp."
+Sleeper,Completion,Coach Build,"Doors - Fit Lock Toilet, Shower, Communication Door Comp."
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,"Doors - Fit Lock Toilet, Shower, Communication Door Comp."
+Baggage Van,Completion,Coach Build,Doors - Fit Lock Vestibule Side Door Complete With Striking Plates
+Diner,Completion,Coach Build,Doors - Fit Lock Vestibule Side Door Complete With Striking Plates
+Kitchen,Completion,Coach Build,Doors - Fit Lock Vestibule Side Door Complete With Striking Plates
+Sitter,Completion,Coach Build,Doors - Fit Lock Vestibule Side Door Complete With Striking Plates
+Sleeper,Completion,Coach Build,Doors - Fit Lock Vestibule Side Door Complete With Striking Plates
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit Lock Vestibule Side Door Complete With Striking Plates
+Baggage Van,Completion,Coach Build,Doors - Fit Locks To Vestibule Doors
+Diner,Completion,Coach Build,Doors - Fit Locks To Vestibule Doors
+Kitchen,Completion,Coach Build,Doors - Fit Locks To Vestibule Doors
+Sitter,Completion,Coach Build,Doors - Fit Locks To Vestibule Doors
+Sleeper,Completion,Coach Build,Doors - Fit Locks To Vestibule Doors
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit Locks To Vestibule Doors
+Baggage Van,Completion,Coach Build,Doors - Fit Reclaimed Doors (Baggage Van)
+KP-1 to Car Carrier,Completion,Coach Build,Doors - Fit Reclaimed Doors (Baggage Van)
+Power Car,Completion,Coach Build,Doors - Fit Reclaimed Doors (Baggage Van)
+Motor,Completion,Coach Build,Doors - Fit Steps
+Baggage Van,Completion,Coach Build,Doors - Fit Toilet & Shower External Door
+Sitter,Completion,Coach Build,Doors - Fit Toilet & Shower External Door
+Sleeper,Completion,Coach Build,Doors - Fit Toilet & Shower External Door
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Fit Toilet & Shower External Door
+Baggage Van,Completion,Coach Build,Doors - Guard Door Window Modify To Glazing Rubber
+Motor,Completion,Coach Build,Doors - Hinged Doors - External - 
+Sitter,Completion,Coach Build,"Doors - Indicator Lock Toilet, Shower Door - "
+Sleeper,Completion,Coach Build,"Doors - Indicator Lock Toilet, Shower Door - "
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,"Doors - Indicator Lock Toilet, Shower Door - "
+Baggage Van,Completion,Coach Build,Doors - Lock Guard Door Complete
+Baggage Van,Completion,Coach Build,Doors - Lock Mortice End Door Complete - 
+Baggage Van,Completion,Coach Build,Doors - Locks (Specify which type and  where installed)
+Diner,Completion,Coach Build,Doors - Locks (Specify which type and  where installed)
+Kitchen,Completion,Coach Build,Doors - Locks (Specify which type and  where installed)
+Motor,Completion,Coach Build,Doors - Locks (Specify which type and  where installed)
+Sitter,Completion,Coach Build,Doors - Locks (Specify which type and  where installed)
+Sleeper,Completion,Coach Build,Doors - Locks (Specify which type and  where installed)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Locks (Specify which type and  where installed)
+Baggage Van,Completion,Coach Build,Doors - Mainline Intermediate Door LH;RH
+Diner,Completion,Coach Build,Doors - Mainline Intermediate Door LH;RH
+Kitchen,Completion,Coach Build,Doors - Mainline Intermediate Door LH;RH
+Sitter,Completion,Coach Build,Doors - Mainline Intermediate Door LH;RH
+Sitter,Completion,Coach Build,Doors - Mainline Sliding Door End LH;RH (Electronic Controlled)
+Sleeper,Completion,Coach Build,Doors - Mainline Sliding Door End LH;RH (Electronic Controlled)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Mainline Sliding Door End LH;RH (Electronic Controlled)
+Motor,Completion,Coach Build,Doors - Manufacture & Fit Full Canopy
+Motor,Completion,Coach Build,Doors - Outside Sliders
+KP-1 to Car Carrier,Completion,Coach Build,Doors - Roll Up Door
+Baggage Van,Completion,Coach Build,Doors - Sill Plate - To Fit End Door
+Diner,Completion,Coach Build,Doors - Sill Plate - To Fit End Door
+Kitchen,Completion,Coach Build,Doors - Sill Plate - To Fit End Door
+Motor,Completion,Coach Build,Doors - Sill Plate - To Fit End Door
+Sitter,Completion,Coach Build,Doors - Sill Plate - To Fit End Door
+Sleeper,Completion,Coach Build,Doors - Sill Plate - To Fit End Door
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors - Sill Plate - To Fit End Door
+Motor,Completion,Coach Build,Doors Outside Sliding Door Leaves
+Baggage Van,Completion,Coach Build,Doors Vestibule Exit Door (Including  Window & Rubber)
+Diner,Completion,Coach Build,Doors Vestibule Exit Door (Including  Window & Rubber)
+Kitchen,Completion,Coach Build,Doors Vestibule Exit Door (Including  Window & Rubber)
+Sitter,Completion,Coach Build,Doors Vestibule Exit Door (Including  Window & Rubber)
+Sleeper,Completion,Coach Build,Doors Vestibule Exit Door (Including  Window & Rubber)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Doors Vestibule Exit Door (Including  Window & Rubber)
+Motor,Completion,Electrical,"Electrical - Fit Led Light Saloon,Cab & Cubicle"
+Motor,Completion,Electrical,"Electrical Control - A, B Bus-Line Lighting 110V Dc Jumper Cable Assembly - "
+Motor,Completion,Electrical,Electrical Control - Battery & Battery Charger
+Motor,Completion,Electrical,"Electrical Control - Blower Fans, Indicator Panel, "
+Motor,Completion,Electrical,Electrical Control - Bulkhead Light Fitting. Add Ht Compartment Light
+Motor,Completion,Electrical,Electrical Control - Cab Light Fitting 
+Motor,Completion,Electrical,Electrical Control - Cab Light Fitting - 
+Motor,Completion,Electrical,Electrical Control - Coach Controller Install
+Motor,Completion,Electrical,Electrical Control - Compressor O/L 30Tr
+Motor,Completion,Electrical,"Electrical Control - Contactors Exhc, Cc, Exhwfc Ma/Gc, Type 15Ec, "
+Motor,Completion,Electrical,Electrical Control - Control Circuit Breakers S/P
+Motor,Completion,Electrical,Electrical Control - Control Cut-Out Switch
+Motor,Completion,Electrical,Electrical Control - Controller Master – 
+Motor,Completion,Electrical,Electrical Control - Digital Train Number Indicator – Fit 
+Motor,Completion,Electrical,"Electrical Control - Door/Bell Control Box, Fit "
+Motor,Completion,Electrical,Electrical Control - Du mmy Receptacle
+Motor,Completion,Electrical,Electrical Control - Electrical Battery/Control Systems & Equipment
+Motor,Completion,Electrical,Electrical Control - Exhauster O/L 30Tr
+Motor,Completion,Electrical,Electrical Control - Field Injection Transformer - 
+Motor,Completion,Electrical,Electrical Control - Fit Data Logger System
+Motor,Completion,Electrical,"Electrical Control - Fit Windscreen, Wiper Motor & Controller (Electric) "
+Motor,Completion,Electrical,Electrical Control - Fitment Of 10M Machinery Room Equipment
+Motor,Completion,Electrical,Electrical Control - Gen/Alt O/L Relay 30Tr
+Motor,Completion,Electrical,Electrical Control - Generator/Alternator Overload Relay 30Tr 
+Motor,Completion,Electrical,Electrical Control - Headlight Light Holder 
+Motor,Completion,Electrical,Electrical Control - Headlight Switch Dim Resistor
+Motor,Completion,Electrical,"Electrical Control - Headlight Switch, Fit  3 Posn. Rotary"
+Motor,Completion,Electrical,Electrical Control - Headlights 
+Motor,Completion,Electrical,Electrical Control - Install Shmc
+Motor,Completion,Electrical,Electrical Control - Instrument Lights Il 1-3
+Motor,Completion,Electrical,Electrical Control - Interlock Boxes
+Motor,Completion,Electrical,"Electrical Control - Jumper Cables Fixed, Plug, 10 Point, "
+Motor,Completion,Electrical,"Electrical Control - Jumper Cables Receptacle, 10 Point, "
+Motor,Completion,Electrical,Electrical Control - Knife Switches S/P & D/P
+Motor,Completion,Electrical,Electrical Control - Led Light (Red) Mg /Ma & Ls 
+Motor,Completion,Electrical,Electrical Control - Lighting Panel Mcb
+Motor,Completion,Electrical,"Electrical Control - Lighting Relay Resistor, "
+Motor,Completion,Electrical,Electrical Control - Low Voltage Resistor Panel
+Motor,Completion,Electrical,Electrical Control - Lt Connection Bar 
+Motor,Completion,Electrical,Electrical Control - Lt Resistor Panel Insulation Board - Change To Thiolite
+Motor,Completion,Electrical,Electrical Control - Lt Wiring 10M Standard - Install
+Motor,Completion,Electrical,Electrical Control - Main Lighting Switch Panel
+Motor,Completion,Electrical,Electrical Control - Meter A mmeter 
+Motor,Completion,Electrical,Electrical Control - Meter Line Volts 
+Motor,Completion,Electrical,Electrical Control - Meter Low Voltage 
+Motor,Completion,Electrical,Electrical Control - Omron Relay & Base - 
+Motor,Completion,Electrical,Electrical Control - Push Button Control Box - 
+Motor,Completion,Electrical,"Electrical Control - Push Button Control Box, "
+Motor,Completion,Electrical,Electrical Control - Rectifier Unit 10 Ra 
+Motor,Completion,Electrical,Electrical Control - Regulator Voltage Static - Imfuyo Fit
+Motor,Completion,Electrical,"Electrical Control - Regulator Voltage Static 20Rg, 24Rg (Ma) "
+Motor,Completion,Electrical,Electrical Control - Regulator Voltage Static For Mg. Fit  Imfuyo
+Motor,Completion,Electrical,Electrical Control - Relay Auxiliary No Current 15Br
+Motor,Completion,Electrical,Electrical Control - Relay Motor Alternator 18Er
+Motor,Completion,Electrical,Electrical Control - Relay Starter Ma & Time Delay 19Er
+Motor,Completion,Electrical,Electrical Control - Resistor For M/C Sparking 
+Motor,Completion,Electrical,Electrical Control - Side Lamp Led Test & Re-Fit
+Motor,Completion,Electrical,"Electrical Control - Side Lamp, "
+Motor,Completion,Electrical,Electrical Control - Speedometer 
+Motor,Completion,Electrical,Electrical Control - Switch Control Ma 15Cs
+Motor,Completion,Electrical,Electrical Control - Switch Isolating Aux 17Ks
+Motor,Completion,Electrical,Electrical Control - Switch Isolating Aux 17Ks - 
+Motor,Completion,Electrical,Electrical Control - Switch Limit 34N
+Motor,Completion,Electrical,Electrical Control - Tail Light -  Led Type
+Motor,Completion,Electrical,Electrical Control - Tail Light -  With Led Type
+Motor,Completion,Electrical,Electrical Control - Terminal Boards - Fit Wago Connectors
+Motor,Completion,Electrical,Electrical Control - Triple Set (0-150 Meter Low Voltage) 
+Motor,Completion,Electrical,Electrical Control - Triple Set (0-4000A Meter Line Volts) 
+Motor,Completion,Electrical,Electrical Control - Triple Set (0-800 A Meter Ampere) 
+Motor,Completion,Electrical,Electrical Control - Voltage Regulator Cut-Out Switch
+Motor,Completion,Coach Build,Emergency Equipment - Fire Protection/ Emergency Equipment
+Motor,Completion,Electrical,Emergency Equipment - Pantograph Hook Stick Housing
+Motor,Completion,Electrical,Exhauster O/L 30Tr - 
+Motor,Completion,Coach Build,Fit Doors Cab Doors
+Motor,Completion,Coach Build,Fit Doors End Door
+Baggage Van,Completion,Coach Build,Fit Doors Hinge Swing Loading Doors
+KP-1 to Car Carrier,Completion,Coach Build,Fit Doors Hinge Swing Loading Doors
+Power Car,Completion,Coach Build,Fit Doors Hinge Swing Loading Doors
+Baggage Van,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+Diner,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+Kitchen,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+KP-1 to Car Carrier,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+Motor,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+Power Car,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+Sitter,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+Sleeper,Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Testing & Commissioning,General - Assemble Coach Complete & Stationary Functional Test
+Motor,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions - Issue Roadworthy Certificate
+Baggage Van,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+Diner,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+Kitchen,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+KP-1 to Car Carrier,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+Power Car,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+Sitter,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+Sleeper,Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Testing & Commissioning,General - Test Coach Under Working Conditions & Road Certificate
+Motor,Completion,Electrical,Heating & Ventilation -  Air Ducting
+Kitchen,Completion,Coach Build,Heating & Ventilation -  Extractor Canopy In Kitchen
+Diner,Completion,Electrical,Heating & Ventilation - Air Conditiong Frame & Condenser - (Fit To Under Frame)
+Sitter,Completion,Electrical,Heating & Ventilation - Air Conditiong Frame & Condenser - (Fit To Under Frame)
+Sleeper,Completion,Electrical,Heating & Ventilation - Air Conditiong Frame & Condenser - (Fit To Under Frame)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Heating & Ventilation - Air Conditiong Frame & Condenser - (Fit To Under Frame)
+Diner,Completion,Electrical,Heating & Ventilation - Air Conditioning Installation Kit - 
+Sitter,Completion,Electrical,Heating & Ventilation - Air Conditioning Installation Kit - 
+Sleeper,Completion,Electrical,Heating & Ventilation - Air Conditioning Installation Kit - 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Electrical,Heating & Ventilation - Air Conditioning Installation Kit - 
+Diner,Completion,Structural,Heating & Ventilation - Air Conditioning Installation Kit - Brackets 
+Sitter,Completion,Structural,Heating & Ventilation - Air Conditioning Installation Kit - Brackets 
+Sleeper,Completion,Structural,Heating & Ventilation - Air Conditioning Installation Kit - Brackets 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Heating & Ventilation - Air Conditioning Installation Kit - Brackets 
+Diner,Completion,Coach Build,Heating & Ventilation - Air Conditioning Unit -  (Fit To Roof Interior)
+Sitter,Completion,Coach Build,Heating & Ventilation - Air Conditioning Unit -  (Fit To Roof Interior)
+Sleeper,Completion,Coach Build,Heating & Ventilation - Air Conditioning Unit -  (Fit To Roof Interior)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Heating & Ventilation - Air Conditioning Unit -  (Fit To Roof Interior)
+Motor,Completion,Electrical,Heating & Ventilation - Cab & Foot Heater - 
+Motor,Completion,Electrical,Heating & Ventilation - Conduit Heater 
+Motor,Completion,Electrical,Heating & Ventilation - Driver’S Swivel Type Ventilator Grill – (Aluminium) 
+Diner,Completion,Coach Build,Heating & Ventilation - Fit  Louvers In Corridor For Dining Car Bar Fridges
+Kitchen,Completion,Coach Build,Heating & Ventilation - Fit  Louvers In Corridor/Scullery For Kitchen Car Fridges
+Diner,Completion,Coach Build,Heating & Ventilation - Fit Fresh Air Kit In Dining Car
+Baggage Van,Completion,Coach Build,Heating & Ventilation - Fit Iceiling Ventilator Grill
+Diner,Completion,Coach Build,Heating & Ventilation - Fit Iceiling Ventilator Grill
+Kitchen,Completion,Coach Build,Heating & Ventilation - Fit Iceiling Ventilator Grill
+Power Car,Completion,Coach Build,Heating & Ventilation - Fit Iceiling Ventilator Grill
+Sitter,Completion,Coach Build,Heating & Ventilation - Fit Iceiling Ventilator Grill
+Sleeper,Completion,Coach Build,Heating & Ventilation - Fit Iceiling Ventilator Grill
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Heating & Ventilation - Fit Iceiling Ventilator Grill
+Motor,Completion,Electrical,Heating & Ventilation - Fit Saloon Ceiling Ventilator Grill
+Baggage Van,Completion,Coach Build,Heating & Ventilation - Fit Ventilator Grill Sleeve
+Diner,Completion,Coach Build,Heating & Ventilation - Fit Ventilator Grill Sleeve
+Kitchen,Completion,Coach Build,Heating & Ventilation - Fit Ventilator Grill Sleeve
+Motor,Completion,Electrical,Heating & Ventilation - Fit Ventilator Grill Sleeve
+Power Car,Completion,Coach Build,Heating & Ventilation - Fit Ventilator Grill Sleeve
+Sitter,Completion,Coach Build,Heating & Ventilation - Fit Ventilator Grill Sleeve
+Sleeper,Completion,Coach Build,Heating & Ventilation - Fit Ventilator Grill Sleeve
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Heating & Ventilation - Fit Ventilator Grill Sleeve
+Motor,Completion,Electrical,Heating & Ventilation - Foot Heater -  Elements
+Motor,Completion,Electrical,Heating & Ventilation - Heater – Fit  (10M)
+Motor,Completion,Electrical,Heating & Ventilation - Heater Element - 
+Motor,Completion,Electrical,Heating & Ventilation - Heater Insulators - 
+Motor,Completion,Electrical,Heating & Ventilation - Heater Receptacle (Single Point) 
+Motor,Completion,Electrical,Heating & Ventilation - Heating & Ventilation
+Diner,Completion,Testing & Commissioning,Heating & Ventilation - Inspect & Test Air Conditioning
+Sitter,Completion,Testing & Commissioning,Heating & Ventilation - Inspect & Test Air Conditioning
+Sleeper,Completion,Testing & Commissioning,Heating & Ventilation - Inspect & Test Air Conditioning
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Testing & Commissioning,Heating & Ventilation - Inspect & Test Air Conditioning
+Power Car,Completion,Coach Build,Heating & Ventilation - Receiver External
+Power Car,Completion,Coach Build,Heating & Ventilation - Vent Air Breather
+Motor,Completion,Electrical,HT Frame- Install
+Motor,Completion,Coach Build,Interior Trim -  Grab Poles
+Motor,Completion,Coach Build,Interior Trim -  Strap Hangers
+Motor,Completion,Coach Build,Interior Trim -  Vestibule Partition/Grab Pole Design
+Motor,Completion,Paint,Interior Trim - Decals  (Doors)
+Motor,Completion,Coach Build,Interior Trim - Driver’S Seat 
+Motor,Completion,Coach Build,Interior Trim - Driver’S Seat Repair
+Motor,Completion,Electrical,"Interior Trim - Install  Radio Box, Bracket & Antenna"
+Motor,Completion,Coach Build,Interior Trim - Interior Trim/Fittings
+Motor,Completion,Coach Build,Interior Trim - Motor Coach (2 - Door) Fitment Of 10M Coach Saloon Interior [Metro Plus]
+Motor,Completion,Coach Build,Interior Trim - Motor Coach (2 - Door) Fitment Of 10M Coach Saloon Interior [Metro]
+Motor,Completion,Coach Build,Interior Trim - Passenger Parcel Racks Fit 
+Motor,Completion,Coach Build,Interior Trim - Passenger Parcel Racks Refurbish
+Motor,Completion,Electrical,Interior Trim - Radio Bracket Remove
+Motor,Completion,Coach Build,Interior Trim - Seats & Backs Metro ( Type) Repair
+Motor,Completion,Coach Build,Interior Trim - Seats & Backs Metro Plus 
+Motor,Completion,Coach Build,Interior Trim - Seats Metro Plus Tear Proof Trim
+Motor,Completion,Coach Build,Interior Trim - Siren Bracket – Remove (Not Cape)
+Motor,Completion,Coach Build,Interior Trim - Strap Hanger & Grab Poles 
+Motor,Completion,Coach Build,Interior Trim - Sunvisor Driver’S - 
+Motor,Completion,Coach Build,Interior Trim - Sunvisor Driver'S - Refurbish
+Motor,Completion,Paint,Interior Trim - Warning Notices 
+Baggage Van,Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+Diner,Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+Kitchen,Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+KP-1 to Car Carrier,Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+Power Car,Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+Sitter,Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+Sleeper,Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,"Interior Trim/Fittings-  Aluminium Mouldings (Sides, Ends) & (Compartments, Corridors)"
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+Diner,Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+Kitchen,Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+KP-1 to Car Carrier,Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+Power Car,Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+Sitter,Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+Sleeper,Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings-  Aluminium Mouldings Roof (All Types)
+Diner,Completion,Coach Build,Interior Trim/Fittings-  Cabin Hook & Eye
+Kitchen,Completion,Coach Build,Interior Trim/Fittings-  Cabin Hook & Eye
+KP-1 to Car Carrier,Completion,Coach Build,Interior Trim/Fittings-  Chocks
+Diner,Completion,Coach Build,Interior Trim/Fittings-  Coat Hooks
+Kitchen,Completion,Coach Build,Interior Trim/Fittings-  Coat Hooks
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings - Fit Toilet Floor Pan - 
+Sitter,Completion,Coach Build,Interior Trim/Fittings - Fit Toilet Floor Pan - 
+Sleeper,Completion,Coach Build,Interior Trim/Fittings - Fit Toilet Floor Pan - 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings - Fit Toilet Floor Pan - 
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings-  Floors Complete (Including Marley & Flashing)
+Diner,Completion,Coach Build,Interior Trim/Fittings-  Floors Complete (Including Marley & Flashing)
+Kitchen,Completion,Coach Build,Interior Trim/Fittings-  Floors Complete (Including Marley & Flashing)
+Sitter,Completion,Coach Build,Interior Trim/Fittings-  Floors Complete (Including Marley & Flashing)
+Sleeper,Completion,Coach Build,Interior Trim/Fittings-  Floors Complete (Including Marley & Flashing)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings-  Floors Complete (Including Marley & Flashing)
+Diner,Completion,Coach Build,Interior Trim/Fittings-  Hasp & Staple
+Kitchen,Completion,Coach Build,Interior Trim/Fittings-  Hasp & Staple
+Diner,Completion,Coach Build,Interior Trim/Fittings-  Sst Work Top & Basin In Bar Area
+Kitchen,Completion,Coach Build,"Interior Trim/Fittings-  Sst Work Top & Basin,Drawers,Racks,Covers & Bacsplashes In Kitchen"
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+Diner,Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+KP-1 to Car Carrier,Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+Power Car,Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Assemble Fire Extinguisher Station (Strap & Partition)
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Baggage Compartment Equipment
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+Diner,Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+KP-1 to Car Carrier,Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+Power Car,Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Body Side & Ceiling Insulation
+Baggage Van,Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+Diner,Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+Kitchen,Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+KP-1 to Car Carrier,Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+Power Car,Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+Sitter,Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+Sleeper,Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Interior Trim/Fittings- Bogie Pin Cover Plate
+Diner,Completion,Coach Build,Interior Trim/Fittings- Carpeting Complete
+KP-1 to Car Carrier,Completion,Coach Build,Interior Trim/Fittings- Carpeting Complete
+Kitchen,Completion,Structural,Interior Trim/Fittings- Convert Gas Comp. & Walk In Fridge To Freezer Compartment
+Baggage Van,Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+Diner,Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+Kitchen,Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+KP-1 to Car Carrier,Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+Power Car,Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+Sitter,Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+Sleeper,Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Interior Trim/Fittings- Decal  (All Interior)
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Fit Compartment Equipment
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Compartment Equipment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Compartment Equipment
+Diner,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Bedding Equipment
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Bedding Equipment
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Bedding Equipment
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Bedding Equipment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Bedding Equipment
+Diner,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Electrical Equipment
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Electrical Equipment
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Electrical Equipment
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Electrical Equipment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Electrical Equipment
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Fire Extinguisher Equipment
+Diner,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Fire Extinguisher Equipment
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Fire Extinguisher Equipment
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Fire Extinguisher Equipment
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Fire Extinguisher Equipment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Cupboard Fire Extinguisher Equipment
+Diner,Completion,Coach Build,Interior Trim/Fittings- Fit Curtains Complete With Rails
+KP-1 to Car Carrier,Completion,Coach Build,Interior Trim/Fittings- Fit Curtains Complete With Rails
+Diner,Completion,Coach Build,"Interior Trim/Fittings- Fit Dining Car Bar Equipment (Fridges, Ice Maker)"
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Fit Drain Casting
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Drain Casting
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Drain Casting
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Drain Casting
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Drain Casting
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Ceilings & Coves Complete
+Diner,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Ceilings & Coves Complete
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Ceilings & Coves Complete
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Ceilings & Coves Complete
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Ceilings & Coves Complete
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Formica Ceilings & Coves Complete
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Comparments & Corridor - 
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Comparments & Corridor - 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Formica Comparments & Corridor - 
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Side & End Panels Complete
+Diner,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Side & End Panels Complete
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Side & End Panels Complete
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Side & End Panels Complete
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Side & End Panels Complete
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Formica Side & End Panels Complete
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Toilet Cubicle Complete
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Toilet Cubicle Complete
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Formica Toilet Cubicle Complete
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Formica Toilet Cubicle Complete
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Formica/Panelling Shower Cubicle Complete
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Formica/Panelling Shower Cubicle Complete
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Interlock Duck Board Grating
+Kitchen,Completion,Coach Build,"Interior Trim/Fittings- Fit Kitchen Catering Equipment (3 X Fridges, 3 X Freezer, 1 X Oven, 1 X Hydro Boil, 1 X Griller)"
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Fit Passenger Parcel Racks
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Fit Passenger Parcel Racks
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Fit Passenger Parcel Racks
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Fit Sst Floor In Kitchen / Scullery Areas
+Sitter,Completion,Coach Build,Interior Trim/Fittings -Fit Toilet Equipment
+Sleeper,Completion,Coach Build,Interior Trim/Fittings -Fit Toilet Equipment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings -Fit Toilet Equipment
+Power Car,Completion,Electrical,"Interior Trim/Fittings- Generator Diesel - Install Complete (Including Alternator, Base Frame, Exhaust & Cowling)"
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Guards Compartment Equipment
+Diner,Completion,Coach Build,Interior Trim/Fittings- Install Corridor Equipment
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Install Corridor Equipment
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Install Corridor Equipment
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Install Corridor Equipment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Install Corridor Equipment
+Power Car,Completion,Coach Build,Interior Trim/Fittings- Louvre Set Stainless Steel
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Modify Toilet Compartment (Wood) To Fit  Toilet System
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Modify Toilet Compartment (Wood) To Fit  Toilet System
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Modify Toilet Compartment (Wood) To Fit  Toilet System
+Baggage Van,Completion,Paint,Interior Trim/Fittings- Paint Interior Complete
+KP-1 to Car Carrier,Completion,Paint,Interior Trim/Fittings- Paint Interior Complete
+Power Car,Completion,Paint,Interior Trim/Fittings- Paint Interior Complete
+Power Car,Completion,Coach Build,"Interior Trim/Fittings- Plate, Perforated, Aluminum (Intrior Clading)"
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Rebuild Shower Compartment (Wood & Plastic Cubicle)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Rebuild Shower Compartment (Wood & Plastic Cubicle)
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Rebuild Sleeper Compartment (Wood)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Rebuild Sleeper Compartment (Wood)
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Rebuild Toilet Compartment (Wood)
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Rebuild Toilet Compartment (Wood)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Rebuild Toilet Compartment (Wood)
+Diner,Completion,Coach Build,Interior Trim/Fittings- Reclad Dining Car Bar Ceilings & Sides With Sst
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Reclad Kitchen Ceilings & Sides With Sst
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Seats & Backs -  Type Sitter
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Shower & Dressing Area Floor Pan - 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Shower & Dressing Area Floor Pan - 
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Shower & Dressing Room Equipment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Shower & Dressing Room Equipment
+Power Car,Completion,Coach Build,Interior Trim/Fittings- Sonic Liner For Sound Attinuation
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Tables In Compartments - Refurbish
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Tables In Compartments - Refurbish
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Tables In Guards Compartment - Refurbish
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Top Bunks - Refurbish
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Top Bunks - Refurbish
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Tread Plates
+Diner,Completion,Coach Build,Interior Trim/Fittings- Tread Plates
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Tread Plates
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Tread Plates
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Tread Plates
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Tread Plates
+Diner,Completion,Coach Build,Interior Trim/Fittings- Trim Dining Car Seats
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Trim Seats Guards Van
+Baggage Van,Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+Diner,Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+Kitchen,Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+KP-1 to Car Carrier,Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+Power Car,Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+Sitter,Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+Sleeper,Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Interior Trim/Fittings- Warning Notices (All Interior)
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Water Drinking Dispencer - Refurb. (Alcove)
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Water Drinking Dispencer - Refurb. (Alcove)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Water Drinking Dispencer - Refurb. (Alcove)
+Kitchen,Completion,Coach Build,Interior Trim/Fittings- Window Shroud & Louvre - 
+Sitter,Completion,Coach Build,Interior Trim/Fittings- Window Shroud & Louvre - 
+Sleeper,Completion,Coach Build,Interior Trim/Fittings- Window Shroud & Louvre - 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Interior Trim/Fittings- Window Shroud & Louvre - 
+Baggage Van,Completion,Coach Build,Interior Trim/Fittings- Wooden Floor Slats (Van)
+Motor,Completion,QC,Motor Alternator - Install
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - 3-Way Cock
+Diner,Completion,Structural,Plumbing (Water & Toilets) - 3-Way Cock
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - 3-Way Cock
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - 3-Way Cock
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - 3-Way Cock
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - 3-Way Cock
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Filler Cap
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Filler Cap
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Filler Cap
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Filler Cap
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Filler Cap
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Filler Cap
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Toilet System
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Toilet System
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Toilet System
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Toilet System
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Water System
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Water System
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Water System
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Water System
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Water System
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Final Inspection & Test Water System
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Hanger Brackets & Stays For Tanks - 
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Hanger Brackets & Stays For Tanks - 
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Hanger Brackets & Stays For Tanks - 
+Power Car,Completion,Structural,Plumbing (Water & Toilets) - Hanger Brackets & Stays For Tanks - 
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Hanger Brackets & Stays For Tanks - 
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Hanger Brackets & Stays For Tanks - 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Hanger Brackets & Stays For Tanks - 
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Install Geyser
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Install Geyser
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Install Geyser
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Install Water Pressurised Tank 
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Install Water Pressurised Tank 
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Install Water Pressurised Tank 
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Install Water Pressurised Tank 
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Install Water Pressurised Tank 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Install Water Pressurised Tank 
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Install Water Purification System
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Install Water Purification System
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Install Water Purification System
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Install Water Purification System
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Install Water Purification System
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Install Water Tank
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Install Water Tank
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Install Water Tank
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Install Water Tank
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Install Water Tank
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Install Water Tank
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Mixer
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Mixer
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Pressurised Tank
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Pressurised Tank
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Pressurised Tank
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Pressurised Tank
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Pressurised Tank
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Pressurised Tank
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Shower Rose
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Shower Rose
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Stop Cocks
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Stop Cocks
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Stop Cocks
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Stop Cocks
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Stop Cocks
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Stop Cocks
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Tap Metal Basin Pillar 15  mm S/S
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Tap Metal Basin Pillar 15 mm S/S
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Tap Metal Basin Pillar 15 mm S/S
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Tap Metal Basin Pillar 15 mm S/S
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Taps Push Button- 
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Taps Push Button- 
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Taps Push Button- 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Taps Push Button- 
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Vacuum Toilet Systems (Complete)
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Vacuum Toilet Systems (Complete)
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Vacuum Toilet Systems (Complete)
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Vacuum Toilet Systems (Complete)
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Vacuum Toilet Systems (Complete)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Vacuum Toilet Systems (Complete)
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Wash Basin Tops & Bowls
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Wash Basin Tops & Bowls
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Wash Basin Tops & Bowls
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Wash Basin Tops & Bowls
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Waste Tank
+Baggage Van,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank 
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank 
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank 
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank 
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Waste Tank 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Waste Tank 
+Diner,Completion,Structural,Plumbing (Water & Toilets) - Water Pipe Lagging (Only On Copper Pipes)
+Kitchen,Completion,Structural,Plumbing (Water & Toilets) - Water Pipe Lagging (Only On Copper Pipes)
+Sitter,Completion,Structural,Plumbing (Water & Toilets) - Water Pipe Lagging (Only On Copper Pipes)
+Sleeper,Completion,Structural,Plumbing (Water & Toilets) - Water Pipe Lagging (Only On Copper Pipes)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Plumbing (Water & Toilets) - Water Pipe Lagging (Only On Copper Pipes)
+Baggage Van,Completion,Structural,"Plumbing (Water & Toilets) - Water Piping (To All Tanks, Filtration System, Wash Basin, Toilets, Drinking Stations etc.)"
+Diner,Completion,Structural,"Plumbing (Water & Toilets) - Water Piping (To All Tanks, Filtration System, Wash Basin, Toilets, Drinking Stations etc.)"
+Kitchen,Completion,Structural,"Plumbing (Water & Toilets) - Water Piping (To All Tanks, Filtration System, Wash Basin, Toilets, Drinking Stations etc.)"
+Sitter,Completion,Structural,"Plumbing (Water & Toilets) - Water Piping (To All Tanks, Filtration System, Wash Basin, Toilets, Drinking Stations etc.)"
+Sleeper,Completion,Structural,"Plumbing (Water & Toilets) - Water Piping (To All Tanks, Filtration System, Wash Basin, Toilets, Drinking Stations etc.)"
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,"Plumbing (Water & Toilets) - Water Piping (To All Tanks, Filtration System, Wash Basin, Toilets, Drinking Stations etc.)"
+Motor,Completion,BUP,Rotating Machines - Machines (Fits On Bogies)
+Motor,Completion,BUP,Rotating Machines - Motor Nose Suspension - 
+Motor,Completion,BUP,Rotating Machines - Traction Motor Suspension Units
+Baggage Van,Completion,QC,Sign Off Interior Snags
+Diner,Completion,QC,Sign Off Interior Snags
+Kitchen,Completion,QC,Sign Off Interior Snags
+KP-1 to Car Carrier,Completion,QC,Sign Off Interior Snags
+Motor,Completion,QC,Sign Off Interior Snags
+Power Car,Completion,QC,Sign Off Interior Snags
+Sitter,Completion,QC,Sign Off Interior Snags
+Sleeper,Completion,QC,Sign Off Interior Snags
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,QC,Sign Off Interior Snags
+Trailer,Completion,QC,Sign Off Interior Snags
+Baggage Van,Stripping,QC,Sign Off Interior Snags
+Diner,Stripping,QC,Sign Off Interior Snags
+Kitchen,Stripping,QC,Sign Off Interior Snags
+KP-1 to Car Carrier,Stripping,QC,Sign Off Interior Snags
+Motor,Stripping,QC,Sign Off Interior Snags
+Power Car,Stripping,QC,Sign Off Interior Snags
+Sitter,Stripping,QC,Sign Off Interior Snags
+Sleeper,Stripping,QC,Sign Off Interior Snags
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,QC,Sign Off Interior Snags
+Trailer,Stripping,QC,Sign Off Interior Snags
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Corridor & Cross Partitioning-
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Paint,Staff Book - Off Coach Specific - Display Fridge (Stay Cold)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Dvd Player 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Fit  Desk & Chair In Study Room
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Hydroboil 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Kitchen Layout- Manufacture & Fit
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Lounge & Dining Layout- Manufacture & Fit
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Manufacture & Fit Clothing Cabinets In Compartment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Microwave Oven
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Structural,Staff Book - Off Coach Specific - Safety Gates
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific - Tv 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,Coach Build,Staff Book - Off Coach Specific -Doors Manufacture  ( Lounge )
+Baggage Van,Stripping,BUP,Strip Bogie
+Kitchen,Stripping,BUP,Strip Bogie
+Motor,Stripping,BUP,Strip Bogie
+Power Car,Stripping,BUP,Strip Bogie
+Sitter,Stripping,BUP,Strip Bogie
+Sleeper,Stripping,BUP,Strip Bogie
+Trailer,Stripping,BUP,Strip Bogie
+Baggage Van,Stripping,BUP,Strip Coach Sole Bar
+Diner,Stripping,BUP,Strip Coach Sole Bar
+Kitchen,Stripping,BUP,Strip Coach Sole Bar
+KP-1 to Car Carrier,Stripping,BUP,Strip Coach Sole Bar
+Motor,Stripping,BUP,Strip Coach Sole Bar
+Power Car,Stripping,BUP,Strip Coach Sole Bar
+Sitter,Stripping,BUP,Strip Coach Sole Bar
+Sleeper,Stripping,BUP,Strip Coach Sole Bar
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,BUP,Strip Coach Sole Bar
+Trailer,Stripping,BUP,Strip Coach Sole Bar
+Baggage Van,Stripping,Coach Build,Strip Exterior
+Diner,Stripping,Coach Build,Strip Exterior
+Kitchen,Stripping,Coach Build,Strip Exterior
+KP-1 to Car Carrier,Stripping,Coach Build,Strip Exterior
+Motor,Stripping,Coach Build,Strip Exterior
+Power Car,Stripping,Coach Build,Strip Exterior
+Sitter,Stripping,Coach Build,Strip Exterior
+Sleeper,Stripping,Coach Build,Strip Exterior
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,Coach Build,Strip Exterior
+Trailer,Stripping,Coach Build,Strip Exterior
+Baggage Van,Stripping,Electrical,Strip Exterior Electrical Components
+Baggage Van,Stripping,Coach Build,Strip Interior
+Diner,Stripping,Coach Build,Strip Interior
+Kitchen,Stripping,Coach Build,Strip Interior
+KP-1 to Car Carrier,Stripping,Coach Build,Strip Interior
+Motor,Stripping,Coach Build,Strip Interior
+Power Car,Stripping,Coach Build,Strip Interior
+Sitter,Stripping,Coach Build,Strip Interior
+Sleeper,Stripping,Coach Build,Strip Interior
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,Coach Build,Strip Interior
+Trailer,Stripping,Coach Build,Strip Interior
+Baggage Van,Stripping,Electrical,Strip Interior Electrical Components
+Diner,Stripping,Electrical,Strip Interior Electrical Components
+Kitchen,Stripping,Electrical,Strip Interior Electrical Components
+KP-1 to Car Carrier,Stripping,Electrical,Strip Interior Electrical Components
+Motor,Stripping,Electrical,Strip Interior Electrical Components
+Power Car,Stripping,Electrical,Strip Interior Electrical Components
+Sitter,Stripping,Electrical,Strip Interior Electrical Components
+Sleeper,Stripping,Electrical,Strip Interior Electrical Components
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,Electrical,Strip Interior Electrical Components
+Trailer,Stripping,Electrical,Strip Interior Electrical Components
+Baggage Van,Stripping,BUP,Strip Loose Components
+Diner,Stripping,BUP,Strip Loose Components
+Kitchen,Stripping,BUP,Strip Loose Components
+KP-1 to Car Carrier,Stripping,BUP,Strip Loose Components
+Motor,Stripping,BUP,Strip Loose Components
+Power Car,Stripping,BUP,Strip Loose Components
+Sitter,Stripping,BUP,Strip Loose Components
+Sleeper,Stripping,BUP,Strip Loose Components
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,BUP,Strip Loose Components
+Trailer,Stripping,BUP,Strip Loose Components
+Baggage Van,Stripping,Coach Build,Strip Roof
+Diner,Stripping,Coach Build,Strip Roof
+Kitchen,Stripping,Coach Build,Strip Roof
+KP-1 to Car Carrier,Stripping,Coach Build,Strip Roof
+Motor,Stripping,Coach Build,Strip Roof
+Power Car,Stripping,Coach Build,Strip Roof
+Sitter,Stripping,Coach Build,Strip Roof
+Sleeper,Stripping,Coach Build,Strip Roof
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,Coach Build,Strip Roof
+Trailer,Stripping,Coach Build,Strip Roof
+Baggage Van,Stripping,BUP,Strip Underframe
+Diner,Stripping,BUP,Strip Underframe
+Kitchen,Stripping,BUP,Strip Underframe
+KP-1 to Car Carrier,Stripping,BUP,Strip Underframe
+Motor,Stripping,BUP,Strip Underframe
+Power Car,Stripping,BUP,Strip Underframe
+Sitter,Stripping,BUP,Strip Underframe
+Sleeper,Stripping,BUP,Strip Underframe
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,BUP,Strip Underframe
+Trailer,Stripping,BUP,Strip Underframe
+Baggage Van,Stripping,Electrical,Strip Wiring
+Diner,Stripping,Electrical,Strip Wiring
+Kitchen,Stripping,Electrical,Strip Wiring
+KP-1 to Car Carrier,Stripping,Electrical,Strip Wiring
+Motor,Stripping,Electrical,Strip Wiring
+Power Car,Stripping,Electrical,Strip Wiring
+Sitter,Stripping,Electrical,Strip Wiring
+Sleeper,Stripping,Electrical,Strip Wiring
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Stripping,Electrical,Strip Wiring
+Trailer,Stripping,Electrical,Strip Wiring
+Motor,Completion,BUP,Transmission -  Gear
+Motor,Completion,BUP,Transmission -  Pinion
+Motor,Completion,BUP,Transmission - Gear Cases 
+Motor,Completion,BUP,Transmission - Gear Wheels & Pinions Examine
+Motor,Completion,BUP,Transmission - Transmissions
+Motor,Completion,BUP,Underframe -  2 X Coupler Shank Bushes
+Motor,Completion,BUP,Underframe -  Carrier Plate
+Motor,Completion,BUP,Underframe -  Coupler Knuckle
+Motor,Completion,BUP,Underframe -  Coupler Knuckle Pin
+Motor,Completion,BUP,Underframe -  Coupler Lock
+Motor,Completion,BUP,Underframe -  Coupler Lock Lifter
+Motor,Completion,BUP,Underframe -  Coupler Lock Lifter Pin
+Motor,Completion,BUP,Underframe -  Coupler Operating Lever
+Motor,Completion,BUP,Underframe -  Coupler Wearing Plate
+Motor,Completion,BUP,Underframe -  Rear Yoke
+Motor,Completion,BUP,Underframe -  Side Lever Pin
+Motor,Completion,BUP,Underframe -  Slide Plungers
+Motor,Completion,BUP,Underframe - Coupler  Complete
+Motor,Completion,BUP,Underframe - Cow Catcher 
+Motor,Completion,BUP,Underframe - Draw Gear System  Complete
+Motor,Completion,BUP,Underframe - Emergency Coupling Bracket Examine
+Motor,Completion,BUP,Underframe - Guide Coupler 
+Motor,Completion,BUP,"Underframe - Guide Vestibule Buffer Rod, Inner & Outer - "
+Motor,Completion,BUP,Underframe - Pull Rod Wheel
+Motor,Completion,BUP,Underframe - Side Plunger Guide Bracket & Spring
+Motor,Completion,BUP,Underframe - Stops Front & Rear 
+Motor,Completion,BUP,Underframe - Support Brackets & Safety Loops 
+Motor,Completion,BUP,Underframe - Underframe Equipment
+Motor,Completion,BUP,Underframe - Underframe Examine
+Motor,Completion,BUP,Underframe - Vestibule Buffer - Refurbish
+Motor,Completion,BUP,Underframe - Vestibule Buffer Plate - 
+Motor,Completion,BUP,Underframe - Vestibule Buffer Rod - 
+Motor,Completion,BUP,Underframe - Vestibule Buffer Rod - Refurbish
+Motor,Completion,BUP,Underframe - Yoke & Coupler Pin 
+Motor,Completion,BUP,Underframe - Yoke Follower Block 
+Motor,Completion,BUP,Underframe - Yoke Front 
+Motor,Completion,BUP,Underframe - Yoke Rear 
+Motor,Completion,BUP,Underframe - Yoke Rubber (Springs) - 
+Baggage Van,Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+Diner,Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+Kitchen,Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+Power Car,Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+Sitter,Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+Sleeper,Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  2 X Coupler Shank Bush
+Baggage Van,Completion,BUP,Underframe Equipment-  Carrier Plate
+Diner,Completion,BUP,Underframe Equipment-  Carrier Plate
+Kitchen,Completion,BUP,Underframe Equipment-  Carrier Plate
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Carrier Plate
+Power Car,Completion,BUP,Underframe Equipment-  Carrier Plate
+Sitter,Completion,BUP,Underframe Equipment-  Carrier Plate
+Sleeper,Completion,BUP,Underframe Equipment-  Carrier Plate
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Carrier Plate
+Baggage Van,Completion,BUP,Underframe Equipment-  Coupler Knuckle
+Diner,Completion,BUP,Underframe Equipment-  Coupler Knuckle
+Kitchen,Completion,BUP,Underframe Equipment-  Coupler Knuckle
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Coupler Knuckle
+Power Car,Completion,BUP,Underframe Equipment-  Coupler Knuckle
+Sitter,Completion,BUP,Underframe Equipment-  Coupler Knuckle
+Sleeper,Completion,BUP,Underframe Equipment-  Coupler Knuckle
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Coupler Knuckle
+Baggage Van,Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+Diner,Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+Kitchen,Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+Power Car,Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+Sitter,Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+Sleeper,Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Coupler Knuckle Pin
+Baggage Van,Completion,BUP,Underframe Equipment-  Coupler Lock
+Diner,Completion,BUP,Underframe Equipment-  Coupler Lock
+Kitchen,Completion,BUP,Underframe Equipment-  Coupler Lock
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Coupler Lock
+Power Car,Completion,BUP,Underframe Equipment-  Coupler Lock
+Sitter,Completion,BUP,Underframe Equipment-  Coupler Lock
+Sleeper,Completion,BUP,Underframe Equipment-  Coupler Lock
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Coupler Lock
+Baggage Van,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+Diner,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+Kitchen,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+Power Car,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+Sitter,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+Sleeper,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Coupler Lock Lifter
+Baggage Van,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+Diner,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+Kitchen,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+Power Car,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+Sitter,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+Sleeper,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Lever
+Baggage Van,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+Diner,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+Kitchen,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+Power Car,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+Sitter,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+Sleeper,Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Coupler Lock Lifter Pin
+Baggage Van,Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+Diner,Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+Kitchen,Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+Power Car,Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+Sitter,Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+Sleeper,Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Coupler Wearing Plate
+Baggage Van,Completion,BUP,Underframe Equipment-  Rear Yoke
+Diner,Completion,BUP,Underframe Equipment-  Rear Yoke
+Kitchen,Completion,BUP,Underframe Equipment-  Rear Yoke
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Rear Yoke
+Power Car,Completion,BUP,Underframe Equipment-  Rear Yoke
+Sitter,Completion,BUP,Underframe Equipment-  Rear Yoke
+Sleeper,Completion,BUP,Underframe Equipment-  Rear Yoke
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Rear Yoke
+Baggage Van,Completion,BUP,Underframe Equipment-  Side Lever Pin
+Diner,Completion,BUP,Underframe Equipment-  Side Lever Pin
+Kitchen,Completion,BUP,Underframe Equipment-  Side Lever Pin
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Side Lever Pin
+Power Car,Completion,BUP,Underframe Equipment-  Side Lever Pin
+Sitter,Completion,BUP,Underframe Equipment-  Side Lever Pin
+Sleeper,Completion,BUP,Underframe Equipment-  Side Lever Pin
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Side Lever Pin
+Baggage Van,Completion,BUP,Underframe Equipment-  Side Plungers
+Diner,Completion,BUP,Underframe Equipment-  Side Plungers
+Kitchen,Completion,BUP,Underframe Equipment-  Side Plungers
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-  Side Plungers
+Power Car,Completion,BUP,Underframe Equipment-  Side Plungers
+Sitter,Completion,BUP,Underframe Equipment-  Side Plungers
+Sleeper,Completion,BUP,Underframe Equipment-  Side Plungers
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-  Side Plungers
+Baggage Van,Completion,BUP,Underframe Equipment- Coupler  Complete
+Diner,Completion,BUP,Underframe Equipment- Coupler  Complete
+Kitchen,Completion,BUP,Underframe Equipment- Coupler  Complete
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Coupler  Complete
+Power Car,Completion,BUP,Underframe Equipment- Coupler  Complete
+Sitter,Completion,BUP,Underframe Equipment- Coupler  Complete
+Sleeper,Completion,BUP,Underframe Equipment- Coupler  Complete
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Coupler  Complete
+Baggage Van,Completion,BUP,Underframe Equipment- Coupler Release Wire
+Diner,Completion,BUP,Underframe Equipment- Coupler Release Wire
+Kitchen,Completion,BUP,Underframe Equipment- Coupler Release Wire
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Coupler Release Wire
+Power Car,Completion,BUP,Underframe Equipment- Coupler Release Wire
+Sitter,Completion,BUP,Underframe Equipment- Coupler Release Wire
+Sleeper,Completion,BUP,Underframe Equipment- Coupler Release Wire
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Coupler Release Wire
+Power Car,Completion,BUP,Underframe Equipment- Diesel Fuel Tanks Including Additional Bracketry
+Baggage Van,Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+Diner,Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+Kitchen,Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+Power Car,Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+Sitter,Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+Sleeper,Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Draw Gear System  Complete
+Baggage Van,Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+Diner,Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+Kitchen,Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+Power Car,Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+Sitter,Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+Sleeper,Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Fit Vestibule Buffer Rod 
+Baggage Van,Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+Diner,Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+Kitchen,Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+Power Car,Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+Sitter,Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+Sleeper,Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Fit Yoke & Coupler Pin 
+Baggage Van,Completion,BUP,Underframe Equipment- Fit Yoke Rubber
+Diner,Completion,BUP,Underframe Equipment- Fit Yoke Rubber (Springs) 
+Kitchen,Completion,BUP,Underframe Equipment- Fit Yoke Rubber (Springs) 
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Fit Yoke Rubber (Springs) 
+Power Car,Completion,BUP,Underframe Equipment- Fit Yoke Rubber (Springs) 
+Sitter,Completion,BUP,Underframe Equipment- Fit Yoke Rubber (Springs) 
+Sleeper,Completion,BUP,Underframe Equipment- Fit Yoke Rubber (Springs) 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Fit Yoke Rubber (Springs) 
+Baggage Van,Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+Diner,Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+Kitchen,Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+Power Car,Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+Sitter,Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+Sleeper,Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Fit Yoke Rubber Follower Block 
+Power Car,Completion,BUP,Underframe Equipment- Fuel Line Kit
+Baggage Van,Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+Diner,Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+Kitchen,Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+Power Car,Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+Sitter,Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+Sleeper,Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Guide Vestibule Buffer Rod Inner & Outer 
+Baggage Van,Completion,BUP,Underframe Equipment- Pull Rod Wheel
+Diner,Completion,BUP,Underframe Equipment- Pull Rod Wheel
+Kitchen,Completion,BUP,Underframe Equipment- Pull Rod Wheel
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Pull Rod Wheel
+Power Car,Completion,BUP,Underframe Equipment- Pull Rod Wheel
+Sitter,Completion,BUP,Underframe Equipment- Pull Rod Wheel
+Sleeper,Completion,BUP,Underframe Equipment- Pull Rod Wheel
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Pull Rod Wheel
+Diner,Completion,BUP,Underframe Equipment- Repair Drawbar
+Kitchen,Completion,BUP,Underframe Equipment- Repair Drawbar
+Baggage Van,Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+Diner,Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+Kitchen,Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+Power Car,Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+Sitter,Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+Sleeper,Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Side Plunger Guide Bracket & Spring
+Baggage Van,Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+Diner,Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+Kitchen,Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+Power Car,Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+Sitter,Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+Sleeper,Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment- Support Brackets & Safety' Loops 
+Baggage Van,Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+Diner,Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+Kitchen,Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+KP-1 to Car Carrier,Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+Power Car,Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+Sitter,Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+Sleeper,Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Underframe Equipment-Fit Vestibule Buffer 
+Motor,Completion,BUP,Underframe Underframe - Motor
+Motor,Completion,BUP,"Underframe Underframe Cradles, Cabinets & Grid Covers"
+Baggage Van,Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+Diner,Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+Kitchen,Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+KP-1 to Car Carrier,Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+Power Car,Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+Sitter,Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+Sleeper,Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum -  Fit Stand Pipes (Gooseneck)
+KP-1 to Car Carrier,Completion,BUP,Vacuum -  Fit Vacuum Gauge. Van
+Baggage Van,Completion,BUP,Vacuum - Brake Rigging Bogie 
+Diner,Completion,BUP,Vacuum - Brake Rigging Bogie 
+Kitchen,Completion,BUP,Vacuum - Brake Rigging Bogie 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Brake Rigging Bogie 
+Power Car,Completion,BUP,Vacuum - Brake Rigging Bogie 
+Sitter,Completion,BUP,Vacuum - Brake Rigging Bogie 
+Sleeper,Completion,BUP,Vacuum - Brake Rigging Bogie 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Brake Rigging Bogie 
+Baggage Van,Completion,BUP,Vacuum - Fit Brake Blocks 
+Diner,Completion,BUP,Vacuum - Fit Brake Blocks 
+Kitchen,Completion,BUP,Vacuum - Fit Brake Blocks 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Brake Blocks 
+Power Car,Completion,BUP,Vacuum - Fit Brake Blocks 
+Sitter,Completion,BUP,Vacuum - Fit Brake Blocks 
+Sleeper,Completion,BUP,Vacuum - Fit Brake Blocks 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Brake Blocks 
+Baggage Van,Completion,BUP,Vacuum - Fit Handbrake 
+Diner,Completion,BUP,Vacuum - Fit Handbrake 
+Kitchen,Completion,BUP,Vacuum - Fit Handbrake 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Handbrake 
+Power Car,Completion,BUP,Vacuum - Fit Handbrake 
+Sitter,Completion,BUP,Vacuum - Fit Handbrake 
+Sleeper,Completion,BUP,Vacuum - Fit Handbrake 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Handbrake 
+Baggage Van,Completion,BUP,Vacuum - Fit Slack Adjusters 
+Diner,Completion,BUP,Vacuum - Fit Slack Adjusters 
+Kitchen,Completion,BUP,Vacuum - Fit Slack Adjusters 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Slack Adjusters 
+Power Car,Completion,BUP,Vacuum - Fit Slack Adjusters 
+Sitter,Completion,BUP,Vacuum - Fit Slack Adjusters 
+Sleeper,Completion,BUP,Vacuum - Fit Slack Adjusters 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Slack Adjusters 
+Baggage Van,Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+Diner,Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+Kitchen,Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+Power Car,Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+Sitter,Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+Sleeper,Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Vacuum Chamber B17 
+Baggage Van,Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+Diner,Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+Kitchen,Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+Power Car,Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+Sitter,Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+Sleeper,Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Vacuum Cylinder 
+Baggage Van,Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+Diner,Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+Kitchen,Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+Power Car,Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+Sitter,Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+Sleeper,Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Vacuum Cylinder Piston Rod 
+Baggage Van,Completion,BUP,Vacuum - Fit Vacuum Hoses 
+Diner,Completion,BUP,Vacuum - Fit Vacuum Hoses 
+Kitchen,Completion,BUP,Vacuum - Fit Vacuum Hoses 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Vacuum Hoses 
+Power Car,Completion,BUP,Vacuum - Fit Vacuum Hoses 
+Sitter,Completion,BUP,Vacuum - Fit Vacuum Hoses 
+Sleeper,Completion,BUP,Vacuum - Fit Vacuum Hoses 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Vacuum Hoses 
+Baggage Van,Completion,BUP,Vacuum - Fit Vacuum Piping 
+Diner,Completion,BUP,Vacuum - Fit Vacuum Piping 
+Kitchen,Completion,BUP,Vacuum - Fit Vacuum Piping 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Fit Vacuum Piping 
+Power Car,Completion,BUP,Vacuum - Fit Vacuum Piping 
+Sitter,Completion,BUP,Vacuum - Fit Vacuum Piping 
+Sleeper,Completion,BUP,Vacuum - Fit Vacuum Piping 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Fit Vacuum Piping 
+Baggage Van,Completion,BUP,Vacuum - Trunion & Brackets
+Diner,Completion,BUP,Vacuum - Trunion & Brackets
+Kitchen,Completion,BUP,Vacuum - Trunion & Brackets
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Trunion & Brackets
+Power Car,Completion,BUP,Vacuum - Trunion & Brackets
+Sitter,Completion,BUP,Vacuum - Trunion & Brackets
+Sleeper,Completion,BUP,Vacuum - Trunion & Brackets
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Trunion & Brackets
+Baggage Van,Completion,BUP,Vacuum - Underframe Brake Rigging 
+Diner,Completion,BUP,Vacuum - Underframe Brake Rigging 
+Kitchen,Completion,BUP,Vacuum - Underframe Brake Rigging 
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Underframe Brake Rigging 
+Power Car,Completion,BUP,Vacuum - Underframe Brake Rigging 
+Sitter,Completion,BUP,Vacuum - Underframe Brake Rigging 
+Sleeper,Completion,BUP,Vacuum - Underframe Brake Rigging 
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Underframe Brake Rigging 
+Baggage Van,Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
+Diner,Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
+Kitchen,Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
+KP-1 to Car Carrier,Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
+Power Car,Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
+Sitter,Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
+Sleeper,Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
+"Staff Book Off (Lounge, Kitchen, Sleeper)",Completion,BUP,Vacuum - Vacuum Test & Brake Adjustment
