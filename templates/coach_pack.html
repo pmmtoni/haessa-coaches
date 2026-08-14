@@ -247,38 +247,148 @@
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card shadow-sm border-0 rounded-4 mb-4 coach-task-checklist">
         <div class="card-header bg-white">
-            <h5 class="mb-0">Task Checklist</h5>
+            <h5 class="mb-0">Production Task Checklist</h5>
+            <div class="text-muted small mt-1">
+                Tasks are grouped by production cycle. Phase is used for classification but is not displayed.
+            </div>
         </div>
 
         <div class="card-body">
-            <table class="table table-sm table-bordered align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Phase</th>
-                        <th>Section</th>
-                        <th>Task</th>
-                        <th>Hours</th>
-                        <th>Completed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in coach.completion_tasks %}
-                    <tr>
-                        <td>{{ task.phase }}</td>
-                        <td>{{ task.section }}</td>
-                        <td>{{ task.task }}</td>
-                        <td>{{ task.hours }}</td>
-                        <td>{{ "Yes" if task.completed else "No" }}</td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">No tasks found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {# Stripping is identified from task.phase. All other phases are Completion. #}
+            {% set ns = namespace(stripping=[], completion=[], stripping_done=0, completion_done=0) %}
+
+            {% for task in coach.completion_tasks %}
+                {% if task.phase and 'stripping' in task.phase|lower %}
+                    {% set ns.stripping = ns.stripping + [task] %}
+                    {% if task.completed %}
+                        {% set ns.stripping_done = ns.stripping_done + 1 %}
+                    {% endif %}
+                {% else %}
+                    {% set ns.completion = ns.completion + [task] %}
+                    {% if task.completed %}
+                        {% set ns.completion_done = ns.completion_done + 1 %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% set stripping_total = ns.stripping|length %}
+            {% set completion_total = ns.completion|length %}
+            {% set stripping_percent = ((ns.stripping_done * 100 / stripping_total)|round(0, 'floor')|int) if stripping_total else 0 %}
+            {% set completion_percent = ((ns.completion_done * 100 / completion_total)|round(0, 'floor')|int) if completion_total else 0 %}
+
+            <!-- ========================= STRIPPING ========================= -->
+            <div class="production-cycle mb-5">
+                <div class="cycle-heading stripping-heading">
+                    <div>
+                        <div class="cycle-number">1.</div>
+                        <div>
+                            <h4 class="mb-0">Stripping</h4>
+                            <div class="text-muted small">
+                                {{ ns.stripping_done }} of {{ stripping_total }} tasks completed
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cycle-progress">{{ stripping_percent }}%</div>
+                </div>
+
+                <div class="progress cycle-progress-bar mb-3" role="progressbar"
+                     aria-valuenow="{{ stripping_percent }}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: {{ stripping_percent }}%;"></div>
+                </div>
+
+                {% if ns.stripping %}
+                    <table class="table table-sm table-bordered align-middle task-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Section</th>
+                                <th>Task</th>
+                                <th class="status-column">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in ns.stripping %}
+                                <tr class="{{ 'task-completed' if task.completed else '' }}">
+                                    <td>{{ task.section or '—' }}</td>
+                                    <td>{{ task.task }}</td>
+                                    <td class="status-cell">
+                                        {% if task.completed %}
+                                            <span class="task-status completed-status">
+                                                <span class="status-check">✓</span>
+                                                <span>Completed</span>
+                                            </span>
+                                        {% else %}
+                                            <span class="task-status pending-status">
+                                                <span class="status-check empty">☐</span>
+                                                <span>Not Completed</span>
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-cycle">No Stripping tasks found.</div>
+                {% endif %}
+            </div>
+
+            <!-- ========================= COMPLETION ======================== -->
+            <div class="production-cycle">
+                <div class="cycle-heading completion-heading">
+                    <div>
+                        <div class="cycle-number">2.</div>
+                        <div>
+                            <h4 class="mb-0">Completion</h4>
+                            <div class="text-muted small">
+                                {{ ns.completion_done }} of {{ completion_total }} tasks completed
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cycle-progress">{{ completion_percent }}%</div>
+                </div>
+
+                <div class="progress cycle-progress-bar mb-3" role="progressbar"
+                     aria-valuenow="{{ completion_percent }}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: {{ completion_percent }}%;"></div>
+                </div>
+
+                {% if ns.completion %}
+                    <table class="table table-sm table-bordered align-middle task-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Section</th>
+                                <th>Task</th>
+                                <th class="status-column">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in ns.completion %}
+                                <tr class="{{ 'task-completed' if task.completed else '' }}">
+                                    <td>{{ task.section or '—' }}</td>
+                                    <td>{{ task.task }}</td>
+                                    <td class="status-cell">
+                                        {% if task.completed %}
+                                            <span class="task-status completed-status">
+                                                <span class="status-check">✓</span>
+                                                <span>Completed</span>
+                                            </span>
+                                        {% else %}
+                                            <span class="task-status pending-status">
+                                                <span class="status-check empty">☐</span>
+                                                <span>Not Completed</span>
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-cycle">No Completion tasks found.</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -337,5 +447,120 @@
         margin-bottom: 12px;
     }
 }
+
+    .production-cycle {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .cycle-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px 12px 0 0;
+        padding: 12px 16px;
+        border: 1px solid #dee2e6;
+        border-bottom: 0;
+    }
+
+    .cycle-heading > div:first-child {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .cycle-number {
+        font-size: 1.35rem;
+        font-weight: 700;
+    }
+
+    .stripping-heading {
+        background: #f8fbff;
+    }
+
+    .completion-heading {
+        background: #f8fcf9;
+    }
+
+    .cycle-progress {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .cycle-progress-bar {
+        height: 7px;
+        border-radius: 0;
+        background: #e9ecef;
+    }
+
+    .task-table th {
+        font-weight: 700;
+        background: #f8f9fa;
+    }
+
+    .task-table td,
+    .task-table th {
+        padding: 8px 10px;
+    }
+
+    .status-column {
+        width: 18%;
+        min-width: 125px;
+    }
+
+    .status-cell {
+        white-space: nowrap;
+    }
+
+    .task-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-weight: 600;
+    }
+
+    .status-check {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 21px;
+        height: 21px;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 1;
+        font-weight: 800;
+    }
+
+    .completed-status {
+        color: #198754;
+    }
+
+    .completed-status .status-check {
+        color: #fff;
+        background: #198754;
+    }
+
+    .pending-status {
+        color: #495057;
+    }
+
+    .pending-status .status-check.empty {
+        color: #6c757d;
+        background: #fff;
+        border: 1px solid #adb5bd;
+        font-size: 18px;
+    }
+
+    .task-completed td {
+        background: #fbfffc;
+    }
+
+    .empty-cycle {
+        padding: 18px;
+        text-align: center;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+    }
+
 </style>
 {% endblock %}
