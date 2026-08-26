@@ -217,53 +217,57 @@
     </div>
 </div>
 
-    {% if gantt_items %}
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom">
-            <h5 class="mb-0">Coach Delivery Schedule</h5>
-        </div>
 
+    {% if ageing_items %}
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        
+    
         <div class="card-body">
+            <!--<div class="chart-box mb-4">-->
+            <!--    <canvas id="ageingChart"></canvas>-->
+            </div>
+    
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-4" id="deliveryScheduleTable">
+                <table class="table align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Coach Number</th>
-                            <th>Delivery Date</th>
+                            <th>Category</th>
+                            <th>Phase / Section</th>
+                            <th>Average Ageing</th>
+                            <th>Items Counted</th>
+                            <th>Risk</th>
                         </tr>
                     </thead>
+    
                     <tbody>
-                        {% for item in gantt_items %}
+                        {% for item in ageing_items %}
                         <tr>
+                            <td>{{ item.category }}</td>
+                            <td class="fw-semibold">{{ item.name }}</td>
+                            <td>{{ item.avg_days }} day(s)</td>
+                            <td>{{ item.count }}</td>
                             <td>
-                                <a href="{{ url_for('coaches_edit', id=item.coach_id) }}"
-                                   class="text-decoration-none fw-semibold">
-                                    {{ item.coach_number }}
-                                </a>
+                                {% if item.avg_days > 21 %}
+                                    <span class="badge bg-danger">Critical</span>
+                                {% elif item.avg_days > 7 %}
+                                    <span class="badge bg-warning text-dark">Slow</span>
+                                {% else %}
+                                    <span class="badge bg-success">Healthy</span>
+                                {% endif %}
                             </td>
-                            <td class="delivery-date">{{ item.end_label }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-
-            <h6 class="fw-bold border-top pt-3 mb-3">Coaches Delivered per Month</h6>
-            <div class="table-responsive">
-                <table class="table table-sm align-middle mb-0" id="monthlyDeliverySummary">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Month</th>
-                            <th class="text-end">Coaches Delivered</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+        </div>
+    
+        <div class="card-footer bg-white small text-muted">
+            Phase ageing uses current workflow stage days. Section ageing estimates pressure from incomplete tasks on coaches currently ageing in production.
         </div>
     </div>
     {% endif %}
-
+    
 
 
 
