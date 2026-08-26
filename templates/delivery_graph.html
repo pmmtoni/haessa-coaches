@@ -205,55 +205,26 @@
     </div>
     {% endif %}
 
-    {% if gantt_items %}
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom">
-            <h5 class="mb-0">Production Timeline</h5>
-        </div>
-    
-        <div class="card-body">
-    
-            {% for item in gantt_items %}
-            <a href="{{ url_for('coaches_edit', id=item.coach_id) }}"
-               class="text-decoration-none text-dark">
-    
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between small mb-1">
-                        <div>
-                            <strong>{{ item.coach_number }}</strong>
-                            <span class="text-muted">({{ item.coach_type }})</span>
-                        </div>
-    
-                        <div>
-                            {{ item.start_label }} → {{ item.end_label }}
-                            <span class="badge bg-{{ item.bar_color }} ms-2">
-                                {{ item.status_label }}
-                            </span>
-                        </div>
-                    </div>
-    
-                    <div class="progress" style="height: 18px;">
-                        <div class="progress-bar bg-{{ item.bar_color }}"
-                             role="progressbar"
-                             style="width: 100%;">
-                        </div>
-                    </div>
-                </div>
-    
-            </a>
-            {% endfor %}
-    
-        </div>
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0">Coaches Completed per Month</h5>
     </div>
-    {% endif %}
-    
+    <div class="card-body completed-coach-chart-box">
+        <canvas id="completedCoachChart"></canvas>
+    </div>
+    <div class="card-footer bg-white small text-muted">
+        Completed coaches only. Coach numbers are shown below each month.
+    </div>
+</div>
+
+
     {% if ageing_items %}
     <div class="card shadow-sm border-0 rounded-4 mb-4">
         
     
         <div class="card-body">
-            <div class="chart-box mb-4">
-                <canvas id="ageingChart"></canvas>
+            <!--<div class="chart-box mb-4">-->
+            <!--    <canvas id="ageingChart"></canvas>-->
             </div>
     
             <div class="table-responsive">
@@ -311,20 +282,19 @@
         </div>
     </div>
 
-
-        <div class="row g-4 mb-4">
-        <div class="col-lg-10 mx-auto">
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-center">Monthly Due-Date Load</h5>
-                </div>
-                <div class="card-body chart-box">
-                    <canvas id="dueLoadChart"></canvas>
-                </div>
-            </div>
+<!--        <div class="row g-4 mb-4">-->
+<!--        <div class="col-lg-10 mx-auto">-->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-bottom">
+              <h5 class="mb-0 text-center">Monthly Due-Date Load</h5>
         </div>
+        <div class="card-body chart-box">
+            <canvas id="dueLoadChart"></canvas>
+<!--    </div>-->
+         </div>
     </div>
-    </div>
+<!--    </div>-->
+<!--    </div>-->
 
         <div class="card shadow-sm border-0 rounded-4 mb-4">
             <div class="card-header bg-white border-bottom">
@@ -445,7 +415,51 @@ const requiredCompleted = {{ required_completed_line | tojson }};
 const remainingCoaches = {{ remaining_line | tojson }};
 const dueLoad = {{ due_load_line | tojson }};
 const monthlyCompletions = {{ monthly_completion_line | tojson }};
+
 const monthlyCompletionAvg = {{ monthly_completion_avg_line | tojson }};
+
+// Build the monthly delivery summary from the delivery dates shown above.
+(function buildMonthlyDeliverySummary() {
+    const rows = document.querySelectorAll('#deliveryScheduleTable tbody tr');
+    const monthlyCounts = {};
+
+    rows.forEach(row => {
+        const dateText = row.querySelector('.delivery-date')?.textContent.trim();
+        if (!dateText) return;
+
+        const parsed = new Date(dateText);
+        if (isNaN(parsed.getTime())) return;
+
+        const monthKey = parsed.toLocaleString('en-US', {
+            month: 'long',
+            year: 'numeric'
+        });
+
+        monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
+    });
+
+    const summaryBody = document.querySelector('#monthlyDeliverySummary tbody');
+    if (!summaryBody) return;
+
+    Object.entries(monthlyCounts)
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+        .forEach(([month, count]) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${month}</td><td class="text-end fw-bold">${count}</td>`;
+            summaryBody.appendChild(tr);
+        });
+
+    if (!Object.keys(monthlyCounts).length) {
+        summaryBody.innerHTML = `
+            <tr>
+                <td colspan="2" class="text-muted text-center">
+                    No delivery dates available.
+                </td>
+            </tr>
+        `;
+    }
+})();
+
 
 const bottleneckLabels = {{ bottleneck_labels | tojson }};
 const bottleneckValues = {{ bottleneck_values | tojson }};
@@ -554,46 +568,6 @@ new Chart(document.getElementById('monthlyCompletionChart'), {
     }
 });
 
-
-new Chart(document.getElementById('ageingChart'), {
-    type: 'bar',
-    data: {
-        labels: ageingLabels,
-        datasets: [{
-            label: 'Average Ageing Days',
-            data: ageingValues,
-            backgroundColor: '#6f42c1',
-            borderWidth: 1,
-            borderRadius: 6,
-            maxBarThickness: 42
-        }]
-    },
-    options: {
-        ...commonOptions,
-        plugins: {
-            legend: { position: 'bottom' }
-        },
-        scales: {
-            x: {
-                ticks: {
-                    maxRotation: 45,
-                    minRotation: 45,
-                    autoSkip: false
-                }
-            },
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Average Days'
-                }
-            }
-        }
-    }
-});
-
-
-
 new Chart(document.getElementById('sectionBottleneckChart'), {
     type: 'bar',
     data: {
@@ -636,6 +610,137 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 });
 </script>
 
+
+
+
+
+
+
+
+
+
+<script>
+/* Completed-coach bar chart.
+   Uses the same labels/monthly completion counts as Monthly Completion Velocity.
+   Coach numbers are taken from gantt_items, but only items marked completed
+   (completion_date exists in the underlying Coach record). */
+(function () {
+    const completedCoachLabels = {{ labels | tojson }};
+    const completedCoachCounts = {{ monthly_completion_line | tojson }};
+
+    const completedCoachNumbers = completedCoachLabels.map(() => []);
+
+    {% for item in gantt_items %}
+        {% if item.completed %}
+            (function () {
+                const itemDate = new Date("{{ item.end_date.strftime('%Y-%m-%d') }}T00:00:00");
+                if (isNaN(itemDate.getTime())) return;
+
+                const itemMonth = itemDate.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                const monthIndex = completedCoachLabels.indexOf(itemMonth);
+
+                if (monthIndex !== -1) {
+                    completedCoachNumbers[monthIndex].push({
+                        number: {{ item.coach_number | tojson }},
+                        id: {{ item.coach_id }}
+                    });
+                }
+            })();
+        {% endif %}
+    {% endfor %}
+
+    completedCoachNumbers.forEach(list => {
+        list.sort((a, b) => String(a.number).localeCompare(String(b.number), undefined, { numeric: true }));
+    });
+
+    const chartCanvas = document.getElementById('completedCoachChart');
+    if (!chartCanvas) return;
+
+    new Chart(chartCanvas, {
+        type: 'bar',
+        data: {
+            labels: completedCoachLabels,
+            datasets: [{
+                label: 'Completed Coaches',
+                data: completedCoachCounts,
+                backgroundColor: '#198754',
+                borderWidth: 1,
+                borderRadius: 6,
+                maxBarThickness: 52
+            }]
+        },
+        options: {
+            ...commonOptions,
+            layout: {
+                padding: {
+                    bottom: 95
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function (context) {
+                            const coaches = completedCoachNumbers[context.dataIndex] || [];
+                            return coaches.length
+                                ? 'Coaches: ' + coaches.map(c => c.number).join(', ')
+                                : 'No coach numbers available';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                    title: {
+                        display: true,
+                        text: 'Completed Coach Count'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Month'
+                    },
+                    ticks: {
+                        padding: 8
+                    }
+                }
+            }
+        },
+        plugins: [{
+            id: 'completedCoachNumbers',
+            afterDraw: function (chart) {
+                const ctx = chart.ctx;
+                const xScale = chart.scales.x;
+                const bottom = chart.chartArea.bottom;
+
+                ctx.save();
+                ctx.font = '11px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = '#495057';
+
+                completedCoachNumbers.forEach(function (coaches, index) {
+                    if (!coaches.length) return;
+
+                    const x = xScale.getPixelForValue(index);
+                    let y = bottom + 38;
+
+                    coaches.forEach(function (coach) {
+                        ctx.fillText(String(coach.number), x, y);
+                        y += 14;
+                    });
+                });
+
+                ctx.restore();
+            }
+        }]
+    });
+})();
+</script>
+
 <style>
 .main-chart-box {
     height: 420px;
@@ -652,6 +757,12 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
     position: relative;
 }
 
+.completed-coach-chart-box {
+    height: 430px;
+    position: relative;
+}
+
+#completedCoachChart,
 #deliveryChart,
 #bottleneckChart,
 #dueLoadChart,
@@ -743,6 +854,10 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 
     .section-chart-box {
         height: 250px !important;
+    }
+
+    .completed-coach-chart-box {
+        height: 300px !important;
     }
 
     .card {
