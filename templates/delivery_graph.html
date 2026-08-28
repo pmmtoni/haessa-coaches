@@ -209,13 +209,37 @@
     <div class="card-header bg-white border-bottom">
         <h5 class="mb-0">Coaches Completed per Month</h5>
     </div>
+
     <div class="card-body completed-coach-chart-box">
         <canvas id="completedCoachChart"></canvas>
     </div>
+
+    <div class="card-body pt-0 pb-2">
+        <div id="completedCoachStatus" class="small text-muted"></div>
+    </div>
+
+    <div class="card-body pt-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0" id="completedCoachNumbersTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Month</th>
+                        <th class="text-end">Coaches Completed</th>
+                        <th>Coach Numbers</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
     <div class="card-footer bg-white small text-muted">
-        Completed coaches only. Coach numbers are shown below each month.
+        Grouped by <strong>completion date</strong> (not due/delivery date).
+        Source: <code>completed_coaches</code> from app.py (full history).
     </div>
 </div>
+
+
 
     {% if gantt_items %}
     <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -616,105 +640,184 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 
 
 <script>
-/* Completed-coach bar chart.
-   Uses the same labels/monthly completion counts as Monthly Completion Velocity.
-   Coach numbers are taken from gantt_items, but only items marked completed
-   (completion_date exists in the underlying Coach record). */
+/* ============================================================
+   Coaches Completed per Month
+   Uses completed_coaches from app.py (coach_number + completion_date).
+   Falls back to gantt_items only if they include completion_date.
+   ============================================================ */
 (function () {
-    const completedCoachLabels = {{ labels | tojson }};
-    const completedCoachCounts = {{ monthly_completion_line | tojson }};
-
-    const completedCoachNumbers = completedCoachLabels.map(() => []);
-
-    {% for item in gantt_items %}
-        {% if item.completed %}
-            (function () {
-                const itemDate = new Date("{{ item.end_date.strftime('%Y-%m-%d') }}T00:00:00");
-                if (isNaN(itemDate.getTime())) return;
-
-                const itemMonth = itemDate.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-                const monthIndex = completedCoachLabels.indexOf(itemMonth);
-
-                if (monthIndex !== -1) {
-                    completedCoachNumbers[monthIndex].push({
-                        number: {{ item.coach_number | tojson }},
-                        id: {{ item.coach_id }}
-                    });
-                }
-            })();
+    // ---- PRIMARY: completed_coaches from Flask ----
+    var fromCompletedCoaches = [
+        {% if completed_coaches is defined and completed_coaches %}
+        {% for c in completed_coaches %}
+        {
+            id: {{ c.coach_id | tojson }},
+            number: {{ c.coach_number | tojson }},
+            dateStr: {% if c.completion_date %}
+                {% if c.completion_date.strftime is defined %}
+                    {{ c.completion_date.strftime('%Y-%m-%d') | tojson }}
+                {% else %}
+                    {{ c.completion_date | string | tojson }}
+                {% endif %}
+            {% else %}null{% endif %}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
         {% endif %}
-    {% endfor %}
-
-    completedCoachNumbers.forEach(list => {
-        list.sort((a, b) => String(a.number).localeCompare(String(b.number), undefined, { numeric: true }));
+    ].filter(function (r) {
+        return r.number != null && String(r.number).trim() !== "" && r.dateStr;
     });
 
-    const chartCanvas = document.getElementById('completedCoachChart');
-    if (!chartCanvas) return;
+    // ---- FALLBACK: gantt_items with completion_date (if ever added) ----
+    var fromGantt = [
+        {% for item in gantt_items %}
+        {
+            id: {{ item.coach_id | tojson }},
+            number: {{ item.coach_number | tojson }},
+            dateStr: {% if item.completion_date is defined and item.completion_date %}
+                {% if item.completion_date.strftime is defined %}
+                    {{ item.completion_date.strftime('%Y-%m-%d') | tojson }}
+                {% else %}
+                    {{ item.completion_date | string | tojson }}
+                {% endif %}
+            {% else %}null{% endif %}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ].filter(function (r) {
+        return r.number != null && String(r.number).trim() !== "" && r.dateStr;
+    });
 
-    new Chart(chartCanvas, {
-        type: 'bar',
-        data: {
-            labels: completedCoachLabels,
-            datasets: [{
-                label: 'Completed Coaches',
-                data: completedCoachCounts,
-                backgroundColor: '#198754',
-                borderWidth: 1,
-                borderRadius: 6,
-                maxBarThickness: 48
-            }]
-        },
-        options: {
-            ...commonOptions,
-            layout: {
-                padding: {
-                    bottom: 45
-                }
+    var completedRows = fromCompletedCoaches.length ? fromCompletedCoaches : fromGantt;
+
+    var statusEl = document.getElementById("completedCoachStatus");
+    if (statusEl) {
+        statusEl.innerHTML =
+            '<span class="badge bg-secondary me-1">completed_coaches: ' + fromCompletedCoaches.length + '</span>' +
+            '<span class="badge bg-secondary me-1">gantt+completion: ' + fromGantt.length + '</span>' +
+            '<span class="badge bg-' + (completedRows.length ? 'success' : 'danger') + '">used: ' + completedRows.length + '</span>';
+    }
+    console.log("[CompletedChart] rows:", completedRows);
+
+    function parseMonth(dateStr) {
+        var ds = String(dateStr);
+        var parsed = /^\d{4}-\d{2}-\d{2}/.test(ds)
+            ? new Date(ds.slice(0, 10) + "T00:00:00")
+            : new Date(ds);
+        if (isNaN(parsed.getTime())) return null;
+        return {
+            key: parsed.toLocaleString("en-US", { month: "short", year: "numeric" }),
+            date: parsed
+        };
+    }
+
+    var monthlyMap = {};
+    completedRows.forEach(function (row) {
+        var m = parseMonth(row.dateStr);
+        if (!m) return;
+        if (!monthlyMap[m.key]) {
+            monthlyMap[m.key] = { count: 0, coaches: [], sortDate: m.date };
+        }
+        monthlyMap[m.key].count += 1;
+        monthlyMap[m.key].coaches.push({ number: String(row.number).trim(), id: row.id });
+        if (m.date < monthlyMap[m.key].sortDate) monthlyMap[m.key].sortDate = m.date;
+    });
+
+    var sortedMonths = Object.keys(monthlyMap).sort(function (a, b) {
+        return monthlyMap[a].sortDate - monthlyMap[b].sortDate;
+    });
+    var chartLabels = sortedMonths;
+    var chartCounts = sortedMonths.map(function (k) { return monthlyMap[k].count; });
+    var coachLists = sortedMonths.map(function (k) {
+        return monthlyMap[k].coaches.slice().sort(function (a, b) {
+            return a.number.localeCompare(b.number, undefined, { numeric: true });
+        });
+    });
+
+    var chartCanvas = document.getElementById("completedCoachChart");
+    if (chartCanvas && typeof Chart !== "undefined") {
+        if (chartCanvas._chartInstance) chartCanvas._chartInstance.destroy();
+        chartCanvas._chartInstance = new Chart(chartCanvas, {
+            type: "bar",
+            data: {
+                labels: chartLabels.length ? chartLabels : ["No completion data"],
+                datasets: [{
+                    label: "Completed Coaches",
+                    data: chartLabels.length ? chartCounts : [0],
+                    backgroundColor: "#198754",
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    maxBarThickness: 48
+                }]
             },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        afterLabel: function (context) {
-                            const coaches = completedCoachNumbers[context.dataIndex] || [];
-                            return coaches.length
-                                ? 'Coaches: ' + coaches.map(c => c.number).join(', ')
-                                : 'No coach numbers available';
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                layout: { padding: { bottom: 40 } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function (ctx) {
+                                var list = coachLists[ctx.dataIndex] || [];
+                                return list.length
+                                    ? "Coaches: " + list.map(function (c) { return c.number; }).join(", ")
+                                    : "No coach numbers";
+                            }
                         }
                     }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { precision: 0 },
-                    title: {
-                        display: true,
-                        text: 'Completed Coach Count'
-                    }
                 },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Month',
-                        font: { size: 12 }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 },
+                        title: { display: true, text: "Completed Coach Count" }
                     },
-                    ticks: {
-                        padding: 6,
-                        font: { size: 11 },
-                        callback: function(value, index) {
-                            const month = this.getLabelForValue(value);
-                            const coaches = completedCoachNumbers[index] || [];
-                            if (!coaches.length) return month;
-                            return [month, coaches.map(c => String(c.number)).join(', ')];
+                    x: {
+                        title: { display: true, text: "Month (by completion date)" },
+                        ticks: {
+                            padding: 8,
+                            font: { size: 11 },
+                            callback: function (value, index) {
+                                var month = this.getLabelForValue(value);
+                                var list = coachLists[index] || [];
+                                if (!list.length) return month;
+                                return [month, list.map(function (c) { return c.number; }).join(", ")];
+                            }
                         }
                     }
                 }
             }
-        },
-        plugins: []
-    });
+        });
+    }
+
+    var tbody = document.querySelector("#completedCoachNumbersTable tbody");
+    if (tbody) {
+        tbody.innerHTML = "";
+        if (!sortedMonths.length) {
+            tbody.innerHTML =
+                '<tr><td colspan="3" class="text-muted text-center py-3">' +
+                "No coaches with both Coach Number and Completion Date. " +
+                "Check badges above — if completed_coaches is 0, no rows have completion_date set in the DB." +
+                "</td></tr>";
+        } else {
+            sortedMonths.forEach(function (month, idx) {
+                var list = coachLists[idx] || [];
+                var badges = list.length
+                    ? list.map(function (c) {
+                        return '<a href="/coaches/edit/' + c.id +
+                            '" class="badge bg-success text-decoration-none me-1 mb-1">' +
+                            c.number + "</a>";
+                    }).join("")
+                    : '<span class="text-muted">—</span>';
+                var tr = document.createElement("tr");
+                tr.innerHTML =
+                    '<td class="fw-semibold">' + month + "</td>" +
+                    '<td class="text-end fw-bold">' + chartCounts[idx] + "</td>" +
+                    "<td>" + badges + "</td>";
+                tbody.appendChild(tr);
+            });
+        }
+    }
 })();
 </script>
 
@@ -735,7 +838,7 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 }
 
 .completed-coach-chart-box {
-    height: 300px;
+    height: 360px;
     position: relative;
 }
 

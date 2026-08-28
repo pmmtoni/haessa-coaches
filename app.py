@@ -3939,15 +3939,24 @@ def delivery_graph():
     })
     
     
-
-
-
+    # --- ALL coaches that have a real completion date (full history) ---
+    completed_coaches = []
+    for coach in Coach.query.filter(Coach.completion_date.isnot(None)).all():
+        if not coach.coach_number:
+            continue
+        completed_coaches.append({
+            "coach_id": coach.id,
+            "coach_number": coach.coach_number,
+            "completion_date": coach.completion_date,  # actual completion
+        })
+    
     return render_template(
         "delivery_graph.html",
         report_date=report_date,
         selected_type=selected_type,
         all_coach_types=all_coach_types,
         total_coaches=total_coaches,
+        completed_coaches=completed_coaches,  # NEW – full completion history
         completed_count=completed_count,
         incomplete_count=incomplete_count,
         desired_rate=desired_rate,
