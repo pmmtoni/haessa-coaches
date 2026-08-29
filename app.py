@@ -3544,6 +3544,55 @@ def delivery_graph():
     capacity_heat_colors = []
     capacity_heat_labels = []
 
+    # # Cumulative actual from first completion month (not "all done at chart start")
+    # cumulative_actual = 0
+
+    # for index, m in enumerate(months):
+    #     cumulative_actual += completions_by_month[m]
+
+    #     desired_completed = min(total_coaches, int(round(desired_rate * (index + 1))))
+    #     required_completed = min(total_coaches, int(round(required_rate * (index + 1))))
+    #     remaining = max(total_coaches - cumulative_actual, 0)
+
+
+
+    #     labels.append(f"{calendar.month_abbr[m.month]} {m.year}")
+    #     actual_completed_line.append(cumulative_actual)
+    #     desired_completed_line.append(desired_completed)
+    #     required_completed_line.append(required_completed)
+    #     remaining_line.append(remaining)
+    #     due_load_line.append(due_by_month[m])
+    #     monthly_completion_line.append(completions_by_month[m])
+    #     recent_values = monthly_completion_line[-3:]
+    #     monthly_avg = round(sum(recent_values) / len(recent_values), 1) if recent_values else 0
+    #     monthly_completion_avg_line.append(monthly_avg)
+    #     month_due_count = due_by_month[m]
+        
+    #     if required_rate == 0:
+    #         heat_label = "No Load"
+    #         heat_color = "#6c757d"
+    #     elif month_due_count >= required_rate * 1.5:
+    #         heat_label = "High Pressure"
+    #         heat_color = "#dc3545"
+    #     elif month_due_count >= required_rate:
+    #         heat_label = "Moderate Pressure"
+    #         heat_color = "#fd7e14"
+    #     else:
+    #         heat_label = "Manageable"
+    #         heat_color = "#198754"
+        
+    #     capacity_heat_labels.append(heat_label)
+    #     capacity_heat_colors.append(heat_color)        
+
+    capacity_heat_colors = []
+    capacity_heat_labels = []
+
+    # Realistic monthly average needed from *current month* onward:
+    # remaining (incomplete) coaches / months remaining until final due date
+    capacity_baseline = (
+        (incomplete_count / remaining_months) if remaining_months and incomplete_count else 0.0
+    )
+
     # Cumulative actual from first completion month (not "all done at chart start")
     cumulative_actual = 0
 
@@ -3553,8 +3602,6 @@ def delivery_graph():
         desired_completed = min(total_coaches, int(round(desired_rate * (index + 1))))
         required_completed = min(total_coaches, int(round(required_rate * (index + 1))))
         remaining = max(total_coaches - cumulative_actual, 0)
-
-
 
         labels.append(f"{calendar.month_abbr[m.month]} {m.year}")
         actual_completed_line.append(cumulative_actual)
@@ -3567,22 +3614,30 @@ def delivery_graph():
         monthly_avg = round(sum(recent_values) / len(recent_values), 1) if recent_values else 0
         monthly_completion_avg_line.append(monthly_avg)
         month_due_count = due_by_month[m]
-        
-        if required_rate == 0:
+
+        # Capacity heat-map: pressure vs realistic average from current month
+        if m < today_m:
+            heat_label = "Past"
+            heat_color = "#6c757d"
+        elif capacity_baseline <= 0:
             heat_label = "No Load"
             heat_color = "#6c757d"
-        elif month_due_count >= required_rate * 1.5:
+        elif month_due_count >= capacity_baseline * 1.5:
             heat_label = "High Pressure"
             heat_color = "#dc3545"
-        elif month_due_count >= required_rate:
+        elif month_due_count >= capacity_baseline:
             heat_label = "Moderate Pressure"
             heat_color = "#fd7e14"
-        else:
+        elif month_due_count > 0:
             heat_label = "Manageable"
             heat_color = "#198754"
-        
+        else:
+            heat_label = "No Due Load"
+            heat_color = "#20c997"
+
         capacity_heat_labels.append(heat_label)
-        capacity_heat_colors.append(heat_color)        
+        capacity_heat_colors.append(heat_color)
+
 
     
     # INSERT STEP 1 HERE
