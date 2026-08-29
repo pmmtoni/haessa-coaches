@@ -427,9 +427,7 @@
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4 print-page-break">
-        
-    </div>
+
 
 </div>
 
@@ -872,6 +870,47 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 })();
 </script>
 
+<script>
+/* Resize Chart.js canvases before browser print / Save as PDF */
+(function () {
+    function resizeAllCharts() {
+        if (typeof Chart === "undefined" || !Chart.instances) return;
+        // Chart.js v3+: Chart.instances may be object; also check canvas _chartInstance
+        try {
+            Object.values(Chart.instances || {}).forEach(function (ch) {
+                try { ch.resize(); } catch (e) {}
+            });
+        } catch (e) {}
+        document.querySelectorAll("canvas").forEach(function (cv) {
+            if (cv._chartInstance) {
+                try { cv._chartInstance.resize(); } catch (e) {}
+            }
+        });
+    }
+
+    window.addEventListener("beforeprint", function () {
+        resizeAllCharts();
+        // small delay helps some browsers reflow fixed-height chart boxes
+        setTimeout(resizeAllCharts, 50);
+    });
+
+    window.addEventListener("afterprint", function () {
+        resizeAllCharts();
+    });
+
+    // Chrome sometimes needs matchMedia
+    if (window.matchMedia) {
+        var mql = window.matchMedia("print");
+        if (mql.addEventListener) {
+            mql.addEventListener("change", function (e) {
+                if (e.matches) resizeAllCharts();
+                else setTimeout(resizeAllCharts, 100);
+            });
+        }
+    }
+})();
+</script>
+
 <style>
 .main-chart-box {
     height: 420px;
@@ -914,14 +953,26 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 @media print {
     @page {
         size: A4 landscape;
-        margin: 10mm;
+        margin: 12mm 10mm;
+    }
+
+    html, body {
+        background: #fff !important;
+        color: #000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     .no-print,
     nav,
     .navbar,
     .footer-note,
-    .btn {
+    .btn,
+    #deliveryScheduleFilter,
+    .sort-ind {
         display: none !important;
     }
 
@@ -930,27 +981,22 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
         justify-content: space-between;
         align-items: flex-start;
         border-bottom: 2px solid #222;
-        padding-bottom: 10px;
-        margin-bottom: 14px;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+        page-break-after: avoid;
+        break-after: avoid;
     }
 
     .print-report-header h2 {
-        font-size: 20px;
+        font-size: 16pt;
         margin: 0;
     }
 
     .report-meta {
-        font-size: 12px;
+        font-size: 9pt;
         text-align: right;
-        line-height: 1.6;
-        min-width: 260px;
-    }
-
-    body {
-        background: #ffffff !important;
-        margin: 0;
-        padding: 0;
-        font-size: 11px;
+        line-height: 1.45;
+        min-width: 220px;
     }
 
     .container {
@@ -960,73 +1006,113 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
         padding: 0 !important;
     }
 
+    /* KPI row: compact single line */
     .kpi-summary {
         display: flex !important;
-        flex-wrap: nowrap !important;
-        gap: 6px !important;
-        margin-bottom: 10px !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        margin-bottom: 8px !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 
-    .kpi-summary .col-md-6,
-    .kpi-summary .col-xl-2 {
-        width: 16.66% !important;
-        max-width: 16.66% !important;
-        flex: 0 0 16.66% !important;
-        padding: 0 3px !important;
+    .kpi-summary > [class*="col-"] {
+        width: 12% !important;
+        max-width: 12% !important;
+        flex: 1 1 12% !important;
+        padding: 0 2px !important;
     }
 
-    .main-chart-box {
-        height: 320px !important;
+    .kpi-summary .card-body {
+        padding: 6px !important;
     }
 
-    .chart-box {
-        height: 230px !important;
+    .kpi-summary .fs-3,
+    .kpi-summary .fs-4,
+    .kpi-summary .fs-5 {
+        font-size: 11pt !important;
     }
 
-    .section-chart-box {
-        height: 250px !important;
-    }
-
-    .completed-coach-chart-box {
-        height: 300px !important;
-    }
-
+    /* Cards: allow break on long tables; keep short cards together */
     .card {
         box-shadow: none !important;
-        border: 1px solid #cccccc !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+        border: 1px solid #bbb !important;
         margin-bottom: 10px !important;
-    }
-
-    .card-body {
-        padding: 9px !important;
-        overflow: visible !important;
+        border-radius: 0 !important;
+        break-inside: auto;
+        page-break-inside: auto;
     }
 
     .card-header {
-        padding: 7px 9px !important;
+        padding: 6px 8px !important;
+        background: #f5f5f5 !important;
+        border-bottom: 1px solid #ccc !important;
+        page-break-after: avoid;
+        break-after: avoid;
     }
 
-    .fs-3 {
-        font-size: 17px !important;
+    .card-body {
+        padding: 8px !important;
+        overflow: visible !important;
     }
 
-    .fs-5 {
-        font-size: 13px !important;
+    .card-footer {
+        padding: 4px 8px !important;
+        font-size: 8pt !important;
     }
 
     .alert {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        padding: 9px !important;
-        margin-bottom: 10px !important;
+        border: 1px solid #999 !important;
+        padding: 8px !important;
+        margin-bottom: 8px !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Chart heights for print */
+    .main-chart-box {
+        height: 260px !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .chart-box,
+    .section-chart-box {
+        height: 200px !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .completed-coach-chart-box {
+        height: 240px !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 
     canvas {
-        width: 100% !important;
+        max-width: 100% !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+    }
+
+    /* Tables */
+    table {
+        width: 100% !important;
+        font-size: 9pt !important;
+        page-break-inside: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    #deliveryScheduleTable {
+        font-size: 8.5pt !important;
     }
 
     h2, h3, h4, h5 {
@@ -1034,21 +1120,29 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
         break-after: avoid !important;
     }
 
-    ul, p {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    .print-page-break {
-        page-break-before: always !important;
-        break-before: page !important;
-        margin-top: 0 !important;
+    /* Soft section breaks — not forced blank pages */
+    .print-section {
+        page-break-before: auto;
+        break-before: auto;
     }
 
     .capacity-tile {
         color: #000 !important;
-        border: 1px solid #999;
+        border: 1px solid #999 !important;
         box-shadow: none !important;
+        min-height: auto !important;
+        padding: 6px !important;
+    }
+
+    a {
+        color: #000 !important;
+        text-decoration: none !important;
+    }
+
+    .badge {
+        border: 1px solid #666 !important;
+        color: #000 !important;
+        background: #eee !important;
     }
 }
 </style>
