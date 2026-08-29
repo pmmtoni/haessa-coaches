@@ -3544,50 +3544,10 @@ def delivery_graph():
     capacity_heat_colors = []
     capacity_heat_labels = []
 
-    # # Cumulative actual from first completion month (not "all done at chart start")
-    # cumulative_actual = 0
+    #capacity_heat_colors = []
+    #capacity_heat_labels = []
 
-    # for index, m in enumerate(months):
-    #     cumulative_actual += completions_by_month[m]
-
-    #     desired_completed = min(total_coaches, int(round(desired_rate * (index + 1))))
-    #     required_completed = min(total_coaches, int(round(required_rate * (index + 1))))
-    #     remaining = max(total_coaches - cumulative_actual, 0)
-
-
-
-    #     labels.append(f"{calendar.month_abbr[m.month]} {m.year}")
-    #     actual_completed_line.append(cumulative_actual)
-    #     desired_completed_line.append(desired_completed)
-    #     required_completed_line.append(required_completed)
-    #     remaining_line.append(remaining)
-    #     due_load_line.append(due_by_month[m])
-    #     monthly_completion_line.append(completions_by_month[m])
-    #     recent_values = monthly_completion_line[-3:]
-    #     monthly_avg = round(sum(recent_values) / len(recent_values), 1) if recent_values else 0
-    #     monthly_completion_avg_line.append(monthly_avg)
-    #     month_due_count = due_by_month[m]
-        
-    #     if required_rate == 0:
-    #         heat_label = "No Load"
-    #         heat_color = "#6c757d"
-    #     elif month_due_count >= required_rate * 1.5:
-    #         heat_label = "High Pressure"
-    #         heat_color = "#dc3545"
-    #     elif month_due_count >= required_rate:
-    #         heat_label = "Moderate Pressure"
-    #         heat_color = "#fd7e14"
-    #     else:
-    #         heat_label = "Manageable"
-    #         heat_color = "#198754"
-        
-    #     capacity_heat_labels.append(heat_label)
-    #     capacity_heat_colors.append(heat_color)        
-
-    capacity_heat_colors = []
-    capacity_heat_labels = []
-
-    # Realistic monthly load from current month onward (always round UP):
+    # Calculated load from current month onward (always round UP):
     # e.g. 18 incomplete / 4 months remaining -> 4.5 -> 5
     capacity_baseline = (
         math.ceil(incomplete_count / remaining_months)
@@ -3595,7 +3555,21 @@ def delivery_graph():
         else 0
     )
 
-    # Cumulative actual from first completion month (not "all done at chart start")
+    # Past average monthly completions = achievable baseline (round UP)
+    past_month_keys = [m for m in months if m < today_m]
+    if past_month_keys:
+        past_avg_raw = sum(completions_by_month[m] for m in past_month_keys) / len(past_month_keys)
+        past_avg_baseline = math.ceil(past_avg_raw) if past_avg_raw > 0 else 0
+    else:
+        # No past months in window: use average over months that had completions
+        done_vals = [v for v in completions_by_month.values() if v > 0]
+        if done_vals:
+            past_avg_raw = sum(done_vals) / len(done_vals)
+            past_avg_baseline = math.ceil(past_avg_raw)
+        else:
+            past_avg_baseline = 0
+
+    # Cumulative actual from first completion month
     cumulative_actual = 0
 
     for index, m in enumerate(months):
@@ -3611,7 +3585,7 @@ def delivery_graph():
         required_completed_line.append(required_completed)
         remaining_line.append(remaining)
 
-        # Due Load: from current month = rounded-up average needed
+        # Due Load display: future = calculated average needed; past = actual dues
         if m >= today_m:
             due_load_line.append(capacity_baseline)
         else:
@@ -3622,29 +3596,36 @@ def delivery_graph():
         monthly_avg = round(sum(recent_values) / len(recent_values), 1) if recent_values else 0
         monthly_completion_avg_line.append(monthly_avg)
 
-        # Heat colour still uses *actual* contractual dues vs baseline
-        actual_due = due_by_month[m]
+        # Colour scale vs past average (achievable baseline):
+        # diff = calculated_load - past_avg_baseline
+        # <=0 green | 1 yellow | 2 orange | >=3 red
         if m < today_m:
             heat_label = "Past"
             heat_color = "#6c757d"
         elif capacity_baseline <= 0:
             heat_label = "No Load"
             heat_color = "#6c757d"
-        elif actual_due >= capacity_baseline * 1.5:
-            heat_label = "High Pressure"
-            heat_color = "#dc3545"
-        elif actual_due >= capacity_baseline:
-            heat_label = "Moderate Pressure"
-            heat_color = "#fd7e14"
-        elif actual_due > 0:
-            heat_label = "Manageable"
-            heat_color = "#198754"
         else:
-            heat_label = "No Due Load"
-            heat_color = "#20c997"
+            calculated_load = capacity_baseline
+            diff = calculated_load - past_avg_baseline
+            if diff <= 0:
+                heat_label = "Achievable"
+                heat_color = "#198754"   # green
+            elif diff == 1:
+                heat_label = "Elevated"
+                heat_color = "#ffc107"   # yellow
+            elif diff == 2:
+                heat_label = "High Risk"
+                heat_color = "#fd7e14"   # orange
+            else:
+                heat_label = "Critical"
+                heat_color = "#dc3545"   # red
 
         capacity_heat_labels.append(heat_label)
         capacity_heat_colors.append(heat_color)
+
+        #capacity_heat_labels.append(heat_label)
+        #capacity_heat_colors.append(heat_color)
 
 
     
