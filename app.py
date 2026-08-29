@@ -3445,11 +3445,68 @@ def delivery_graph():
     if desired_rate is None:
         desired_rate = math.ceil(total_coaches / 12) if total_coaches else 0
 
+    # def month_start(d):
+    #     return date(d.year, d.month, 1)
+
+    # start_month = month_start(today_date)
+    # end_month = month_start(max_due_date)
+
+    # months = []
+    # cursor = start_month
+
+    # while cursor <= end_month:
+    #     months.append(cursor)
+    #     if cursor.month == 12:
+    #         cursor = date(cursor.year + 1, 1, 1)
+    #     else:
+    #         cursor = date(cursor.year, cursor.month + 1, 1)
+
+    # remaining_months = max(len(months), 1)
+    # required_rate = math.ceil(incomplete_count / remaining_months) if incomplete_count else 0
+
+    # completions_by_month = defaultdict(int)
+    # due_by_month = defaultdict(int)
+
+    # for coach in completed_coaches:
+    #     completions_by_month[month_start(coach.completion_date)] += 1
+
+    # for coach in coaches:
+    #     if coach.due_date:
+    #         due_by_month[month_start(coach.due_date)] += 1
+
+    # labels = []
+    # actual_completed_line = []
+    # desired_completed_line = []
+    # required_completed_line = []
+    # remaining_line = []
+    # due_load_line = []
+    # monthly_completion_line = []
+    # monthly_completion_avg_line = []
+    # capacity_heat_colors = []
+    # capacity_heat_labels = []
+    # cumulative_actual = completed_count
+
+    # for index, m in enumerate(months):
+    #     if index > 0:
+    #         cumulative_actual += completions_by_month[m]
+
+    #     desired_completed = min(total_coaches, completed_count + int(round(desired_rate * (index + 1))))
+    #     required_completed = min(total_coaches, completed_count + int(round(required_rate * (index + 1))))
+    #     remaining = max(total_coaches - cumulative_actual, 0)
+
     def month_start(d):
         return date(d.year, d.month, 1)
 
-    start_month = month_start(today_date)
+    # Timeline starts at first completion date (same idea as Coaches Completed chart)
+    completion_dates = [c.completion_date for c in completed_coaches if c.completion_date]
+    if completion_dates:
+        start_month = month_start(min(completion_dates))
+    else:
+        start_month = month_start(today_date)
+
     end_month = month_start(max_due_date)
+    if end_month < start_month:
+        end_month = start_month
 
     months = []
     cursor = start_month
@@ -3461,7 +3518,9 @@ def delivery_graph():
         else:
             cursor = date(cursor.year, cursor.month + 1, 1)
 
-    remaining_months = max(len(months), 1)
+    # Required rate still based on months from today to final due (not full history)
+    today_m = month_start(today_date)
+    remaining_months = max(sum(1 for m in months if m >= today_m), 1)
     required_rate = math.ceil(incomplete_count / remaining_months) if incomplete_count else 0
 
     completions_by_month = defaultdict(int)
@@ -3484,15 +3543,18 @@ def delivery_graph():
     monthly_completion_avg_line = []
     capacity_heat_colors = []
     capacity_heat_labels = []
-    cumulative_actual = completed_count
+
+    # Cumulative actual from first completion month (not "all done at chart start")
+    cumulative_actual = 0
 
     for index, m in enumerate(months):
-        if index > 0:
-            cumulative_actual += completions_by_month[m]
+        cumulative_actual += completions_by_month[m]
 
-        desired_completed = min(total_coaches, completed_count + int(round(desired_rate * (index + 1))))
-        required_completed = min(total_coaches, completed_count + int(round(required_rate * (index + 1))))
+        desired_completed = min(total_coaches, int(round(desired_rate * (index + 1))))
+        required_completed = min(total_coaches, int(round(required_rate * (index + 1))))
         remaining = max(total_coaches - cumulative_actual, 0)
+
+
 
         labels.append(f"{calendar.month_abbr[m.month]} {m.year}")
         actual_completed_line.append(cumulative_actual)
