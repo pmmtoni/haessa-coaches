@@ -3812,7 +3812,21 @@ def delivery_graph():
             f"Production is short by approximately {shortfall:g} coach(es)/month."
         )
   
-    actual_rate = round(completed_count / 12, 1) if completed_count else 0
+    #actual_rate = round(completed_count / 12, 1) if completed_count else 0
+
+    # Actual rate = completed / months from first completion through current month
+    months_elapsed = max(sum(1 for m in months if m <= today_m), 1)
+    actual_rate = (
+        round(completed_count / months_elapsed, 1) if completed_count else 0
+    )
+    actual_rate_line = []
+    for index, _m in enumerate(months):
+        actual_rate_line.append(
+            min(total_coaches, int(round(actual_rate * (index + 1))))
+        )
+
+
+
 
     if incomplete_count == 0:
         delivery_confidence = 100
@@ -4076,6 +4090,7 @@ def delivery_graph():
         confidence=confidence,
         confidence_icon=confidence_icon,
         labels=labels,
+        actual_rate_line=actual_rate_line,
         actual_completed_line=actual_completed_line,
         desired_completed_line=desired_completed_line,
         required_completed_line=required_completed_line,

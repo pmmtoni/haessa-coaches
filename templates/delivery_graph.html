@@ -441,8 +441,11 @@ const requiredCompleted = {{ required_completed_line | tojson }};
 const remainingCoaches = {{ remaining_line | tojson }};
 const dueLoad = {{ due_load_line | tojson }};
 const monthlyCompletions = {{ monthly_completion_line | tojson }};
-
 const monthlyCompletionAvg = {{ monthly_completion_avg_line | tojson }};
+const actualRateLine = {{ actual_rate_line | default([]) | tojson }};
+const actualRate = {{ actual_rate | default(0) | tojson }};
+const desiredRateVal = {{ desired_rate | default(0) | tojson }};
+const requiredRateVal = {{ required_rate | default(0) | tojson }};
 
 // Build the monthly delivery summary from the delivery dates shown above.
 (function buildMonthlyDeliverySummary() {
@@ -588,6 +591,7 @@ new Chart(document.getElementById('deliveryChart'), {
         labels: labels,
         datasets: [
             { label: 'Actual Completed Coaches', data: actualCompleted, borderColor: '#198754', backgroundColor: '#198754', borderWidth: 3, tension: 0.25 },
+            { label: 'Actual Rate (' + actualRate + '/mo)', data: actualRateLine, borderColor: '#20c997', backgroundColor: '#20c997', borderWidth: 2, borderDash: [8, 4], tension: 0.2, pointRadius: 0 },
             { label: 'Desired Plan', data: desiredCompleted, borderColor: '#0d6efd', backgroundColor: '#0d6efd', borderWidth: 2, borderDash: [6, 4], tension: 0.25 },
             { label: 'Required Plan', data: requiredCompleted, borderColor: '#dc3545', backgroundColor: '#dc3545', borderWidth: 3, borderDash: [3, 3], tension: 0.25 },
             { label: 'Remaining Coaches', data: remainingCoaches, borderColor: '#6c757d', backgroundColor: '#6c757d', borderWidth: 2, tension: 0.25 }
@@ -596,13 +600,23 @@ new Chart(document.getElementById('deliveryChart'), {
     options: {
         ...commonOptions,
         interaction: { mode: 'index', intersect: false },
-        plugins: { legend: { position: 'bottom' } },
+        plugins: {
+            legend: { position: 'bottom' },
+            title: {
+                display: true,
+                text: 'Actual rate: ' + actualRate + '/mo  |  Desired: ' + desiredRateVal + '/mo  |  Required: ' + requiredRateVal + '/mo',
+                font: { size: 13 },
+                padding: { bottom: 10 }
+            }
+        },
         scales: {
             y: { beginAtZero: true, suggestedMax: {{ total_coaches }}, title: { display: true, text: 'Number of Coaches' } },
-            x: { title: { display: true, text: 'Timeframe up to Maximum Due Date' } }
+            x: { title: { display: true, text: 'From first completion date to maximum due date' } }
         }
     }
 });
+
+
 
 new Chart(document.getElementById('bottleneckChart'), {
     type: 'bar',
