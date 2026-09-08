@@ -3814,18 +3814,28 @@ def delivery_graph():
   
     #actual_rate = round(completed_count / 12, 1) if completed_count else 0
 
+    # # Actual rate = completed / months from first completion through current month
+    # months_elapsed = max(sum(1 for m in months if m <= today_m), 1)
+    # actual_rate = (
+    #     round(completed_count / months_elapsed, 1) if completed_count else 0
+    # )
+    # actual_rate_line = []
+    # for index, _m in enumerate(months):
+    #     actual_rate_line.append(
+    #         min(total_coaches, int(round(actual_rate * (index + 1))))
+    #     )
+
+
     # Actual rate = completed / months from first completion through current month
     months_elapsed = max(sum(1 for m in months if m <= today_m), 1)
     actual_rate = (
         round(completed_count / months_elapsed, 1) if completed_count else 0
     )
-    actual_rate_line = []
-    for index, _m in enumerate(months):
-        actual_rate_line.append(
-            min(total_coaches, int(round(actual_rate * (index + 1))))
-        )
-
-
+    # Constant rate series (horizontal lines on chart — not cumulative)
+    n_months = len(months)
+    actual_rate_line = [actual_rate] * n_months
+    desired_rate_line = [float(desired_rate or 0)] * n_months
+    required_rate_line = [float(required_rate or 0)] * n_months
 
 
     if incomplete_count == 0:
@@ -4118,6 +4128,8 @@ def delivery_graph():
         ageing_labels=ageing_labels,
         ageing_values=ageing_values,
         executive_actions=executive_actions,
+        desired_rate_line=desired_rate_line,
+        required_rate_line=required_rate_line,
         
     )
 

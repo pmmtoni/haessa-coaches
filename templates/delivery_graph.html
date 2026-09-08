@@ -446,6 +446,8 @@ const actualRateLine = {{ actual_rate_line | default([]) | tojson }};
 const actualRate = {{ actual_rate | default(0) | tojson }};
 const desiredRateVal = {{ desired_rate | default(0) | tojson }};
 const requiredRateVal = {{ required_rate | default(0) | tojson }};
+const desiredRateLine = {{ desired_rate_line | default([]) | tojson }};
+const requiredRateLine = {{ required_rate_line | default([]) | tojson }};
 
 // Build the monthly delivery summary from the delivery dates shown above.
 (function buildMonthlyDeliverySummary() {
