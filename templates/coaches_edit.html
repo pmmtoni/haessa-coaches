@@ -670,11 +670,17 @@
                                 Coach Pack
                             </a>
 
+                            <a href="{{ url_for('coach_bom', id=coach.id) }}" 
+                                class="btn btn-sm btn-outline-primary">
+                                BOM
+                            </a>
+                                                        
                             <button form="coachEditForm"
                                     type="submit"
                                     class="btn btn-primary btn-lg px-5">
                                 Save Changes
                             </button>
+                                                       
 
                             <a href="{{ url_for('coaches_list') }}"
                                class="btn btn-outline-secondary btn-lg px-5">

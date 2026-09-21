@@ -39,6 +39,7 @@ from models import (
     TaskTemplate,
     CoachComponentInstallation,
     ProductionWorkLog,
+    CoachBOMItem,
 )
 
 #from production_engine import generate_completion_tasks
@@ -345,6 +346,75 @@ def format_display_date(value):
     if not value:
         return "—"
     return value.strftime("%d %b %Y")
+
+def get_bom_item_flags(item, today=None):
+    """Status flags + countdown for one BOM line."""
+    today = today or datetime.now().date()
+    delivered = bool(item.delivered)
+    expected = item.expected_delivery_date
+
+    days_remaining = None
+    is_delayed = False
+    is_approaching = False
+
+    if delivered:
+        days_remaining = 0
+    elif expected:
+        days_remaining = (expected - today).days
+        is_delayed = days_remaining < 0
+        is_approaching = 0 <= days_remaining <= 7
+
+    if delivered:
+        countdown_label = "Delivered"
+    elif is_delayed:
+        countdown_label = f"{abs(days_remaining)} day(s) overdue"
+    elif days_remaining is not None:
+        countdown_label = f"{days_remaining} day(s) left"
+    else:
+        countdown_label = "No expected date"
+
+    return {
+        "delivered": delivered,
+        "days_remaining": days_remaining,
+        "is_delayed": is_delayed,
+        "is_approaching": is_approaching,
+        "countdown_label": countdown_label,
+    }
+
+
+def bom_summary_for_coach(coach, today=None):
+    today = today or datetime.now().date()
+    items = (
+        CoachBOMItem.query.filter_by(coach_id=coach.id)
+        .order_by(CoachBOMItem.component.asc())
+        .all()
+    )
+    delayed, approaching, delivered_list = [], [], []
+    for item in items:
+        flags = get_bom_item_flags(item, today)
+        row = {"item": item, "flags": flags}
+        if flags["delivered"]:
+            delivered_list.append(row)
+        else:
+            if flags["is_delayed"]:
+                delayed.append(row)
+            elif flags["is_approaching"]:
+                approaching.append(row)
+    return {
+        "items": items,
+        "delayed": delayed,
+        "approaching": approaching,
+        "delivered": delivered_list,
+        "counts": {
+            "total": len(items),
+            "delivered": len(delivered_list),
+            "delayed": len(delayed),
+            "approaching": len(approaching),
+            "outstanding": len(items) - len(delivered_list),
+        },
+    }
+
+
 
 
 def load_task_templates(coach_type):
@@ -1801,6 +1871,236 @@ def coaches_edit(id):
     progress = coach.calculate_progress()
     task_timing = {task.id: get_task_timing(task) for task in coach.completion_tasks}
     return render_template("coaches_edit.html", coach=coach, progress=progress, task_timing=task_timing)
+
+@app.route("/coaches/<int:id>/bom", methods=["GET", "POST"])
+@login_required
+def coach_bom(id):
+    coach = Coach.query.get_or_404(id)
+    today = datetime.now().date()
+
+    if request.method == "POST":
+        action = (request.form.get("action") or "").strip()
+
+        if action == "add":
+            component = (request.form.get("component") or "").strip()
+            if not component:
+                flash("Component name is required.", "danger")
+            else:
+                item = CoachBOMItem(
+                    coach_id=coach.id,
+                    component=component,
+                    section=(request.form.get("section") or "").strip() or None,
+                    quantity=request.form.get("quantity", type=int) or 1,
+                    uom=(request.form.get("uom") or "").strip() or None,
+                    delivered="delivered" in request.form,
+                    expected_delivery_date=parse_date(request.form.get("expected_delivery_date")),
+                    actual_delivery_date=parse_date(request.form.get("actual_delivery_date")),
+                    notes=(request.form.get("notes") or "").strip() or None,
+                )
+                if item.delivered and not item.actual_delivery_date:
+                    item.actual_delivery_date = today
+                db.session.add(item)
+                db.session.commit()
+                flash("BOM item added.", "success")
+
+        elif action == "update":
+            item_id = request.form.get("item_id", type=int)
+            item = CoachBOMItem.query.filter_by(id=item_id, coach_id=coach.id).first_or_404()
+            item.component = (request.form.get("component") or item.component).strip()
+            item.section = (request.form.get("section") or "").strip() or None
+            item.quantity = request.form.get("quantity", type=int) or item.quantity or 1
+            item.uom = (request.form.get("uom") or "").strip() or None
+            item.delivered = "delivered" in request.form
+            item.expected_delivery_date = parse_date(request.form.get("expected_delivery_date"))
+            item.actual_delivery_date = parse_date(request.form.get("actual_delivery_date"))
+            item.notes = (request.form.get("notes") or "").strip() or None
+            if item.delivered and not item.actual_delivery_date:
+                item.actual_delivery_date = today
+            item.updated_at = datetime.utcnow()
+            db.session.commit()
+            flash("BOM item updated.", "success")
+
+        elif action == "delete":
+            item_id = request.form.get("item_id", type=int)
+            item = CoachBOMItem.query.filter_by(id=item_id, coach_id=coach.id).first_or_404()
+            db.session.delete(item)
+            db.session.commit()
+            flash("BOM item deleted.", "info")
+
+        return redirect(url_for("coach_bom", id=coach.id))
+
+    summary = bom_summary_for_coach(coach, today)
+    rows = []
+    for item in summary["items"]:
+        rows.append({"item": item, "flags": get_bom_item_flags(item, today)})
+
+    return render_template(
+        "coach_bom.html",
+        coach=coach,
+        rows=rows,
+        counts=summary["counts"],
+        today=today,
+    )
+
+
+def _parse_bom_bool(value):
+    if value is None:
+        return False
+    return str(value).strip().lower() in {"1", "true", "yes", "y", "delivered"}
+
+
+def import_bom_from_csv_file(file_storage, coach=None):
+    """
+    Import BOM rows from uploaded CSV.
+    Skips duplicates: same coach + component (+ section if provided).
+    Returns (imported_count, skipped_count, errors_list).
+    """
+    import io
+
+    imported = 0
+    skipped = 0
+    errors = []
+
+    raw = file_storage.read()
+    if isinstance(raw, bytes):
+        raw = raw.decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(raw))
+
+    if not reader.fieldnames:
+        return 0, 0, ["CSV has no header row."]
+
+    field_map = {(h or "").strip().lower(): h for h in reader.fieldnames}
+
+    def col(*names):
+        for n in names:
+            if n in field_map:
+                return field_map[n]
+        return None
+
+    c_coach = col("coach_number", "coach_no", "coach")
+    c_comp = col("component", "material", "item")
+    c_section = col("section")
+    c_qty = col("quantity", "qty")
+    c_uom = col("uom", "unit", "unit_of_measure")
+    c_del = col("delivered", "status")
+    c_exp = col("expected_delivery_date", "expected_date", "expected")
+    c_act = col("actual_delivery_date", "actual_date", "actual")
+    c_notes = col("notes", "note", "comment")
+
+    if not c_comp:
+        return 0, 0, ["CSV must include a 'component' column."]
+
+    coach_cache = {}
+    # Track keys already seen in this file + existing DB rows per coach
+    existing_keys = set()
+    loaded_coach_ids = set()
+
+    def load_existing_for_coach(c):
+        if c.id in loaded_coach_ids:
+            return
+        for item in CoachBOMItem.query.filter_by(coach_id=c.id).all():
+            key = (
+                c.id,
+                (item.component or "").strip().lower(),
+                (item.section or "").strip().lower(),
+            )
+            existing_keys.add(key)
+        loaded_coach_ids.add(c.id)
+
+    if coach is not None:
+        load_existing_for_coach(coach)
+
+    for idx, row in enumerate(reader, start=2):
+        component = (row.get(c_comp) or "").strip()
+        if not component:
+            skipped += 1
+            continue
+
+        target = coach
+        if target is None:
+            if not c_coach:
+                errors.append(f"Row {idx}: missing coach_number column.")
+                skipped += 1
+                continue
+            number = (row.get(c_coach) or "").strip()
+            if not number:
+                errors.append(f"Row {idx}: empty coach_number.")
+                skipped += 1
+                continue
+            if number not in coach_cache:
+                coach_cache[number] = Coach.query.filter_by(coach_number=number).first()
+            target = coach_cache[number]
+            if not target:
+                errors.append(f"Row {idx}: coach '{number}' not found.")
+                skipped += 1
+                continue
+            load_existing_for_coach(target)
+
+        section = (row.get(c_section) or "").strip() if c_section else ""
+        dup_key = (
+            target.id,
+            component.lower(),
+            section.lower(),
+        )
+        if dup_key in existing_keys:
+            skipped += 1
+            continue
+
+        qty_raw = row.get(c_qty) if c_qty else 1
+        try:
+            quantity = int(float(qty_raw)) if qty_raw not in (None, "") else 1
+        except (TypeError, ValueError):
+            quantity = 1
+
+        delivered = _parse_bom_bool(row.get(c_del) if c_del else None)
+        expected = parse_date(row.get(c_exp) if c_exp else None)
+        actual = parse_date(row.get(c_act) if c_act else None)
+        if delivered and not actual:
+            actual = datetime.now().date()
+
+        db.session.add(
+            CoachBOMItem(
+                coach_id=target.id,
+                component=component,
+                section=section or None,
+                quantity=quantity,
+                uom=(row.get(c_uom) or "").strip() or None if c_uom else None,
+                delivered=delivered,
+                expected_delivery_date=expected,
+                actual_delivery_date=actual,
+                notes=(row.get(c_notes) or "").strip() or None if c_notes else None,
+            )
+        )
+        existing_keys.add(dup_key)  # prevent duplicates within same CSV
+        imported += 1
+
+    if imported:
+        db.session.commit()
+    return imported, skipped, errors
+
+
+@app.route("/coaches/<int:id>/bom/import", methods=["POST"])
+@login_required
+def coach_bom_import(id):
+    coach = Coach.query.get_or_404(id)
+    file = request.files.get("bom_csv")
+    if not file or not file.filename:
+        flash("Choose a CSV file to import.", "warning")
+        return redirect(url_for("coach_bom", id=coach.id))
+
+    try:
+        imported, skipped, errors = import_bom_from_csv_file(file, coach=coach)
+    except Exception as e:
+        flash(f"Import failed: {e}", "danger")
+        return redirect(url_for("coach_bom", id=coach.id))
+
+    flash(f"BOM import: {imported} added, {skipped} skipped.", "success" if imported else "warning")
+    for err in errors[:8]:
+        flash(err, "warning")
+    return redirect(url_for("coach_bom", id=coach.id))
+
+
+
 
 @app.route("/coaches/<int:coach_id>/tasks/<int:task_id>/workflow", methods=["POST"])
 @login_required

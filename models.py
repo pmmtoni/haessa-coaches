@@ -137,7 +137,6 @@ class Coach(db.Model):
         lazy=True,
         cascade="all, delete-orphan",
         order_by="CoachComponentInstallation.id",
-    
     )
 
     def __repr__(self):
@@ -380,6 +379,50 @@ class CoachComponentInstallation(db.Model):
 
     def __repr__(self):
         return f"<CoachComponentInstallation {self.component}>"
+
+
+class CoachBOMItem(db.Model):
+    """Per-coach bill of materials / material delivery tracking."""
+    __tablename__ = "coach_bom_item"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    coach_id = db.Column(
+        db.Integer,
+        db.ForeignKey("coach.id"),
+        nullable=False,
+        index=True,
+    )
+
+    component = db.Column(db.String(200), nullable=False)
+    section = db.Column(db.String(120), nullable=True)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    uom = db.Column(db.String(50), nullable=True)  # e.g. EA, KG, M, SET
+
+    delivered = db.Column(db.Boolean, nullable=False, default=False)
+    expected_delivery_date = db.Column(db.Date, nullable=True)
+    actual_delivery_date = db.Column(db.Date, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+    )
+
+    coach = db.relationship(
+        "Coach",
+        backref=db.backref(
+            "bom_items",
+            lazy=True,
+            cascade="all, delete-orphan",
+        ),
+    )
+
+    def __repr__(self):
+        return f"<CoachBOMItem coach_id={self.coach_id} {self.component}>"
 
 
 class CompletionTask(db.Model):
