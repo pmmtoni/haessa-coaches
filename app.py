@@ -2208,7 +2208,438 @@ def coach_bom_import(id):
         flash(err, "warning")
     return redirect(url_for("coach_bom", id=coach.id))
 
+@app.route("/coach-bom-analytics")
+@login_required
+def coach_bom_analytics():
+    """
+    Dynamic BOM delivery analytics across all coaches.
 
+    Status rules:
+      Delivered   = delivered is True
+      Overdue     = not delivered and expected delivery date < today
+      Outstanding = not delivered and not overdue
+
+    Component totals use BOM quantity rather than BOM row count.
+    """
+    from datetime import date
+    from sqlalchemy import func
+
+    today = date.today()
+
+    # ---------------------------------------------------------
+    # FILTERS
+    # ---------------------------------------------------------
+    coach_type_filter = request.args.get("coach_type", "").strip()
+    coach_id_filter = request.args.get("coach_id", type=int)
+    section_filter = request.args.get("section", "").strip()
+    status_filter = request.args.get("status", "").strip().lower()
+
+    query = (
+        CoachBOMItem.query
+        .join(Coach, CoachBOMItem.coach_id == Coach.id)
+        .filter(Coach.archived.is_(False))
+    )
+
+    if coach_type_filter:
+        query = query.filter(Coach.coach_type == coach_type_filter)
+
+    if coach_id_filter:
+        query = query.filter(CoachBOMItem.coach_id == coach_id_filter)
+
+    if section_filter:
+        query = query.filter(CoachBOMItem.section == section_filter)
+
+    items = query.order_by(
+        Coach.coach_number.asc(),
+        CoachBOMItem.component.asc()
+    ).all()
+
+    # ---------------------------------------------------------
+    # HELPERS
+    # ---------------------------------------------------------
+    def item_quantity(item):
+        try:
+            return max(int(item.quantity or 1), 1)
+        except (TypeError, ValueError):
+            return 1
+
+    def item_status(item):
+        if item.delivered:
+            return "delivered"
+
+        if (
+            item.expected_delivery_date
+            and item.expected_delivery_date < today
+        ):
+            return "overdue"
+
+        return "outstanding"
+
+    # Apply derived status filter after loading because Overdue is
+    # calculated dynamically from today's date.
+    if status_filter in {"delivered", "overdue", "outstanding"}:
+        items = [
+            item
+            for item in items
+            if item_status(item) == status_filter
+        ]
+
+    # ---------------------------------------------------------
+    # KPI TOTALS
+    # ---------------------------------------------------------
+    total_components = 0
+    delivered_components = 0
+    overdue_components = 0
+    outstanding_components = 0
+
+    coach_ids_with_bom = set()
+
+    for item in items:
+        qty = item_quantity(item)
+        status = item_status(item)
+
+        total_components += qty
+        coach_ids_with_bom.add(item.coach_id)
+
+        if status == "delivered":
+            delivered_components += qty
+
+        elif status == "overdue":
+            overdue_components += qty
+
+        else:
+            outstanding_components += qty
+
+    delivered_percent = (
+        round((delivered_components / total_components) * 100, 1)
+        if total_components
+        else 0
+    )
+
+    overdue_percent = (
+        round((overdue_components / total_components) * 100, 1)
+        if total_components
+        else 0
+    )
+
+    outstanding_percent = (
+        round((outstanding_components / total_components) * 100, 1)
+        if total_components
+        else 0
+    )
+
+    kpis = {
+        "total": total_components,
+        "delivered": delivered_components,
+        "delivered_percent": delivered_percent,
+        "outstanding": outstanding_components,
+        "outstanding_percent": outstanding_percent,
+        "overdue": overdue_components,
+        "overdue_percent": overdue_percent,
+        "coaches": len(coach_ids_with_bom),
+    }
+
+    # ---------------------------------------------------------
+    # DELIVERY PERFORMANCE BY COACH
+    # ---------------------------------------------------------
+    coach_performance = {}
+
+    for item in items:
+        coach = item.coach
+        coach_number = coach.coach_number
+        qty = item_quantity(item)
+        status = item_status(item)
+
+        if coach_number not in coach_performance:
+            coach_performance[coach_number] = {
+                "delivered": 0,
+                "outstanding": 0,
+                "overdue": 0,
+                "total": 0,
+            }
+
+        coach_performance[coach_number]["total"] += qty
+        coach_performance[coach_number][status] += qty
+
+    coach_performance_rows = []
+
+    for coach_number, values in coach_performance.items():
+        total = values["total"]
+
+        values["coach_number"] = coach_number
+        values["delivered_percent"] = (
+            round((values["delivered"] / total) * 100, 1)
+            if total
+            else 0
+        )
+
+        coach_performance_rows.append(values)
+
+    coach_performance_rows.sort(
+        key=lambda row: (
+            row["overdue"],
+            row["outstanding"],
+            row["total"]
+        ),
+        reverse=True
+    )
+
+    # ---------------------------------------------------------
+    # TOP 10 OVERDUE COMPONENTS
+    # ---------------------------------------------------------
+    overdue_rows = []
+
+    for item in items:
+        if item_status(item) != "overdue":
+            continue
+
+        days_overdue = (
+            today - item.expected_delivery_date
+        ).days
+
+        overdue_rows.append({
+            "coach_number": item.coach.coach_number,
+            "component": item.component,
+            "section": item.section or "—",
+            "quantity": item_quantity(item),
+            "expected_delivery_date": item.expected_delivery_date,
+            "supplier_date": item.supplier_date,
+            "days_overdue": days_overdue,
+        })
+
+    overdue_rows.sort(
+        key=lambda row: row["days_overdue"],
+        reverse=True
+    )
+
+    top_overdue = overdue_rows[:10]
+
+    # ---------------------------------------------------------
+    # COMPONENT STATUS BY SECTION
+    # ---------------------------------------------------------
+    section_status = {}
+
+    for item in items:
+        section = (item.section or "Unspecified").strip()
+        qty = item_quantity(item)
+        status = item_status(item)
+
+        if section not in section_status:
+            section_status[section] = {
+                "delivered": 0,
+                "outstanding": 0,
+                "overdue": 0,
+                "total": 0,
+            }
+
+        section_status[section]["total"] += qty
+        section_status[section][status] += qty
+
+    section_rows = []
+
+    for section, values in section_status.items():
+        section_rows.append({
+            "section": section,
+            "total": values["total"],
+            "delivered": values["delivered"],
+            "outstanding": values["outstanding"],
+            "overdue": values["overdue"],
+        })
+
+    section_rows.sort(
+        key=lambda row: row["total"],
+        reverse=True
+    )
+
+    # ---------------------------------------------------------
+    # MONTHLY DELIVERY DATA
+    # Expected vs Supplier vs Actual
+    # ---------------------------------------------------------
+    monthly_data = {}
+
+    def month_key(value):
+        if not value:
+            return None
+
+        return value.strftime("%Y-%m")
+
+    def ensure_month(key):
+        if key not in monthly_data:
+            monthly_data[key] = {
+                "expected": 0,
+                "supplier": 0,
+                "actual": 0,
+            }
+
+    for item in items:
+        qty = item_quantity(item)
+
+        expected_key = month_key(
+            item.expected_delivery_date
+        )
+
+        supplier_key = month_key(
+            item.supplier_date
+        )
+
+        actual_key = month_key(
+            item.actual_delivery_date
+        )
+
+        if expected_key:
+            ensure_month(expected_key)
+            monthly_data[expected_key]["expected"] += qty
+
+        if supplier_key:
+            ensure_month(supplier_key)
+            monthly_data[supplier_key]["supplier"] += qty
+
+        if actual_key:
+            ensure_month(actual_key)
+            monthly_data[actual_key]["actual"] += qty
+
+    month_keys = sorted(monthly_data.keys())
+
+    monthly_labels = []
+    monthly_expected = []
+    monthly_supplier = []
+    monthly_actual = []
+
+    for key in month_keys:
+        year, month = key.split("-")
+
+        label = date(
+            int(year),
+            int(month),
+            1
+        ).strftime("%b %Y")
+
+        monthly_labels.append(label)
+
+        monthly_expected.append(
+            monthly_data[key]["expected"]
+        )
+
+        monthly_supplier.append(
+            monthly_data[key]["supplier"]
+        )
+
+        monthly_actual.append(
+            monthly_data[key]["actual"]
+        )
+
+    delivery_timeline = {
+        "labels": monthly_labels,
+        "expected": monthly_expected,
+        "supplier": monthly_supplier,
+        "actual": monthly_actual,
+    }
+
+    # ---------------------------------------------------------
+    # SUPPLIER DATE vs ACTUAL DELIVERY
+    # Monthly comparison
+    # ---------------------------------------------------------
+    supplier_actual = {
+        "labels": monthly_labels,
+        "supplier": monthly_supplier,
+        "actual": monthly_actual,
+    }
+
+    # ---------------------------------------------------------
+    # FILTER DROPDOWNS
+    # ---------------------------------------------------------
+    coach_types = sorted({
+        row.coach_type
+        for row in Coach.query
+        .filter(Coach.archived.is_(False))
+        .all()
+        if row.coach_type
+    })
+
+    coaches = (
+        Coach.query
+        .filter(Coach.archived.is_(False))
+        .order_by(Coach.coach_number.asc())
+        .all()
+    )
+
+    sections = sorted({
+        row.section.strip()
+        for row in CoachBOMItem.query.all()
+        if row.section and row.section.strip()
+    })
+
+    # ---------------------------------------------------------
+    # KEY INSIGHTS
+    # ---------------------------------------------------------
+    insights = []
+
+    if total_components:
+        insights.append(
+            f"{delivered_percent}% of BOM components have been delivered."
+        )
+
+        insights.append(
+            f"{overdue_components} component(s) "
+            f"({overdue_percent}%) are overdue."
+        )
+
+        if coach_performance_rows:
+            highest_overdue = max(
+                coach_performance_rows,
+                key=lambda row: row["overdue"]
+            )
+
+            if highest_overdue["overdue"] > 0:
+                insights.append(
+                    f"Coach {highest_overdue['coach_number']} "
+                    f"has the highest overdue BOM quantity "
+                    f"({highest_overdue['overdue']})."
+                )
+
+        if top_overdue:
+            oldest = top_overdue[0]
+
+            insights.append(
+                f"The longest outstanding item is "
+                f"{oldest['component']} on coach "
+                f"{oldest['coach_number']} at "
+                f"{oldest['days_overdue']} day(s) overdue."
+            )
+
+    else:
+        insights.append(
+            "No BOM items match the selected filters."
+        )
+
+    # ---------------------------------------------------------
+    # RENDER DASHBOARD
+    # ---------------------------------------------------------
+    return render_template(
+        "coach_bom_analytics.html",
+
+        today=today,
+
+        kpis=kpis,
+
+        coach_performance=coach_performance_rows,
+        top_overdue=top_overdue,
+        section_rows=section_rows,
+
+        delivery_timeline=delivery_timeline,
+        supplier_actual=supplier_actual,
+
+        insights=insights,
+
+        coach_types=coach_types,
+        coaches=coaches,
+        sections=sections,
+
+        coach_type_filter=coach_type_filter,
+        coach_id_filter=coach_id_filter,
+        section_filter=section_filter,
+        status_filter=status_filter,
+    )
 
 
 @app.route("/coaches/<int:coach_id>/tasks/<int:task_id>/workflow", methods=["POST"])

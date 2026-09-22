@@ -1,0 +1,1724 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Sep 22 14:03:30 2026
+
+@author: Paul Mmtoni Barasa
+"""
+
+{% extends "base.html" %}
+
+{% block title %}Coach BOM Analytics{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-3">
+
+    <!-- =========================================================
+         PAGE HEADER
+    ========================================================== -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+        <div>
+            <h2 class="mb-0 fw-bold text-primary">
+                <i class="bi bi-box-seam me-2"></i>
+                Coach BOM Analytics
+            </h2>
+
+            <div class="text-muted">
+                Component delivery performance across all coaches
+            </div>
+        </div>
+
+        <div class="text-end">
+            <div class="small text-muted">
+                Status date:
+                <strong>
+                    {{ today.strftime('%d %b %Y') }}
+                </strong>
+            </div>
+
+            <button type="button"
+                    class="btn btn-outline-primary btn-sm mt-1"
+                    onclick="window.print();">
+                <i class="bi bi-printer me-1"></i>
+                Print / PDF
+            </button>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         FILTERS
+    ========================================================== -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4 no-print">
+
+        <div class="card-body">
+
+            <form method="GET"
+                  action="{{ url_for('coach_bom_analytics') }}"
+                  class="row g-3 align-items-end">
+
+                <!-- Coach Type -->
+                <div class="col-xl-2 col-lg-3 col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Coach Type
+                    </label>
+
+                    <select name="coach_type"
+                            class="form-select">
+
+                        <option value="">
+                            All Types
+                        </option>
+
+                        {% for coach_type in coach_types %}
+
+                        <option value="{{ coach_type }}"
+                                {% if coach_type_filter == coach_type %}
+                                    selected
+                                {% endif %}>
+                            {{ coach_type }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Coach -->
+                <div class="col-xl-2 col-lg-3 col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Coach
+                    </label>
+
+                    <select name="coach_id"
+                            class="form-select">
+
+                        <option value="">
+                            All Coaches
+                        </option>
+
+                        {% for coach in coaches %}
+
+                        <option value="{{ coach.id }}"
+                                {% if coach_id_filter == coach.id %}
+                                    selected
+                                {% endif %}>
+                            {{ coach.coach_number }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Section -->
+                <div class="col-xl-2 col-lg-3 col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Section
+                    </label>
+
+                    <select name="section"
+                            class="form-select">
+
+                        <option value="">
+                            All Sections
+                        </option>
+
+                        {% for section in sections %}
+
+                        <option value="{{ section }}"
+                                {% if section_filter == section %}
+                                    selected
+                                {% endif %}>
+                            {{ section }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- Status -->
+                <div class="col-xl-2 col-lg-3 col-md-4">
+
+                    <label class="form-label fw-semibold">
+                        Status
+                    </label>
+
+                    <select name="status"
+                            class="form-select">
+
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        <option value="delivered"
+                                {% if status_filter == 'delivered' %}
+                                    selected
+                                {% endif %}>
+                            Delivered
+                        </option>
+
+                        <option value="outstanding"
+                                {% if status_filter == 'outstanding' %}
+                                    selected
+                                {% endif %}>
+                            Outstanding / On Order
+                        </option>
+
+                        <option value="overdue"
+                                {% if status_filter == 'overdue' %}
+                                    selected
+                                {% endif %}>
+                            Overdue
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Apply -->
+                <div class="col-xl-2 col-lg-3 col-md-4">
+
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-1"></i>
+                        Apply Filters
+                    </button>
+
+                </div>
+
+
+                <!-- Reset -->
+                <div class="col-xl-2 col-lg-3 col-md-4">
+
+                    <a href="{{ url_for('coach_bom_analytics') }}"
+                       class="btn btn-outline-secondary w-100">
+
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Reset
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         KPI CARDS
+    ========================================================== -->
+    <div class="row g-3 mb-4">
+
+        <!-- Total -->
+        <div class="col-xl col-md-6">
+
+            <div class="card analytics-kpi kpi-total shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <div class="kpi-title">
+                        Total Components
+                    </div>
+
+                    <div class="kpi-value">
+                        {{ "{:,}".format(kpis.total) }}
+                    </div>
+
+                    <div class="kpi-subtitle">
+                        BOM Quantity
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Delivered -->
+        <div class="col-xl col-md-6">
+
+            <div class="card analytics-kpi kpi-delivered shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <div class="kpi-title">
+                        Delivered
+                    </div>
+
+                    <div class="kpi-value">
+                        {{ "{:,}".format(kpis.delivered) }}
+                    </div>
+
+                    <div class="kpi-percent">
+                        {{ kpis.delivered_percent }}%
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Outstanding -->
+        <div class="col-xl col-md-6">
+
+            <div class="card analytics-kpi kpi-outstanding shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <div class="kpi-title">
+                        On Order / Outstanding
+                    </div>
+
+                    <div class="kpi-value">
+                        {{ "{:,}".format(kpis.outstanding) }}
+                    </div>
+
+                    <div class="kpi-percent">
+                        {{ kpis.outstanding_percent }}%
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Overdue -->
+        <div class="col-xl col-md-6">
+
+            <div class="card analytics-kpi kpi-overdue shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <div class="kpi-title">
+                        Overdue
+                    </div>
+
+                    <div class="kpi-value">
+                        {{ "{:,}".format(kpis.overdue) }}
+                    </div>
+
+                    <div class="kpi-percent">
+                        {{ kpis.overdue_percent }}%
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Coaches -->
+        <div class="col-xl col-md-6">
+
+            <div class="card analytics-kpi kpi-coaches shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <div class="kpi-title">
+                        Coaches
+                    </div>
+
+                    <div class="kpi-value">
+                        {{ kpis.coaches }}
+                    </div>
+
+                    <div class="kpi-subtitle">
+                        With BOM Items
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         FIRST CHART ROW
+    ========================================================== -->
+    <div class="row g-4 mb-4">
+
+        <!-- Delivery Status -->
+        <div class="col-xl-4">
+
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <h5 class="mb-0 fw-bold">
+                        Component Delivery Status
+                    </h5>
+
+                </div>
+
+                <div class="card-body chart-container">
+
+                    <canvas id="deliveryStatusChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Coach Performance -->
+        <div class="col-xl-4">
+
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <h5 class="mb-0 fw-bold">
+                        Delivery Performance by Coach
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="coach-chart-container">
+
+                        <canvas id="coachPerformanceChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Supplier vs Actual -->
+        <div class="col-xl-4">
+
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <h5 class="mb-0 fw-bold">
+                        Supplier Date vs Actual Delivery
+                    </h5>
+
+                </div>
+
+                <div class="card-body chart-container">
+
+                    <canvas id="supplierActualChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         SECOND ROW
+    ========================================================== -->
+    <div class="row g-4 mb-4">
+
+        <!-- Top Overdue -->
+        <div class="col-xl-6">
+
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <h5 class="mb-0 fw-bold">
+                        Top 10 Overdue Components
+                    </h5>
+
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-sm mb-0 analytics-table">
+
+                            <thead class="table-light">
+
+                                <tr>
+                                    <th>Coach</th>
+                                    <th>Component</th>
+                                    <th>Section</th>
+                                    <th class="text-center">Qty</th>
+                                    <th>Expected</th>
+                                    <th>Supplier Date</th>
+                                    <th class="text-center">Days Overdue</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                            {% for row in top_overdue %}
+
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        {{ row.coach_number }}
+                                    </td>
+
+                                    <td>
+                                        {{ row.component }}
+                                    </td>
+
+                                    <td>
+                                        {{ row.section }}
+                                    </td>
+
+                                    <td class="text-center">
+                                        {{ row.quantity }}
+                                    </td>
+
+                                    <td>
+                                        {{ row.expected_delivery_date.strftime('%d %b %Y') }}
+                                    </td>
+
+                                    <td>
+
+                                        {% if row.supplier_date %}
+
+                                            {{ row.supplier_date.strftime('%d %b %Y') }}
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </td>
+
+                                    <td class="text-center fw-bold text-danger">
+                                        {{ row.days_overdue }}
+                                    </td>
+
+                                </tr>
+
+                            {% else %}
+
+                                <tr>
+
+                                    <td colspan="7"
+                                        class="text-center text-muted py-4">
+
+                                        No overdue BOM components found.
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Delivery Timeline -->
+        <div class="col-xl-6">
+
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <h5 class="mb-0 fw-bold">
+                        Delivery Timeline
+                    </h5>
+
+                </div>
+
+                <div class="card-body chart-container">
+
+                    <canvas id="deliveryTimelineChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         THIRD ROW
+    ========================================================== -->
+    <div class="row g-4 mb-4">
+
+        <!-- Section Status -->
+        <div class="col-xl-5">
+
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <h5 class="mb-0 fw-bold">
+                        Component Quantity by Section
+                    </h5>
+
+                </div>
+
+                <div class="card-body chart-container">
+
+                    <canvas id="sectionChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Detailed Coach Performance -->
+        <div class="col-xl-7">
+
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+
+                <div class="card-header bg-white border-bottom">
+
+                    <h5 class="mb-0 fw-bold">
+                        Coach BOM Performance
+                    </h5>
+
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive coach-performance-table">
+
+                        <table class="table table-hover table-sm mb-0 analytics-table">
+
+                            <thead class="table-light">
+
+                                <tr>
+                                    <th>Coach</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Delivered</th>
+                                    <th class="text-end">Outstanding</th>
+                                    <th class="text-end">Overdue</th>
+                                    <th class="text-end">Delivery %</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                            {% for row in coach_performance %}
+
+                                <tr>
+
+                                    <td class="fw-semibold">
+                                        {{ row.coach_number }}
+                                    </td>
+
+                                    <td class="text-end">
+                                        {{ row.total }}
+                                    </td>
+
+                                    <td class="text-end text-success fw-semibold">
+                                        {{ row.delivered }}
+                                    </td>
+
+                                    <td class="text-end text-warning fw-semibold">
+                                        {{ row.outstanding }}
+                                    </td>
+
+                                    <td class="text-end {% if row.overdue > 0 %}text-danger fw-bold{% endif %}">
+                                        {{ row.overdue }}
+                                    </td>
+
+                                    <td class="text-end fw-bold">
+                                        {{ row.delivered_percent }}%
+                                    </td>
+
+                                </tr>
+
+                            {% else %}
+
+                                <tr>
+
+                                    <td colspan="6"
+                                        class="text-center text-muted py-4">
+
+                                        No BOM information available.
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         KEY INSIGHTS
+    ========================================================== -->
+    <div class="card shadow-sm border-0 rounded-4 insights-card mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-start">
+
+                <div class="col-auto">
+
+                    <div class="insight-icon">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+
+                </div>
+
+                <div class="col">
+
+                    <h5 class="fw-bold mb-2">
+                        Key Insights
+                    </h5>
+
+                    <ul class="mb-0">
+
+                        {% for insight in insights %}
+
+                        <li class="mb-1">
+                            {{ insight }}
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     CHART.JS
+============================================================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* =========================================================
+       GLOBAL CHART DEFAULTS
+    ========================================================== */
+
+    Chart.defaults.font.family =
+        "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+    Chart.defaults.color = "#334155";
+
+
+    const COLORS = {
+
+        delivered: "#28a745",
+
+        outstanding: "#f4b400",
+
+        overdue: "#dc3545",
+
+        expected: "#0d6efd",
+
+        supplier: "#339af0",
+
+        actual: "#28a745",
+
+        navy: "#173b67"
+
+    };
+
+
+    /* =========================================================
+       1. COMPONENT DELIVERY STATUS
+    ========================================================== */
+
+    const deliveryStatusCanvas =
+        document.getElementById("deliveryStatusChart");
+
+    if (deliveryStatusCanvas) {
+
+        new Chart(deliveryStatusCanvas, {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: [
+                    "Delivered",
+                    "Outstanding / On Order",
+                    "Overdue"
+                ],
+
+                datasets: [{
+
+                    data: [
+                        {{ kpis.delivered }},
+                        {{ kpis.outstanding }},
+                        {{ kpis.overdue }}
+                    ],
+
+                    backgroundColor: [
+                        COLORS.delivered,
+                        COLORS.outstanding,
+                        COLORS.overdue
+                    ],
+
+                    borderWidth: 2,
+
+                    borderColor: "#ffffff"
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                cutout: "62%",
+
+                plugins: {
+
+                    legend: {
+
+                        position: "bottom",
+
+                        labels: {
+                            usePointStyle: true,
+                            padding: 18
+                        }
+
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                const value = context.raw || 0;
+
+                                const total =
+                                    {{ kpis.total }} || 1;
+
+                                const percent =
+                                    ((value / total) * 100)
+                                    .toFixed(1);
+
+                                return (
+                                    context.label +
+                                    ": " +
+                                    value.toLocaleString() +
+                                    " (" +
+                                    percent +
+                                    "%)"
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       2. DELIVERY PERFORMANCE BY COACH
+    ========================================================== */
+
+    const coachLabels = [
+
+        {% for row in coach_performance %}
+            {{ row.coach_number|tojson }},
+        {% endfor %}
+
+    ];
+
+
+    const coachDelivered = [
+
+        {% for row in coach_performance %}
+            {{ row.delivered }},
+        {% endfor %}
+
+    ];
+
+
+    const coachOutstanding = [
+
+        {% for row in coach_performance %}
+            {{ row.outstanding }},
+        {% endfor %}
+
+    ];
+
+
+    const coachOverdue = [
+
+        {% for row in coach_performance %}
+            {{ row.overdue }},
+        {% endfor %}
+
+    ];
+
+
+    const coachPerformanceCanvas =
+        document.getElementById("coachPerformanceChart");
+
+    if (coachPerformanceCanvas) {
+
+        /*
+         Dynamically increase chart height when there are many coaches.
+         This prevents coach numbers from becoming unreadable.
+        */
+
+        const coachChartHeight =
+            Math.max(
+                320,
+                coachLabels.length * 30
+            );
+
+        coachPerformanceCanvas.parentElement.style.height =
+            coachChartHeight + "px";
+
+
+        new Chart(coachPerformanceCanvas, {
+
+            type: "bar",
+
+            data: {
+
+                labels: coachLabels,
+
+                datasets: [
+
+                    {
+
+                        label: "Delivered",
+
+                        data: coachDelivered,
+
+                        backgroundColor:
+                            COLORS.delivered
+
+                    },
+
+                    {
+
+                        label: "Outstanding",
+
+                        data: coachOutstanding,
+
+                        backgroundColor:
+                            COLORS.outstanding
+
+                    },
+
+                    {
+
+                        label: "Overdue",
+
+                        data: coachOverdue,
+
+                        backgroundColor:
+                            COLORS.overdue
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                indexAxis: "y",
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    x: {
+
+                        stacked: true,
+
+                        beginAtZero: true,
+
+                        title: {
+                            display: true,
+                            text: "Component Quantity"
+                        }
+
+                    },
+
+                    y: {
+
+                        stacked: true,
+
+                        ticks: {
+                            autoSkip: false
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        position: "bottom",
+
+                        labels: {
+                            usePointStyle: true
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       3. SUPPLIER DATE VS ACTUAL DELIVERY
+    ========================================================== */
+
+    const supplierActualCanvas =
+        document.getElementById("supplierActualChart");
+
+    if (supplierActualCanvas) {
+
+        new Chart(supplierActualCanvas, {
+
+            type: "bar",
+
+            data: {
+
+                labels:
+                    {{ supplier_actual.labels|tojson }},
+
+                datasets: [
+
+                    {
+
+                        label: "Supplier Date",
+
+                        data:
+                            {{ supplier_actual.supplier|tojson }},
+
+                        backgroundColor:
+                            COLORS.supplier
+
+                    },
+
+                    {
+
+                        label: "Actual Delivery",
+
+                        data:
+                            {{ supplier_actual.actual|tojson }},
+
+                        backgroundColor:
+                            COLORS.actual
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        title: {
+                            display: true,
+                            text: "Component Quantity"
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        position: "top",
+
+                        labels: {
+                            usePointStyle: true
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       4. DELIVERY TIMELINE
+    ========================================================== */
+
+    const timelineCanvas =
+        document.getElementById("deliveryTimelineChart");
+
+    if (timelineCanvas) {
+
+        new Chart(timelineCanvas, {
+
+            type: "line",
+
+            data: {
+
+                labels:
+                    {{ delivery_timeline.labels|tojson }},
+
+                datasets: [
+
+                    {
+
+                        label: "Expected Delivery",
+
+                        data:
+                            {{ delivery_timeline.expected|tojson }},
+
+                        borderColor:
+                            COLORS.expected,
+
+                        backgroundColor:
+                            COLORS.expected,
+
+                        tension: 0.25,
+
+                        pointRadius: 4,
+
+                        fill: false
+
+                    },
+
+                    {
+
+                        label: "Supplier Date",
+
+                        data:
+                            {{ delivery_timeline.supplier|tojson }},
+
+                        borderColor:
+                            COLORS.supplier,
+
+                        backgroundColor:
+                            COLORS.supplier,
+
+                        tension: 0.25,
+
+                        pointRadius: 4,
+
+                        fill: false
+
+                    },
+
+                    {
+
+                        label: "Actual Delivery",
+
+                        data:
+                            {{ delivery_timeline.actual|tojson }},
+
+                        borderColor:
+                            COLORS.actual,
+
+                        backgroundColor:
+                            COLORS.actual,
+
+                        tension: 0.25,
+
+                        pointRadius: 4,
+
+                        fill: false
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+
+                    intersect: false,
+
+                    mode: "index"
+
+                },
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        title: {
+                            display: true,
+                            text: "Component Quantity"
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        position: "top",
+
+                        labels: {
+                            usePointStyle: true
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       5. COMPONENT QUANTITY BY SECTION
+    ========================================================== */
+
+    const sectionLabels = [
+
+        {% for row in section_rows %}
+            {{ row.section|tojson }},
+        {% endfor %}
+
+    ];
+
+
+    const sectionTotals = [
+
+        {% for row in section_rows %}
+            {{ row.total }},
+        {% endfor %}
+
+    ];
+
+
+    const sectionCanvas =
+        document.getElementById("sectionChart");
+
+    if (sectionCanvas) {
+
+        new Chart(sectionCanvas, {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: sectionLabels,
+
+                datasets: [{
+
+                    data: sectionTotals,
+
+                    backgroundColor: [
+
+                        "#0d6efd",
+                        "#28a745",
+                        "#f4b400",
+                        "#fd7e14",
+                        "#dc3545",
+                        "#6f42c1",
+                        "#20c997",
+                        "#6c757d",
+                        "#17a2b8",
+                        "#6610f2",
+                        "#198754",
+                        "#adb5bd"
+
+                    ],
+
+                    borderColor: "#ffffff",
+
+                    borderWidth: 2
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                cutout: "58%",
+
+                plugins: {
+
+                    legend: {
+
+                        position: "right",
+
+                        labels: {
+
+                            usePointStyle: true,
+
+                            boxWidth: 10
+
+                        }
+
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return (
+                                    context.label +
+                                    ": " +
+                                    Number(
+                                        context.raw || 0
+                                    ).toLocaleString()
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+});
+
+</script>
+
+
+<style>
+
+/* =============================================================
+   GENERAL DASHBOARD
+============================================================= */
+
+.analytics-kpi {
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    min-height: 135px;
+
+}
+
+
+.analytics-kpi .card-body {
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+}
+
+
+.kpi-title {
+
+    font-size: 0.95rem;
+
+    font-weight: 700;
+
+    margin-bottom: 6px;
+
+}
+
+
+.kpi-value {
+
+    font-size: 2rem;
+
+    line-height: 1.05;
+
+    font-weight: 800;
+
+}
+
+
+.kpi-percent {
+
+    margin-top: 4px;
+
+    font-size: 1.1rem;
+
+    font-weight: 700;
+
+}
+
+
+.kpi-subtitle {
+
+    margin-top: 5px;
+
+    font-size: 0.85rem;
+
+    opacity: 0.8;
+
+}
+
+
+/* KPI backgrounds */
+
+.kpi-total {
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef6ff,
+            #ffffff
+        );
+
+    color: #173b67;
+
+}
+
+
+.kpi-delivered {
+
+    background:
+        linear-gradient(
+            135deg,
+            #eaf8ee,
+            #ffffff
+        );
+
+    color: #146c43;
+
+}
+
+
+.kpi-outstanding {
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff6d9,
+            #ffffff
+        );
+
+    color: #805b00;
+
+}
+
+
+.kpi-overdue {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffe8e8,
+            #ffffff
+        );
+
+    color: #b02a37;
+
+}
+
+
+.kpi-coaches {
+
+    background:
+        linear-gradient(
+            135deg,
+            #f0ebff,
+            #ffffff
+        );
+
+    color: #59359a;
+
+}
+
+
+/* =============================================================
+   CHARTS
+============================================================= */
+
+.chart-container {
+
+    position: relative;
+
+    height: 360px;
+
+}
+
+
+.coach-chart-container {
+
+    position: relative;
+
+    min-height: 320px;
+
+    max-height: 850px;
+
+    overflow-y: auto;
+
+}
+
+
+/* =============================================================
+   TABLES
+============================================================= */
+
+.analytics-table {
+
+    font-size: 0.86rem;
+
+}
+
+
+.analytics-table thead th {
+
+    white-space: nowrap;
+
+    font-weight: 700;
+
+    color: #173b67;
+
+}
+
+
+.analytics-table td {
+
+    vertical-align: middle;
+
+}
+
+
+.coach-performance-table {
+
+    max-height: 420px;
+
+    overflow-y: auto;
+
+}
+
+
+/* =============================================================
+   INSIGHTS
+============================================================= */
+
+.insights-card {
+
+    background:
+        linear-gradient(
+            90deg,
+            #edf7ff,
+            #f7fbff
+        );
+
+    border-left: 5px solid #0d6efd !important;
+
+}
+
+
+.insight-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    color: #0d6efd;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 1.5rem;
+
+}
+
+
+/* =============================================================
+   PRINT / PDF
+============================================================= */
+
+@media print {
+
+    @page {
+
+        size: A4 landscape;
+
+        margin: 8mm;
+
+    }
+
+
+    .no-print,
+    nav,
+    .navbar,
+    footer {
+
+        display: none !important;
+
+    }
+
+
+    body {
+
+        background: #ffffff !important;
+
+    }
+
+
+    .container-fluid {
+
+        width: 100% !important;
+
+        max-width: none !important;
+
+        padding: 0 !important;
+
+    }
+
+
+    .card {
+
+        box-shadow: none !important;
+
+        break-inside: avoid;
+
+    }
+
+
+    .chart-container {
+
+        height: 260px;
+
+    }
+
+
+    .coach-chart-container {
+
+        max-height: none;
+
+        overflow: visible;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
