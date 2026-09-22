@@ -1879,10 +1879,29 @@ def coach_bom(id):
     today = datetime.now().date()
 
     if request.method == "POST":
-        action = (request.form.get("action") or "").strip()
+        action = (request.form.get("action") or "").strip().lower()
+        user_role = (current_user.role or "").strip().lower()
 
+        # ---------------------------------------------------------
+        # BOM PERMISSIONS
+        # Admin  = Create / Read / Update / Delete
+        # Editor = Create / Read / Update
+        # Viewer = Read only
+        # ---------------------------------------------------------
+        if action in {"add", "update"} and user_role not in {"admin", "editor"}:
+            flash("You do not have permission to modify BOM items.", "danger")
+            return redirect(url_for("coach_bom", id=coach.id))
+
+        if action == "delete" and user_role != "admin":
+            flash("Only administrators can delete BOM items.", "danger")
+            return redirect(url_for("coach_bom", id=coach.id))
+
+        # ---------------------------------------------------------
+        # ADD BOM ITEM
+        # ---------------------------------------------------------
         if action == "add":
             component = (request.form.get("component") or "").strip()
+
             if not component:
                 flash("Component name is required.", "danger")
             else:
@@ -1893,46 +1912,121 @@ def coach_bom(id):
                     quantity=request.form.get("quantity", type=int) or 1,
                     uom=(request.form.get("uom") or "").strip() or None,
                     delivered="delivered" in request.form,
-                    expected_delivery_date=parse_date(request.form.get("expected_delivery_date")),
-                    actual_delivery_date=parse_date(request.form.get("actual_delivery_date")),
+
+                    expected_delivery_date=parse_date(
+                        request.form.get("expected_delivery_date")
+                    ),
+
+                    supplier_date=parse_date(
+                        request.form.get("supplier_date")
+                    ),
+
+                    actual_delivery_date=parse_date(
+                        request.form.get("actual_delivery_date")
+                    ),
+
                     notes=(request.form.get("notes") or "").strip() or None,
                 )
+
                 if item.delivered and not item.actual_delivery_date:
                     item.actual_delivery_date = today
+
                 db.session.add(item)
                 db.session.commit()
+
                 flash("BOM item added.", "success")
 
+        # ---------------------------------------------------------
+        # UPDATE BOM ITEM
+        # ---------------------------------------------------------
         elif action == "update":
             item_id = request.form.get("item_id", type=int)
-            item = CoachBOMItem.query.filter_by(id=item_id, coach_id=coach.id).first_or_404()
-            item.component = (request.form.get("component") or item.component).strip()
-            item.section = (request.form.get("section") or "").strip() or None
-            item.quantity = request.form.get("quantity", type=int) or item.quantity or 1
-            item.uom = (request.form.get("uom") or "").strip() or None
+
+            item = CoachBOMItem.query.filter_by(
+                id=item_id,
+                coach_id=coach.id
+            ).first_or_404()
+
+            item.component = (
+                request.form.get("component") or item.component
+            ).strip()
+
+            item.section = (
+                request.form.get("section") or ""
+            ).strip() or None
+
+            item.quantity = (
+                request.form.get("quantity", type=int)
+                or item.quantity
+                or 1
+            )
+
+            item.uom = (
+                request.form.get("uom") or ""
+            ).strip() or None
+
             item.delivered = "delivered" in request.form
-            item.expected_delivery_date = parse_date(request.form.get("expected_delivery_date"))
-            item.actual_delivery_date = parse_date(request.form.get("actual_delivery_date"))
-            item.notes = (request.form.get("notes") or "").strip() or None
+
+            item.expected_delivery_date = parse_date(
+                request.form.get("expected_delivery_date")
+            )
+
+            item.supplier_date = parse_date(
+                request.form.get("supplier_date")
+            )
+
+            item.actual_delivery_date = parse_date(
+                request.form.get("actual_delivery_date")
+            )
+
+            item.notes = (
+                request.form.get("notes") or ""
+            ).strip() or None
+
             if item.delivered and not item.actual_delivery_date:
                 item.actual_delivery_date = today
+
             item.updated_at = datetime.utcnow()
+
             db.session.commit()
+
             flash("BOM item updated.", "success")
 
+        # ---------------------------------------------------------
+        # DELETE BOM ITEM
+        # ADMIN ONLY
+        # ---------------------------------------------------------
         elif action == "delete":
             item_id = request.form.get("item_id", type=int)
-            item = CoachBOMItem.query.filter_by(id=item_id, coach_id=coach.id).first_or_404()
+
+            item = CoachBOMItem.query.filter_by(
+                id=item_id,
+                coach_id=coach.id
+            ).first_or_404()
+
             db.session.delete(item)
             db.session.commit()
+
             flash("BOM item deleted.", "info")
+
+        else:
+            flash("Invalid BOM action.", "warning")
 
         return redirect(url_for("coach_bom", id=coach.id))
 
+    # -------------------------------------------------------------
+    # DISPLAY BOM
+    # Available to all logged-in users
+    # -------------------------------------------------------------
     summary = bom_summary_for_coach(coach, today)
+
     rows = []
+
     for item in summary["items"]:
-        rows.append({"item": item, "flags": get_bom_item_flags(item, today)})
+        rows.append({
+            "item": item,
+            "flags": get_bom_item_flags(item, today)
+        })
 
     return render_template(
         "coach_bom.html",
@@ -1941,7 +2035,6 @@ def coach_bom(id):
         counts=summary["counts"],
         today=today,
     )
-
 
 def _parse_bom_bool(value):
     if value is None:
@@ -1984,6 +2077,11 @@ def import_bom_from_csv_file(file_storage, coach=None):
     c_uom = col("uom", "unit", "unit_of_measure")
     c_del = col("delivered", "status")
     c_exp = col("expected_delivery_date", "expected_date", "expected")
+    c_supplier = col(
+        "supplier_date",
+        "supplier date",
+        "supplierdate"
+    )
     c_act = col("actual_delivery_date", "actual_date", "actual")
     c_notes = col("notes", "note", "comment")
 
@@ -2054,6 +2152,12 @@ def import_bom_from_csv_file(file_storage, coach=None):
 
         delivered = _parse_bom_bool(row.get(c_del) if c_del else None)
         expected = parse_date(row.get(c_exp) if c_exp else None)
+
+        supplier_date = parse_date(
+            row.get(c_supplier) if c_supplier else None
+        )
+
+
         actual = parse_date(row.get(c_act) if c_act else None)
         if delivered and not actual:
             actual = datetime.now().date()
@@ -2067,6 +2171,8 @@ def import_bom_from_csv_file(file_storage, coach=None):
                 uom=(row.get(c_uom) or "").strip() or None if c_uom else None,
                 delivered=delivered,
                 expected_delivery_date=expected,
+                supplier_date=supplier_date,
+
                 actual_delivery_date=actual,
                 notes=(row.get(c_notes) or "").strip() or None if c_notes else None,
             )
@@ -2078,10 +2184,13 @@ def import_bom_from_csv_file(file_storage, coach=None):
         db.session.commit()
     return imported, skipped, errors
 
-
+    
 @app.route("/coaches/<int:id>/bom/import", methods=["POST"])
 @login_required
-def coach_bom_import(id):
+@role_required("admin", "editor")
+def coach_bom_import(id):    
+    
+    
     coach = Coach.query.get_or_404(id)
     file = request.files.get("bom_csv")
     if not file or not file.filename:

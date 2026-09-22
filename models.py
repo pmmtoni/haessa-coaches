@@ -401,6 +401,8 @@ class CoachBOMItem(db.Model):
 
     delivered = db.Column(db.Boolean, nullable=False, default=False)
     expected_delivery_date = db.Column(db.Date, nullable=True)
+    supplier_date = db.Column(db.Date, nullable=True)
+
     actual_delivery_date = db.Column(db.Date, nullable=True)
     notes = db.Column(db.Text, nullable=True)
 

@@ -1,358 +1,1366 @@
+```html
 {% extends "base.html" %}
 {% block title %}BOM Coach {{ coach.coach_number }}{% endblock %}
 
 {% block content %}
+
+{% set user_role = (current_user.role or '')|lower %}
+{% set can_edit = user_role in ['admin', 'editor'] %}
+{% set can_delete = user_role == 'admin' %}
+
 <div class="container mt-4">
 
+    <!-- =========================================================
+         PAGE HEADER
+         ========================================================= -->
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-3">
         <div>
             <h2 class="mb-1">Coach BOM — {{ coach.coach_number }}</h2>
-            <div class="text-muted">{{ coach.coach_type or '—' }} · Material / component delivery tracking</div>
+            <div class="text-muted">
+                {{ coach.coach_type or '—' }} · Material / component delivery tracking
+            </div>
         </div>
+
         <div class="mt-2 mt-lg-0 d-flex gap-2 no-print">
-            <button type="button" class="btn btn-outline-success" id="bomPdfBtn">Download PDF</button>
-            <a href="{{ url_for('coaches_edit', id=coach.id) }}" class="btn btn-outline-secondary">Back to Coach</a>
-            <a href="{{ url_for('coaches_list') }}" class="btn btn-outline-secondary">Coaches</a>
+            <button type="button"
+                    class="btn btn-outline-success"
+                    id="bomPdfBtn">
+                Download PDF
+            </button>
+
+            <a href="{{ url_for('coaches_edit', id=coach.id) }}"
+               class="btn btn-outline-secondary">
+                Back to Coach
+            </a>
+
+            <a href="{{ url_for('coaches_list') }}"
+               class="btn btn-outline-secondary">
+                Coaches
+            </a>
         </div>
     </div>
 
+
+    <!-- =========================================================
+         PRINT HEADER
+         ========================================================= -->
     <div class="print-only print-report-header mb-3">
-        <!--<h2 class="mb-1">Coach BOM — {{ coach.coach_number }}</h2>-->
-        <!--<div class="small text-muted">-->
-        <!--    {{ coach.coach_type or '—' }}
-        <!--    · Report date: {{ today.strftime('%d %b %Y') if today else '' }}
-        </div>-->
         <div class="small text-muted">
             · Report date: {{ today.strftime('%d %b %Y') if today else '' }}
         </div>
-
-
-
-
     </div>
 
+
+    <!-- =========================================================
+         BOM SUMMARY
+         ========================================================= -->
     <div class="row g-3 mb-4">
+
         <div class="col-md-4">
-            <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-0 {% if counts.delayed == 0 %}opacity-50{% endif %}">
+            <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-0
+                        {% if counts.delayed == 0 %}opacity-50{% endif %}">
                 <div class="fw-bold">Delayed</div>
                 <div class="fs-3 fw-bold">{{ counts.delayed }}</div>
                 <div class="small">Expected date passed · not delivered</div>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="alert alert-warning border-0 shadow-sm rounded-4 mb-0 {% if counts.approaching == 0 %}opacity-50{% endif %}">
+            <div class="alert alert-warning border-0 shadow-sm rounded-4 mb-0
+                        {% if counts.approaching == 0 %}opacity-50{% endif %}">
                 <div class="fw-bold">Approaching due (≤ 7 days)</div>
                 <div class="fs-3 fw-bold">{{ counts.approaching }}</div>
                 <div class="small">Still outstanding</div>
             </div>
         </div>
+
         <div class="col-md-4">
-            <div class="alert alert-success border-0 shadow-sm rounded-4 mb-0 {% if counts.delivered == 0 %}opacity-50{% endif %}">
+            <div class="alert alert-success border-0 shadow-sm rounded-4 mb-0
+                        {% if counts.delivered == 0 %}opacity-50{% endif %}">
                 <div class="fw-bold">Delivered</div>
                 <div class="fs-3 fw-bold">{{ counts.delivered }}</div>
                 <div class="small">of {{ counts.total }} BOM line(s)</div>
             </div>
         </div>
+
     </div>
 
+
+    <!-- =========================================================
+         ADD BOM ITEM
+         ADMIN + EDITOR
+         ========================================================= -->
+    {% if can_edit %}
+
     <div class="card shadow-sm border-0 rounded-4 mb-4 no-print">
+
         <div class="card-header bg-white border-bottom">
             <h5 class="mb-0">Add BOM item</h5>
         </div>
+
         <div class="card-body">
-            <form method="POST" class="row g-3 align-items-end">
-                <input type="hidden" name="action" value="add">
+
+            <form method="POST"
+                  class="row g-3 align-items-end">
+
+                <input type="hidden"
+                       name="action"
+                       value="add">
+
+
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">Component / Material</label>
-                    <input type="text" name="component" class="form-control" required>
+                    <label class="form-label fw-bold">
+                        Component / Material
+                    </label>
+
+                    <input type="text"
+                           name="component"
+                           class="form-control"
+                           required>
                 </div>
+
+
                 <div class="col-md-2">
-                    <label class="form-label">Section</label>
-                    <input type="text" name="section" class="form-control">
+                    <label class="form-label">
+                        Section
+                    </label>
+
+                    <input type="text"
+                           name="section"
+                           class="form-control">
                 </div>
+
+
                 <div class="col-md-1">
-                    <label class="form-label">Qty</label>
-                    <input type="number" name="quantity" class="form-control" value="1" min="1">
+                    <label class="form-label">
+                        Qty
+                    </label>
+
+                    <input type="number"
+                           name="quantity"
+                           class="form-control"
+                           value="1"
+                           min="1">
                 </div>
+
+
                 <div class="col-md-1">
-                    <label class="form-label">UOM</label>
-                    <input type="text" name="uom" class="form-control" placeholder="EA">
+                    <label class="form-label">
+                        UOM
+                    </label>
+
+                    <input type="text"
+                           name="uom"
+                           class="form-control"
+                           placeholder="EA">
                 </div>
+
+
                 <div class="col-md-2">
-                    <label class="form-label">Expected delivery</label>
-                    <input type="date" name="expected_delivery_date" class="form-control">
+                    <label class="form-label">
+                        Expected delivery
+                    </label>
+
+                    <input type="date"
+                           name="expected_delivery_date"
+                           class="form-control">
                 </div>
+
+
                 <div class="col-md-2">
-                    <label class="form-label">Actual delivery</label>
-                    <input type="date" name="actual_delivery_date" class="form-control">
+                    <label class="form-label">
+                        Supplier Date
+                    </label>
+
+                    <input type="date"
+                           name="supplier_date"
+                           class="form-control">
                 </div>
+
+
+                <div class="col-md-2">
+                    <label class="form-label">
+                        Actual delivery
+                    </label>
+
+                    <input type="date"
+                           name="actual_delivery_date"
+                           class="form-control">
+                </div>
+
+
                 <div class="col-md-1">
                     <div class="form-check mt-4">
-                        <input class="form-check-input" type="checkbox" name="delivered" id="add_delivered" value="1">
-                        <label class="form-check-label" for="add_delivered">Delivered</label>
+
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="delivered"
+                               id="add_delivered"
+                               value="1">
+
+                        <label class="form-check-label"
+                               for="add_delivered">
+                            Delivered
+                        </label>
+
                     </div>
                 </div>
+
+
                 <div class="col-md-8">
-                    <label class="form-label">Notes (delays, supplier, etc.)</label>
-                    <input type="text" name="notes" class="form-control">
+                    <label class="form-label">
+                        Notes (delays, supplier, etc.)
+                    </label>
+
+                    <input type="text"
+                           name="notes"
+                           class="form-control">
                 </div>
+
+
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Add</button>
+                    <button type="submit"
+                            class="btn btn-primary w-100">
+                        Add
+                    </button>
                 </div>
+
             </form>
+
         </div>
     </div>
 
+
+    <!-- =========================================================
+         IMPORT BOM FROM CSV
+         ADMIN + EDITOR
+         ========================================================= -->
     <div class="card shadow-sm border-0 rounded-4 mb-4 no-print">
+
         <div class="card-header bg-white border-bottom">
             <h5 class="mb-0">Import BOM from CSV</h5>
         </div>
+
         <div class="card-body">
+
             <form method="POST"
                   action="{{ url_for('coach_bom_import', id=coach.id) }}"
                   enctype="multipart/form-data"
                   class="row g-3 align-items-end">
+
                 <div class="col-md-6">
-                    <label class="form-label fw-bold">CSV file</label>
-                    <input type="file" name="bom_csv" class="form-control" accept=".csv,text/csv" required>
+
+                    <label class="form-label fw-bold">
+                        CSV file
+                    </label>
+
+                    <input type="file"
+                           name="bom_csv"
+                           class="form-control"
+                           accept=".csv,text/csv"
+                           required>
+
                     <small class="text-muted">
-                        Columns: component, section, quantity, uom, delivered,
-                        expected_delivery_date, actual_delivery_date, notes
+                        Columns: component, section, quantity, uom,
+                        delivered, expected_delivery_date, supplier_date,
+                        actual_delivery_date, notes
                     </small>
+
                 </div>
+
+
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">Import</button>
+
+                    <button type="submit"
+                            class="btn btn-outline-primary w-100">
+                        Import
+                    </button>
+
                 </div>
+
             </form>
+
         </div>
     </div>
 
+    {% endif %}
+
+
+    <!-- =========================================================
+         BOM LINES
+         ========================================================= -->
     <div class="card shadow-sm border-0 rounded-4 mb-4">
-        <div class="card-header bg-white border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+        <div class="card-header bg-white border-bottom
+                    d-flex flex-wrap justify-content-between
+                    align-items-center gap-2">
+
             <div>
                 <h5 class="mb-0">BOM lines</h5>
-                <span class="text-muted small">Countdown stops when Delivered is checked · Click headers to sort</span>
+
+                <span class="text-muted small">
+                    Countdown stops when Delivered is checked
+                    · Click headers to sort
+                </span>
             </div>
+
+
             <div class="d-flex gap-2 align-items-center no-print">
-                <input type="search" id="bomFilter" class="form-control form-control-sm"
-                       style="max-width: 240px;" placeholder="Filter component / section / notes…">
+
+                <input type="search"
+                       id="bomFilter"
+                       class="form-control form-control-sm"
+                       style="max-width: 240px;"
+                       placeholder="Filter component / section / notes…">
+
             </div>
+
         </div>
+
+
         <div class="card-body p-0">
+
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="bomLinesTable">
+
+                <table class="table table-hover align-middle mb-0"
+                       id="bomLinesTable">
+
                     <thead class="table-light">
+
                         <tr>
-                            <th data-sort="component" style="cursor:pointer; user-select:none;">Component <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="section" style="cursor:pointer; user-select:none;">Section <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="qty" class="text-end" style="cursor:pointer; user-select:none;">Qty <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="uom" style="cursor:pointer; user-select:none;">UOM <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="expected" style="cursor:pointer; user-select:none;">Expected <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="actual" style="cursor:pointer; user-select:none;">Actual <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="countdown" style="cursor:pointer; user-select:none;">Countdown <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="delivered" style="cursor:pointer; user-select:none;">Delivered <span class="sort-ind text-muted small"></span></th>
-                            <th data-sort="notes" style="cursor:pointer; user-select:none;">Notes <span class="sort-ind text-muted small"></span></th>
-                            <th></th>
+
+                            <th data-sort="component"
+                                style="cursor:pointer; user-select:none;">
+                                Component
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="section"
+                                style="cursor:pointer; user-select:none;">
+                                Section
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="qty"
+                                class="text-end"
+                                style="cursor:pointer; user-select:none;">
+                                Qty
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="uom"
+                                style="cursor:pointer; user-select:none;">
+                                UOM
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="expected"
+                                style="cursor:pointer; user-select:none;">
+                                Expected
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="supplier"
+                                style="cursor:pointer; user-select:none;">
+                                Supplier Date
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="actual"
+                                style="cursor:pointer; user-select:none;">
+                                Actual
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="countdown"
+                                style="cursor:pointer; user-select:none;">
+                                Countdown
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="delivered"
+                                style="cursor:pointer; user-select:none;">
+                                Delivered
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            <th data-sort="notes"
+                                style="cursor:pointer; user-select:none;">
+                                Notes
+                                <span class="sort-ind text-muted small"></span>
+                            </th>
+
+                            {% if can_edit %}
+                            <th class="no-print">
+                                Action
+                            </th>
+                            {% endif %}
+
                         </tr>
+
                     </thead>
+
+
                     <tbody>
-                        {% for row in rows %}
+
+                    {% for row in rows %}
+
                         {% set item = row.item %}
                         {% set flags = row.flags %}
-                        <tr class="bom-data-row {% if flags.is_delayed %}table-danger{% elif flags.is_approaching %}table-warning{% elif flags.delivered %}table-success{% endif %}"
+
+                        <tr class="bom-data-row
+                                   {% if flags.is_delayed %}
+                                       table-danger
+                                   {% elif flags.is_approaching %}
+                                       table-warning
+                                   {% elif flags.delivered %}
+                                       table-success
+                                   {% endif %}"
+
                             data-component="{{ item.component or '' }}"
                             data-section="{{ item.section or '' }}"
                             data-qty="{{ item.quantity or 0 }}"
                             data-uom="{{ item.uom or '' }}"
                             data-expected="{{ item.expected_delivery_date.isoformat() if item.expected_delivery_date else '' }}"
+                            data-supplier="{{ item.supplier_date.isoformat() if item.supplier_date else '' }}"
                             data-actual="{{ item.actual_delivery_date.isoformat() if item.actual_delivery_date else '' }}"
                             data-countdown="{{ flags.days_remaining if flags.days_remaining is not none else 99999 }}"
                             data-delivered="{{ 1 if flags.delivered else 0 }}"
                             data-notes="{{ item.notes or '' }}"
-                            data-search="{{ (item.component or '') ~ ' ' ~ (item.section or '') ~ ' ' ~ (item.notes or '') ~ ' ' ~ (item.uom or '') }}">
+                            data-search="{{ (item.component or '') ~ ' ' ~
+                                           (item.section or '') ~ ' ' ~
+                                           (item.notes or '') ~ ' ' ~
+                                           (item.uom or '') }}">
+
+
+                            <!-- =================================================
+                                 ADMIN / EDITOR
+                                 ================================================= -->
+                            {% if can_edit %}
+
+
+                            <!-- COMPONENT -->
                             <td>
-                                <form method="POST" id="update-bom-{{ item.id }}">
-                                    <input type="hidden" name="action" value="update">
-                                    <input type="hidden" name="item_id" value="{{ item.id }}">
+
+                                <form method="POST"
+                                      id="update-bom-{{ item.id }}">
+
+                                    <input type="hidden"
+                                           name="action"
+                                           value="update">
+
+                                    <input type="hidden"
+                                           name="item_id"
+                                           value="{{ item.id }}">
+
                                 </form>
-                                <input form="update-bom-{{ item.id }}" type="text" name="component" class="form-control form-control-sm" value="{{ item.component }}" required>
+
+
+                                <input form="update-bom-{{ item.id }}"
+                                       type="text"
+                                       name="component"
+                                       class="form-control form-control-sm"
+                                       value="{{ item.component }}"
+                                       required>
+
                             </td>
+
+
+                            <!-- SECTION -->
                             <td>
-                                <input form="update-bom-{{ item.id }}" type="text" name="section" class="form-control form-control-sm" value="{{ item.section or '' }}">
+
+                                <input form="update-bom-{{ item.id }}"
+                                       type="text"
+                                       name="section"
+                                       class="form-control form-control-sm"
+                                       value="{{ item.section or '' }}">
+
                             </td>
+
+
+                            <!-- QUANTITY -->
                             <td>
-                                <input form="update-bom-{{ item.id }}" type="number" name="quantity" class="form-control form-control-sm text-end" value="{{ item.quantity or 1 }}" min="1">
+
+                                <input form="update-bom-{{ item.id }}"
+                                       type="number"
+                                       name="quantity"
+                                       class="form-control form-control-sm text-end"
+                                       value="{{ item.quantity or 1 }}"
+                                       min="1">
+
                             </td>
+
+
+                            <!-- UOM -->
                             <td>
-                                <input form="update-bom-{{ item.id }}" type="text" name="uom" class="form-control form-control-sm" value="{{ item.uom or '' }}" placeholder="EA">
+
+                                <input form="update-bom-{{ item.id }}"
+                                       type="text"
+                                       name="uom"
+                                       class="form-control form-control-sm"
+                                       value="{{ item.uom or '' }}"
+                                       placeholder="EA">
+
                             </td>
+
+
+                            <!-- EXPECTED DELIVERY -->
                             <td>
-                                <input form="update-bom-{{ item.id }}" type="date" name="expected_delivery_date" class="form-control form-control-sm"
-                                       value="{{ item.expected_delivery_date.isoformat() if item.expected_delivery_date else '' }}">
+
+                                <input form="update-bom-{{ item.id }}"
+                                       type="date"
+                                       name="expected_delivery_date"
+                                       class="form-control form-control-sm"
+                                       value="{{ item.expected_delivery_date.isoformat()
+                                                  if item.expected_delivery_date
+                                                  else '' }}">
+
                             </td>
+
+
+                            <!-- SUPPLIER DATE -->
                             <td>
-                                <input form="update-bom-{{ item.id }}" type="date" name="actual_delivery_date" class="form-control form-control-sm"
-                                       value="{{ item.actual_delivery_date.isoformat() if item.actual_delivery_date else '' }}">
+
+                                <input form="update-bom-{{ item.id }}"
+                                       type="date"
+                                       name="supplier_date"
+                                       class="form-control form-control-sm"
+                                       value="{{ item.supplier_date.isoformat()
+                                                  if item.supplier_date
+                                                  else '' }}">
+
                             </td>
+
+
+                            <!-- ACTUAL DELIVERY -->
                             <td>
-                                <span class="badge {% if flags.delivered %}bg-success{% elif flags.is_delayed %}bg-danger{% elif flags.is_approaching %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+
+                                <input form="update-bom-{{ item.id }}"
+                                       type="date"
+                                       name="actual_delivery_date"
+                                       class="form-control form-control-sm"
+                                       value="{{ item.actual_delivery_date.isoformat()
+                                                  if item.actual_delivery_date
+                                                  else '' }}">
+
+                            </td>
+
+
+                            <!-- COUNTDOWN -->
+                            <td>
+
+                                <span class="badge
+                                    {% if flags.delivered %}
+                                        bg-success
+                                    {% elif flags.is_delayed %}
+                                        bg-danger
+                                    {% elif flags.is_approaching %}
+                                        bg-warning text-dark
+                                    {% else %}
+                                        bg-secondary
+                                    {% endif %}">
+
                                     {{ flags.countdown_label }}
+
                                 </span>
+
                             </td>
+
+
+                            <!-- DELIVERED -->
                             <td>
+
                                 <div class="form-check">
-                                    <input form="update-bom-{{ item.id }}" class="form-check-input" type="checkbox" name="delivered" value="1"
+
+                                    <input form="update-bom-{{ item.id }}"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           name="delivered"
+                                           value="1"
                                            {% if item.delivered %}checked{% endif %}>
-                                    <label class="form-check-label small">Yes</label>
+
+                                    <label class="form-check-label small">
+                                        Yes
+                                    </label>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- NOTES -->
+                            <td class="bom-notes-cell">
+
+                                <!-- Editable screen version -->
+                                <input form="update-bom-{{ item.id }}"
+                                       type="text"
+                                       name="notes"
+                                       class="form-control form-control-sm no-print bom-notes-input"
+                                       value="{{ item.notes or '' }}">
+
+                                <!-- Full wrapping PDF version -->
+                                <div class="print-only bom-notes-print">
+                                    {{ item.notes or '—' }}
+                                </div>
+
+                            </td>
+
+
+                            <!-- ACTIONS -->
+                            <td class="no-print text-nowrap">
+
+                                <!-- SAVE: ADMIN + EDITOR -->
+                                <button form="update-bom-{{ item.id }}"
+                                        type="submit"
+                                        class="btn btn-sm btn-primary">
+                                    Save
+                                </button>
+
+
+                                <!-- DELETE: ADMIN ONLY -->
+                                {% if can_delete %}
+
+                                <form method="POST"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Delete this BOM line?');">
+
+                                    <input type="hidden"
+                                           name="action"
+                                           value="delete">
+
+                                    <input type="hidden"
+                                           name="item_id"
+                                           value="{{ item.id }}">
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- =================================================
+                                 VIEWER — READ ONLY
+                                 ================================================= -->
+                            {% else %}
+
+
+                            <td>
+                                {{ item.component or '—' }}
+                            </td>
+
+
+                            <td>
+                                {{ item.section or '—' }}
+                            </td>
+
+
+                            <td class="text-end">
+                                {{ item.quantity or 1 }}
+                            </td>
+
+
+                            <td>
+                                {{ item.uom or '—' }}
+                            </td>
+
+
+                            <td>
+                                {% if item.expected_delivery_date %}
+                                    {{ item.expected_delivery_date.strftime('%d %b %Y') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+
+                            <td>
+                                {% if item.supplier_date %}
+                                    {{ item.supplier_date.strftime('%d %b %Y') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+
+                            <td>
+                                {% if item.actual_delivery_date %}
+                                    {{ item.actual_delivery_date.strftime('%d %b %Y') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+
+                            <td>
+
+                                <span class="badge
+                                    {% if flags.delivered %}
+                                        bg-success
+                                    {% elif flags.is_delayed %}
+                                        bg-danger
+                                    {% elif flags.is_approaching %}
+                                        bg-warning text-dark
+                                    {% else %}
+                                        bg-secondary
+                                    {% endif %}">
+
+                                    {{ flags.countdown_label }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if item.delivered %}
+
+                                    <span class="badge bg-success">
+                                        Yes
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        No
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td class="bom-notes-cell">
+                                <div class="bom-notes-display">
+                                    {{ item.notes or '—' }}
                                 </div>
                             </td>
-                            <td>
-                                <input form="update-bom-{{ item.id }}" type="text" name="notes" class="form-control form-control-sm" value="{{ item.notes or '' }}">
-                            </td>
-                            <td class="no-print text-nowrap">
-                                <button form="update-bom-{{ item.id }}" type="submit" class="btn btn-sm btn-primary">Save</button>
-                                <form method="POST" class="d-inline" onsubmit="return confirm('Delete this BOM line?');">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="item_id" value="{{ item.id }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
-                            </td>
+
+
+                            {% endif %}
+
                         </tr>
-                        {% else %}
+
+
+                    {% else %}
+
                         <tr id="bomEmptyRow">
-                            <td colspan="10" class="text-center text-muted py-4">No BOM items yet. Add materials above.</td>
+
+                            <td colspan="{% if can_edit %}11{% else %}10{% endif %}"
+                                class="text-center text-muted py-4">
+
+                                {% if can_edit %}
+                                    No BOM items yet. Add materials above.
+                                {% else %}
+                                    No BOM items available.
+                                {% endif %}
+
+                            </td>
+
                         </tr>
-                        {% endfor %}
+
+                    {% endfor %}
+
                     </tbody>
+
                 </table>
+
             </div>
+
         </div>
+
     </div>
 
 </div>
 
+
+<!-- =============================================================
+     JAVASCRIPT
+     ============================================================= -->
 <script>
 (function () {
-    /* ---- Sort / filter ---- */
+
+    /* ---------------------------------------------------------
+       SORT / FILTER
+       --------------------------------------------------------- */
+
     var table = document.getElementById("bomLinesTable");
+
     if (table) {
+
         var tbody = table.querySelector("tbody");
         var filterInput = document.getElementById("bomFilter");
+
         var sortKey = "component";
         var sortDir = 1;
 
+
         function dataRows() {
-            return Array.prototype.slice.call(tbody.querySelectorAll("tr.bom-data-row"));
+
+            return Array.prototype.slice.call(
+                tbody.querySelectorAll("tr.bom-data-row")
+            );
+
         }
+
 
         function applyFilter() {
-            var q = (filterInput && filterInput.value || "").trim().toLowerCase();
+
+            var q = (
+                filterInput &&
+                filterInput.value ||
+                ""
+            ).trim().toLowerCase();
+
+
             dataRows().forEach(function (tr) {
-                var hay = (tr.getAttribute("data-search") || "").toLowerCase();
-                tr.style.display = !q || hay.indexOf(q) !== -1 ? "" : "none";
+
+                var hay = (
+                    tr.getAttribute("data-search") ||
+                    ""
+                ).toLowerCase();
+
+
+                tr.style.display =
+                    !q || hay.indexOf(q) !== -1
+                        ? ""
+                        : "none";
+
             });
+
         }
+
 
         function applySort() {
+
             var list = dataRows();
+
+
             list.sort(function (a, b) {
-                var va = a.getAttribute("data-" + sortKey) || "";
-                var vb = b.getAttribute("data-" + sortKey) || "";
-                if (sortKey === "qty" || sortKey === "countdown" || sortKey === "delivered") {
+
+                var va =
+                    a.getAttribute("data-" + sortKey) ||
+                    "";
+
+                var vb =
+                    b.getAttribute("data-" + sortKey) ||
+                    "";
+
+
+                if (
+                    sortKey === "qty" ||
+                    sortKey === "countdown" ||
+                    sortKey === "delivered"
+                ) {
+
                     va = Number(va) || 0;
                     vb = Number(vb) || 0;
+
                     return (va - vb) * sortDir;
+
                 }
-                return String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: "base" }) * sortDir;
+
+
+                return String(va).localeCompare(
+                    String(vb),
+                    undefined,
+                    {
+                        numeric: true,
+                        sensitivity: "base"
+                    }
+                ) * sortDir;
+
             });
-            list.forEach(function (tr) { tbody.appendChild(tr); });
-            table.querySelectorAll("th[data-sort]").forEach(function (th) {
-                var ind = th.querySelector(".sort-ind");
-                if (!ind) return;
-                ind.textContent = th.getAttribute("data-sort") === sortKey ? (sortDir === 1 ? " ▲" : " ▼") : "";
+
+
+            list.forEach(function (tr) {
+                tbody.appendChild(tr);
             });
+
+
+            table.querySelectorAll(
+                "th[data-sort]"
+            ).forEach(function (th) {
+
+                var ind =
+                    th.querySelector(".sort-ind");
+
+                if (!ind) {
+                    return;
+                }
+
+
+                ind.textContent =
+                    th.getAttribute("data-sort") === sortKey
+                        ? (
+                            sortDir === 1
+                                ? " ▲"
+                                : " ▼"
+                          )
+                        : "";
+
+            });
+
         }
 
-        if (filterInput) filterInput.addEventListener("input", applyFilter);
-        table.querySelectorAll("th[data-sort]").forEach(function (th) {
-            th.addEventListener("click", function () {
-                var key = th.getAttribute("data-sort");
-                if (sortKey === key) sortDir = -sortDir;
-                else { sortKey = key; sortDir = 1; }
-                applySort();
-            });
+
+        if (filterInput) {
+
+            filterInput.addEventListener(
+                "input",
+                applyFilter
+            );
+
+        }
+
+
+        table.querySelectorAll(
+            "th[data-sort]"
+        ).forEach(function (th) {
+
+            th.addEventListener(
+                "click",
+                function () {
+
+                    var key =
+                        th.getAttribute("data-sort");
+
+
+                    if (sortKey === key) {
+
+                        sortDir = -sortDir;
+
+                    } else {
+
+                        sortKey = key;
+                        sortDir = 1;
+
+                    }
+
+
+                    applySort();
+
+                }
+            );
+
         });
+
+
         applySort();
+
     }
 
-    /* ---- PDF: set clean title then print ---- */
-    var coachNo = {{ (coach.coach_number or "coach") | tojson }};
-    var originalTitle = document.title;
+
+    /* ---------------------------------------------------------
+       PDF
+       --------------------------------------------------------- */
+
+    var coachNo =
+        {{ (coach.coach_number or "coach") | tojson }};
+
+    var originalTitle =
+        document.title;
+
 
     function buildPdfName() {
-        var safe = String(coachNo).replace(/[^a-zA-Z0-9._-]+/g, "_") || "coach";
-        var n = new Date();
-        function p(x) { return String(x).padStart(2, "0"); }
-        return safe + "_" + n.getFullYear() + p(n.getMonth() + 1) + p(n.getDate()) + "_" +
-            p(n.getHours()) + p(n.getMinutes()) + p(n.getSeconds());
+
+        var safe =
+            String(coachNo)
+                .replace(
+                    /[^a-zA-Z0-9._-]+/g,
+                    "_"
+                ) ||
+            "coach";
+
+
+        var n =
+            new Date();
+
+
+        function p(x) {
+
+            return String(x)
+                .padStart(2, "0");
+
+        }
+
+
+        return safe +
+            "_" +
+            n.getFullYear() +
+            p(n.getMonth() + 1) +
+            p(n.getDate()) +
+            "_" +
+            p(n.getHours()) +
+            p(n.getMinutes()) +
+            p(n.getSeconds());
+
     }
 
-    var pdfBtn = document.getElementById("bomPdfBtn");
+
+    var pdfBtn =
+        document.getElementById(
+            "bomPdfBtn"
+        );
+
+
     if (pdfBtn) {
-        pdfBtn.addEventListener("click", function () {
-            document.title = buildPdfName();
-            window.print();
-            setTimeout(function () { document.title = originalTitle; }, 2000);
-        });
+
+        pdfBtn.addEventListener(
+            "click",
+            function () {
+
+                document.title =
+                    buildPdfName();
+
+                window.print();
+
+
+                setTimeout(
+                    function () {
+
+                        document.title =
+                            originalTitle;
+
+                    },
+                    2000
+                );
+
+            }
+        );
+
     }
+
 })();
 </script>
 
+
+<!-- =============================================================
+     STYLES
+     ============================================================= -->
 <style>
-.print-only { display: none; }
 
+.print-only {
+    display: none;
+}
+
+
+/* Allow viewer notes to wrap on screen as well */
+.bom-notes-display {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+
+/* =============================================================
+   PRINT / PDF
+   ============================================================= */
 @media print {
-    @page { size: A4 landscape; margin: 10mm; }
 
-    .no-print, nav, .navbar, .btn, .sort-ind {
-        display: none !important;
+    @page {
+        size: A4 landscape;
+        margin: 8mm;
     }
 
-    .print-only { display: block !important; }
+
+    .no-print,
+    nav,
+    .navbar,
+    .btn,
+    .sort-ind {
+
+        display: none !important;
+
+    }
+
+
+    .print-only {
+
+        display: block !important;
+
+    }
+
 
     body {
+
         background: #fff !important;
-        font-size: 10pt;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+
+        font-size: 9pt;
+
+        -webkit-print-color-adjust:
+            exact !important;
+
+        print-color-adjust:
+            exact !important;
+
     }
+
 
     .container {
+
         width: 100% !important;
+
         max-width: 100% !important;
+
         margin: 0 !important;
+
         padding: 0 !important;
+
     }
+
 
     .card {
+
         box-shadow: none !important;
-        border: 1px solid #ccc !important;
+
+        border:
+            1px solid #ccc !important;
+
+        margin-bottom:
+            8px !important;
+
+    }
+
+
+    .card-body {
+
+        overflow: visible !important;
+
+    }
+
+
+    .table-responsive {
+
+        overflow: visible !important;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       TABLE
+       --------------------------------------------------------- */
+
+    #bomLinesTable {
+
+        width: 100% !important;
+
+        table-layout: fixed !important;
+
+        font-size: 8pt !important;
+
+    }
+
+
+    #bomLinesTable thead {
+
+        display: table-header-group;
+
+    }
+
+
+    #bomLinesTable tr {
+
+        page-break-inside: avoid;
+
         break-inside: avoid;
-        margin-bottom: 8px !important;
+
     }
 
-    .form-control, .form-control-sm {
+
+    #bomLinesTable th,
+    #bomLinesTable td {
+
+        white-space: normal !important;
+
+        overflow: visible !important;
+
+        overflow-wrap: anywhere !important;
+
+        word-wrap: break-word !important;
+
+        vertical-align: top !important;
+
+        padding: 4px !important;
+
+    }
+
+
+    /* Component */
+    #bomLinesTable th:nth-child(1),
+    #bomLinesTable td:nth-child(1) {
+
+        width: 14% !important;
+
+    }
+
+
+    /* Section */
+    #bomLinesTable th:nth-child(2),
+    #bomLinesTable td:nth-child(2) {
+
+        width: 8% !important;
+
+    }
+
+
+    /* Qty */
+    #bomLinesTable th:nth-child(3),
+    #bomLinesTable td:nth-child(3) {
+
+        width: 4% !important;
+
+    }
+
+
+    /* UOM */
+    #bomLinesTable th:nth-child(4),
+    #bomLinesTable td:nth-child(4) {
+
+        width: 5% !important;
+
+    }
+
+
+    /* Expected */
+    #bomLinesTable th:nth-child(5),
+    #bomLinesTable td:nth-child(5) {
+
+        width: 9% !important;
+
+    }
+
+
+    /* Supplier Date */
+    #bomLinesTable th:nth-child(6),
+    #bomLinesTable td:nth-child(6) {
+
+        width: 9% !important;
+
+    }
+
+
+    /* Actual */
+    #bomLinesTable th:nth-child(7),
+    #bomLinesTable td:nth-child(7) {
+
+        width: 9% !important;
+
+    }
+
+
+    /* Countdown */
+    #bomLinesTable th:nth-child(8),
+    #bomLinesTable td:nth-child(8) {
+
+        width: 10% !important;
+
+    }
+
+
+    /* Delivered */
+    #bomLinesTable th:nth-child(9),
+    #bomLinesTable td:nth-child(9) {
+
+        width: 7% !important;
+
+    }
+
+
+    /* Notes gets the largest remaining space */
+    #bomLinesTable th:nth-child(10),
+    #bomLinesTable td:nth-child(10) {
+
+        width: 25% !important;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       FORM CONTROLS
+       --------------------------------------------------------- */
+
+    .form-control,
+    .form-control-sm {
+
         border: none !important;
+
         padding: 0 !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        font-size: 9pt !important;
-        color: #000 !important;
+
+        background:
+            transparent !important;
+
+        box-shadow:
+            none !important;
+
+        font-size:
+            8pt !important;
+
+        color:
+            #000 !important;
+
     }
 
-    table { width: 100% !important; font-size: 9pt !important; }
-    thead { display: table-header-group; }
-    tr { page-break-inside: avoid; }
+
+    /* ---------------------------------------------------------
+       NOTES
+       Full content must print and wrap.
+       --------------------------------------------------------- */
+
+    .bom-notes-cell {
+
+        white-space: normal !important;
+
+        overflow: visible !important;
+
+        height: auto !important;
+
+    }
+
+
+    .bom-notes-print,
+    .bom-notes-display {
+
+        display: block !important;
+
+        width: 100% !important;
+
+        height: auto !important;
+
+        max-height: none !important;
+
+        overflow: visible !important;
+
+        white-space: normal !important;
+
+        overflow-wrap: anywhere !important;
+
+        word-wrap: break-word !important;
+
+        line-height: 1.25 !important;
+
+        font-size: 8pt !important;
+
+    }
+
+
+    .badge {
+
+        white-space: normal !important;
+
+        line-height: 1.15 !important;
+
+    }
+
 }
+
 </style>
+
 {% endblock %}
+```
