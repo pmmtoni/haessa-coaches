@@ -5,7 +5,7 @@ import math
 import calendar
 
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 import plotly.graph_objects as go
@@ -132,6 +132,64 @@ def log_coach_audit(coach, action, changed_by=None, details=None):
         created_at=datetime.utcnow(),
     )
     db.session.add(audit)
+
+
+
+# Audit display only: existing database timestamps remain naive UTC.
+AUDIT_SA_TZ = timezone(timedelta(hours=2))
+
+def audit_sa_time(value):
+    if value is None:
+        return '—'
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(AUDIT_SA_TZ).strftime('%Y-%m-%d %H:%M:%S')
+
+app.jinja_env.filters['audit_sa_time'] = audit_sa_time
+
+def audit_label(value):
+    return (value or '').replace('_', ' ').title().replace('Bom', 'BOM')
+
+def audit_area(action):
+    action = action or ''
+    if action.startswith('bom_'):
+        return 'BOM'
+    if action.startswith(('coach_task_', 'production_', 'coach_activity_')):
+        return 'Production'
+    if action.startswith('coach_map_'):
+        return 'Location'
+    if action.startswith('coach_'):
+        return 'Coach'
+    return 'Configuration'
+
+def audit_snapshot(record):
+    """Capture persisted business fields, excluding automatic timestamps."""
+    return {c.name: getattr(record, c.name) for c in record.__table__.columns
+            if c.name not in {'created_at', 'updated_at'}}
+
+def audit_value(value):
+    if value is None or value == '':
+        return '—'
+    if isinstance(value, bool):
+        return 'Yes' if value else 'No'
+    if hasattr(value, 'isoformat'):
+        return value.isoformat()
+    return str(value)
+
+def audit_changes(before, after):
+    return ' | '.join(
+        f'{audit_label(key)}: {audit_value(before.get(key))} -> {audit_value(after.get(key))}'
+        for key in dict.fromkeys([*before, *after])
+        if before.get(key) != after.get(key)
+    )
+
+def audit_record(coach, action, record, before=None, context=''):
+    after = audit_snapshot(record)
+    changes = audit_changes(before or {}, after)
+    if before is not None and not changes:
+        return
+    log_coach_audit(coach, action, current_user.username,
+                    f'{context} || {changes}' if context else changes)
 
 
 def log_system_audit(action, changed_by=None, details=None):
@@ -1716,6 +1774,8 @@ def coaches_edit(id):
         print("POST endpoint hit for coach id:", id)
         print("TASK CHECKBOXES RECEIVED:",
       [key for key in request.form.keys() if key.startswith("task_")])
+        full_before = audit_snapshot(coach)
+        task_before = {t.id: audit_snapshot(t) for t in coach.completion_tasks}
         old_values = {
             "coach_number": coach.coach_number,
             "coach_type": coach.coach_type,
@@ -1842,7 +1902,13 @@ def coaches_edit(id):
                     f"Task '{task.task}' ({task.phase}/{task.section}): {old_completed} -> {task.completed}"
                 )
 
+        for task in coach.completion_tasks:
+            audit_record(coach, "coach_task_updated", task, task_before[task.id],
+                         f"Coach edit: task #{task.id} - {task.task}")
         details_parts = []
+        full_changes = audit_changes(full_before, audit_snapshot(coach))
+        if full_changes:
+            details_parts.append("Record changes: " + full_changes)
         if changes:
             details_parts.append("Field changes: " + " | ".join(changes))
         if task_changes:
@@ -1932,6 +1998,8 @@ def coach_bom(id):
                     item.actual_delivery_date = today
 
                 db.session.add(item)
+                db.session.flush()
+                audit_record(coach, "bom_item_added", item)
                 db.session.commit()
 
                 flash("BOM item added.", "success")
@@ -1946,6 +2014,8 @@ def coach_bom(id):
                 id=item_id,
                 coach_id=coach.id
             ).first_or_404()
+
+            before = audit_snapshot(item)
 
             item.component = (
                 request.form.get("component") or item.component
@@ -1986,6 +2056,7 @@ def coach_bom(id):
             if item.delivered and not item.actual_delivery_date:
                 item.actual_delivery_date = today
 
+            audit_record(coach, "bom_item_updated", item, before, f"BOM item #{item.id}: {item.component}")
             item.updated_at = datetime.utcnow()
 
             db.session.commit()
@@ -2004,6 +2075,7 @@ def coach_bom(id):
                 coach_id=coach.id
             ).first_or_404()
 
+            audit_record(coach, "bom_item_deleted", item)
             db.session.delete(item)
             db.session.commit()
 
@@ -2162,8 +2234,7 @@ def import_bom_from_csv_file(file_storage, coach=None):
         if delivered and not actual:
             actual = datetime.now().date()
 
-        db.session.add(
-            CoachBOMItem(
+        item = CoachBOMItem(
                 coach_id=target.id,
                 component=component,
                 section=section or None,
@@ -2176,7 +2247,9 @@ def import_bom_from_csv_file(file_storage, coach=None):
                 actual_delivery_date=actual,
                 notes=(row.get(c_notes) or "").strip() or None if c_notes else None,
             )
-        )
+        db.session.add(item)
+        db.session.flush()
+        audit_record(target, "bom_item_imported", item, context=f"CSV row {idx}")
         existing_keys.add(dup_key)  # prevent duplicates within same CSV
         imported += 1
 
@@ -2200,6 +2273,7 @@ def coach_bom_import(id):
     try:
         imported, skipped, errors = import_bom_from_csv_file(file, coach=coach)
     except Exception as e:
+        db.session.rollback()
         flash(f"Import failed: {e}", "danger")
         return redirect(url_for("coach_bom", id=coach.id))
 
@@ -2645,6 +2719,7 @@ def coach_bom_analytics():
 def coach_task_workflow(coach_id, task_id):
     coach = Coach.query.get_or_404(coach_id)
     task = CompletionTask.query.filter_by(id=task_id, coach_id=coach.id).first_or_404()
+    before = audit_snapshot(task)
     action = (request.form.get("action") or "").strip().lower()
     return_to = (request.form.get("return_to") or "").strip().lower()
     today = datetime.now().date()
@@ -2707,6 +2782,11 @@ def coach_task_workflow(coach_id, task_id):
     else:
         flash("Unknown task workflow action.", "danger")
         return redirect(url_for("coaches_edit", id=coach.id))
+    audit_record(coach, {
+        'assign': 'coach_task_assigned', 'start': 'coach_task_started',
+        'record_delay': 'coach_task_delay_recorded',
+        'complete': 'coach_task_completed', 'reset': 'coach_task_reset',
+    }[action], task, before, f'Task #{task.id}: {task.phase}/{task.section} - {task.task}')
     db.session.commit()
     flash(f"Task status updated to {task.status or 'Not assigned'}.", "success")
 
@@ -2774,6 +2854,7 @@ def coach_task_edit(coach_id, task_id):
         coach_id=coach.id
     ).first_or_404()
 
+    before = audit_snapshot(task)
     old_details = f"{task.phase}/{task.section} - {task.task} ({task.hours} hrs)"
 
     phase = request.form.get("phase", "").strip()
@@ -2806,7 +2887,7 @@ def coach_task_edit(coach_id, task_id):
         coach=coach,
         action="coach_task_updated",
         changed_by=current_user.username,
-        details=f"Task updated: {old_details} -> {new_details}; completed={completed}"
+        details=f"Task #{task.id}: {task.task} || {audit_changes(before, audit_snapshot(task))}"
     )
 
     db.session.commit()
@@ -3150,6 +3231,7 @@ def add_coach_activity(coach_id):
 
     coach = Coach.query.get_or_404(coach_id)
 
+    before = audit_snapshot(coach)
     activity = request.form.get("activity", "").strip()
     remarks = request.form.get("remarks", "").strip()
 
@@ -3157,9 +3239,12 @@ def add_coach_activity(coach_id):
         flash("Activity is required.", "warning")
         return redirect(url_for("coaches_map"))
 
-    log = CoachActivityLog(
+    log = ProductionWorkLog(
         coach_id=coach.id,
-        workshop_station_id=coach.workshop_station_id,
+        work_date=datetime.now().date(),
+        production_stage=coach.production_stage,
+        workshop_station=coach.workshop_station.station if coach.workshop_station else None,
+        hours=0.0,
         activity=activity,
         remarks=remarks,
         created_by=current_user.username
@@ -3169,7 +3254,10 @@ def add_coach_activity(coach_id):
 
     # Update quick summary fields
     coach.current_activity = activity
-    coach.last_activity_date = datetime.utcnow()
+    db.session.flush()
+    audit_record(coach, "production_work_log_added", log,
+                 context="Production activity recorded")
+    audit_record(coach, "coach_activity_updated", coach, before)
 
     db.session.commit()
 
@@ -4004,51 +4092,52 @@ def delivery_schedule():
 @login_required
 @role_required("admin", "editor")
 def coach_audits():
-    q = request.args.get("q", "").strip()
-    action = request.args.get("action", "").strip()
-    page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 20, type=int)
-
+    q = request.args.get('q', '').strip()
+    action = request.args.get('action', '').strip()
+    area = request.args.get('area', '').strip()
+    changed_by = request.args.get('changed_by', '').strip()
+    date_from = request.args.get('date_from', '').strip()
+    date_to = request.args.get('date_to', '').strip()
+    page = max(request.args.get('page', 1, type=int), 1)
+    per_page = request.args.get('per_page', 20, type=int)
     if per_page not in [20, 50, 100]:
         per_page = 20
-
+    actions = [row[0] for row in db.session.query(CoachAudit.action).distinct().all() if row[0]]
+    actions.sort(key=audit_label)
+    areas = sorted({audit_area(a) for a in actions})
+    users = sorted(row[0] for row in db.session.query(CoachAudit.changed_by).distinct().all() if row[0])
     query = CoachAudit.query
-
     if q:
-        query = query.filter(
-            db.or_(
-                CoachAudit.coach_number.ilike(f"%{q}%"),
-                CoachAudit.changed_by.ilike(f"%{q}%"),
-                CoachAudit.details.ilike(f"%{q}%"),
-            )
-        )
-
+        query = query.filter(db.or_(CoachAudit.coach_number.ilike(f'%{q}%'),
+            CoachAudit.changed_by.ilike(f'%{q}%'), CoachAudit.details.ilike(f'%{q}%')))
     if action:
         query = query.filter(CoachAudit.action == action)
-
-    audits = query.order_by(CoachAudit.created_at.desc()).paginate(
-        page=page,
-        per_page=per_page,
-        error_out=False
-    )
-
-    actions = [
-        "coach_created",
-        "coach_updated",
-        "coach_deleted",
-        "coach_archived",
-        "coach_unarchived",
-    ]
-
-    return render_template(
-        "coach_audits.html",
-        audits=audits,
-        q=q,
-        action=action,
-        per_page=per_page,
-        actions=actions,
-    )
-
+    if area:
+        query = query.filter(CoachAudit.action.in_([a for a in actions if audit_area(a) == area]))
+    if changed_by:
+        query = query.filter(CoachAudit.changed_by == changed_by)
+    bounds = {}
+    for key, value in [('date_from', date_from), ('date_to', date_to)]:
+        if value:
+            try:
+                bounds[key] = datetime.strptime(value, '%Y-%m-%d')
+            except ValueError:
+                flash('Invalid audit date. Use YYYY-MM-DD.', 'warning')
+                query = query.filter(db.false())
+    if len(bounds) == 2 and bounds['date_from'] > bounds['date_to']:
+        flash('The start date must not be after the end date.', 'warning')
+        query = query.filter(db.false())
+    # Convert local midnight boundaries to naive UTC to match the existing column.
+    if 'date_from' in bounds:
+        query = query.filter(CoachAudit.created_at >= bounds['date_from'] - timedelta(hours=2))
+    if 'date_to' in bounds:
+        query = query.filter(CoachAudit.created_at < bounds['date_to'] + timedelta(days=1, hours=-2))
+    audits = query.order_by(CoachAudit.created_at.desc(), CoachAudit.id.desc()).paginate(
+        page=page, per_page=per_page, error_out=False)
+    return render_template('coach_audits.html', audits=audits, q=q, action=action,
+        area=area, changed_by=changed_by, date_from=date_from, date_to=date_to,
+        per_page=per_page, actions=actions, areas=areas, users=users,
+        audit_label=audit_label, audit_area=audit_area)
 @app.route("/production-locations")
 @login_required
 @role_required("admin", "editor")
