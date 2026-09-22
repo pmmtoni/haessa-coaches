@@ -2219,7 +2219,7 @@ def coach_bom_analytics():
       Overdue     = not delivered and expected delivery date < today
       Outstanding = not delivered and not overdue
 
-    Component totals use BOM quantity rather than BOM row count.
+    Component totals use BOM records rather than BOM row count.
     """
     from datetime import date
     from sqlalchemy import func
@@ -2258,10 +2258,7 @@ def coach_bom_analytics():
     # HELPERS
     # ---------------------------------------------------------
     def item_quantity(item):
-        try:
-            return max(int(item.quantity or 1), 1)
-        except (TypeError, ValueError):
-            return 1
+        return 1
 
     def item_status(item):
         if item.delivered:
@@ -2593,7 +2590,7 @@ def coach_bom_analytics():
             if highest_overdue["overdue"] > 0:
                 insights.append(
                     f"Coach {highest_overdue['coach_number']} "
-                    f"has the highest overdue BOM quantity "
+                    f"has the highest overdue BOM Records"
                     f"({highest_overdue['overdue']})."
                 )
 
