@@ -15,7 +15,7 @@ from io import StringIO
 from flask import Response
 
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, abort
 from flask_login import (
     LoginManager,
     login_user,
@@ -110,7 +110,7 @@ def role_required(*roles):
         @wraps(fn)
         @login_required
         def decorated(*args, **kwargs):
-            user_role = (current_user.role or "").lower()
+            user_role = (current_user.role or "").strip().lower()
             allowed_roles = [r.lower() for r in roles]
 
             if user_role not in allowed_roles:
@@ -121,6 +121,25 @@ def role_required(*roles):
         return decorated
     return wrapper
 
+
+
+@app.before_request
+def enforce_record_permissions():
+    """Read-only accounts cannot mutate records, even by posting directly."""
+    if not current_user.is_authenticated:
+        return  # Each protected route uses login_required.
+    role = (current_user.role or '').strip().lower()
+    # delivery_graph POST only calculates report filters; it saves no records.
+    if request.method not in {'GET', 'HEAD', 'OPTIONS'} and request.endpoint not in {'login', 'logout', 'delivery_graph'}:
+        if role not in {'admin', 'editor'}:
+            abort(403, description='This account has read-only access.')
+    if role != 'admin':
+        if request.endpoint in {'coach_task_delete', 'coaches_delete', 'task_templates_delete', 'production_locations_delete'}:
+            abort(403, description='Only administrators can delete records.')
+        if request.endpoint == 'coach_bom' and request.method == 'POST' and (request.form.get('action') or '').strip().lower() == 'delete':
+            abort(403, description='Only administrators can delete BOM items.')
+        if request.endpoint == 'task_templates_import_csv' and 'replace_existing' in request.form:
+            abort(403, description='Only administrators can replace existing task templates. Use append import instead.')
 
 def log_coach_audit(coach, action, changed_by=None, details=None):
     audit = CoachAudit(
@@ -272,38 +291,29 @@ def get_task_timing(task, today=None):
 
 
 def save_component_installations(coach):
-    """
-    Replaces the coach's component/supplier/installer rows
-    from the submitted edit form.
-    """
-    components = request.form.getlist("component[]")
-    suppliers = request.form.getlist("supplier[]")
-    installers = request.form.getlist("installer[]")
-
-    # Clear existing rows for this coach
-    CoachComponentInstallation.query.filter_by(coach_id=coach.id).delete()
-
-    for component, supplier, installer in zip(components, suppliers, installers):
-        component = (component or "").strip()
-        supplier = (supplier or "").strip()
-        installer = (installer or "").strip()
-
-        # Skip completely blank rows
-        if not component and not supplier and not installer:
-            continue
-
-        # Component is required if supplier/installer is entered
-        if not component:
-            continue
-
-        db.session.add(
-            CoachComponentInstallation(
-                coach_id=coach.id,
-                component=component,
-                supplier=supplier or None,
-                installer=installer or None,
-            )
-        )
+    """Update existing rows in place; only admins may remove rows."""
+    rows = []
+    for component, supplier, installer in zip(
+        request.form.getlist('component[]'), request.form.getlist('supplier[]'),
+        request.form.getlist('installer[]')
+    ):
+        component = component.strip()
+        if component:
+            rows.append((component, supplier.strip() or None, installer.strip() or None))
+    existing = CoachComponentInstallation.query.filter_by(coach_id=coach.id).order_by(
+        CoachComponentInstallation.id).all()
+    if len(rows) < len(existing) and (current_user.role or '').strip().lower() != 'admin':
+        abort(403, description='Only administrators can remove component rows. Keep all existing rows when editing.')
+    # The current form has no row IDs, so preserve its existing row order.
+    for index, (component, supplier, installer) in enumerate(rows):
+        if index < len(existing):
+            item = existing[index]
+            item.component, item.supplier, item.installer = component, supplier, installer
+        else:
+            db.session.add(CoachComponentInstallation(
+                coach_id=coach.id, component=component, supplier=supplier, installer=installer))
+    for item in existing[len(rows):]:
+        db.session.delete(item)
 
 def get_component_installation_snapshot(coach):
     rows = []
@@ -683,7 +693,7 @@ def add_user():
         confirm_password = request.form.get("confirm_password", "").strip()
         role = request.form.get("role", "viewer").strip().lower()
 
-        allowed_roles = ["admin", "editor", "viewer"]
+        allowed_roles = ["admin", "editor", "viewer", "guest"]
 
         if not username:
             flash("Username is required.", "danger")
@@ -737,7 +747,7 @@ def edit_user(id):
         password = request.form.get("password", "").strip()
         is_active_user = "is_active_user" in request.form
 
-        allowed_roles = ["admin", "editor", "viewer"]
+        allowed_roles = ["admin", "editor", "viewer", "guest"]
 
         if not username:
             flash("Username is required.", "danger")
@@ -2897,7 +2907,7 @@ def coach_task_edit(coach_id, task_id):
 
 @app.route("/coaches/<int:coach_id>/tasks/<int:task_id>/delete", methods=["POST"])
 @login_required
-@role_required("admin", "editor")
+@role_required("admin")
 def coach_task_delete(coach_id, task_id):
     coach = Coach.query.get_or_404(coach_id)
 
@@ -3227,6 +3237,7 @@ def coaches_map():
 
 @app.route("/coach/<int:coach_id>/activity", methods=["POST"])
 @login_required
+@role_required("admin", "editor")
 def add_coach_activity(coach_id):
 
     coach = Coach.query.get_or_404(coach_id)
@@ -5217,6 +5228,7 @@ def workshop_stations_list():
 
 @app.route("/workshop-stations/add", methods=["GET", "POST"])
 @login_required
+@role_required("admin", "editor")
 def workshop_station_add():
 
     if request.method == "POST":
@@ -5461,6 +5473,8 @@ def production_tasks_dashboard():
 
 
 @app.route("/debug-env")
+@login_required
+@role_required("admin")
 def debug_env():
     return {
         "DATABASE_URL in os.environ": "DATABASE_URL" in os.environ,
