@@ -423,7 +423,7 @@ Created on Tue Sep 22 14:03:30 2026
                 <div class="card-header bg-white border-bottom">
 
                     <h5 class="mb-0 fw-bold">
-                        Supplier Date vs Actual Delivery
+                        Expected vs Supplier vs Actual Delivery
                     </h5>
 
                 </div>
@@ -440,6 +440,33 @@ Created on Tue Sep 22 14:03:30 2026
 
     </div>
 
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <h5 class="fw-bold">Supplier commitments after Expected Delivery</h5>
+            <p class="mb-2"><strong>{{ production_risk_count }}</strong> outstanding BOM item(s) have supplier commitments later than expected and may delay production activities.</p>
+            <p class="text-muted small">The chart compares monthly BOM item counts. Below, delay days compare each item's Supplier Date with its Expected Date, including delays within the same month. Missing dates cannot be compared. Production task dates are not automatically changed.</p>
+            <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                <table class="table table-sm table-hover align-middle">
+                    <thead><tr><th>Coach</th><th>Component</th><th>Section</th><th>Expected</th><th>Supplier</th><th>Actual</th><th>Supplier delay</th><th>Production impact</th></tr></thead>
+                    <tbody>
+                    {% for row in supplier_delay_rows %}
+                    <tr>
+                        <td>{{ row.coach_number }}</td><td>{{ row.component }}</td><td>{{ row.section }}</td>
+                        <td class="text-nowrap">{{ row.expected.strftime('%d %b %Y') }}</td>
+                        <td class="text-nowrap">{{ row.supplier.strftime('%d %b %Y') }}</td>
+                        <td class="text-nowrap">{{ row.actual.strftime('%d %b %Y') if row.actual else '—' }}</td>
+                        <td class="text-danger fw-semibold">{{ row.delay_days }} day(s)</td>
+                        <td>{% if row.production_risk %}<span class="badge bg-danger">At risk — outstanding</span>{% else %}<span class="badge bg-secondary">Delivered — review history</span>{% endif %}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8" class="text-center text-muted">No supplier commitments later than expected in the selected records.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- =========================================================
          SECOND ROW
@@ -778,7 +805,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         expected: "#0d6efd",
 
-        supplier: "#339af0",
+        supplier: "#d97706",
 
         actual: "#28a745",
 
@@ -1072,7 +1099,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     {{ supplier_actual.labels|tojson }},
 
                 datasets: [
-
+                    {
+                        label: "Expected Delivery",
+                        data: {{ supplier_actual.expected|tojson }},
+                        backgroundColor: COLORS.expected
+                    },
                     {
 
                         label: "Supplier Date",
