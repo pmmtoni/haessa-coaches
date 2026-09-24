@@ -79,8 +79,7 @@ if os.environ.get("RENDER"):
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 
-print("RAW DATABASE_URL repr:", repr(database_url))
-print("Using database:", app.config["SQLALCHEMY_DATABASE_URI"])
+# Do not log database URLs: they contain credentials.
 
 db.init_app(app)
 login_manager = LoginManager(app)
@@ -2170,6 +2169,9 @@ def import_bom_from_csv_file(file_storage, coach=None):
     if not c_comp:
         return 0, 0, ["CSV must include a 'component' column."]
 
+    # Keep new objects outside the session while resolving CSV rows.
+    # Coach lookups must not autoflush partially collected imports.
+    pending_items = []
     coach_cache = {}
     # Track keys already seen in this file + existing DB rows per coach
     existing_keys = set()
@@ -2257,14 +2259,23 @@ def import_bom_from_csv_file(file_storage, coach=None):
                 actual_delivery_date=actual,
                 notes=(row.get(c_notes) or "").strip() or None if c_notes else None,
             )
-        db.session.add(item)
-        db.session.flush()
-        audit_record(target, "bom_item_imported", item, context=f"CSV row {idx}")
+        pending_items.append((target, item, idx))
         existing_keys.add(dup_key)  # prevent duplicates within same CSV
         imported += 1
 
     if imported:
-        db.session.commit()
+        try:
+            db.session.add_all([item for _, item, _ in pending_items])
+            # Populate IDs/defaults for audit snapshots in one ORM flush.
+            db.session.flush()
+            with db.session.no_autoflush:
+                for target, item, idx in pending_items:
+                    audit_record(target, "bom_item_imported", item, context=f"CSV row {idx}")
+            # BOM rows and their audits succeed or roll back together.
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            raise
     return imported, skipped, errors
 
     
@@ -2622,35 +2633,9 @@ def coach_bom_analytics():
     # ---------------------------------------------------------
     supplier_actual = {
         "labels": monthly_labels,
-        "expected": monthly_expected,
         "supplier": monthly_supplier,
         "actual": monthly_actual,
     }
-
-    # Item-level comparisons catch delays even within the same calendar month.
-    supplier_delay_rows = []
-    for item in items:
-        expected = item.expected_delivery_date
-        supplier = item.supplier_date
-        if not expected or not supplier or supplier <= expected:
-            continue
-        received = bool(item.delivered or item.actual_delivery_date)
-        supplier_delay_rows.append({
-            "coach_number": item.coach.coach_number,
-            "component": item.component,
-            "section": item.section or "—",
-            "expected": expected,
-            "supplier": supplier,
-            "actual": item.actual_delivery_date,
-            "delay_days": (supplier - expected).days,
-            "production_risk": not received,
-        })
-    supplier_delay_rows.sort(key=lambda row: (
-        not row["production_risk"], -row["delay_days"],
-        row["coach_number"], row["component"]
-    ))
-    production_risk_count = sum(row["production_risk"] for row in supplier_delay_rows)
-
 
     # ---------------------------------------------------------
     # FILTER DROPDOWNS
@@ -2735,8 +2720,6 @@ def coach_bom_analytics():
 
         delivery_timeline=delivery_timeline,
         supplier_actual=supplier_actual,
-        supplier_delay_rows=supplier_delay_rows,
-        production_risk_count=production_risk_count,
 
         insights=insights,
 
