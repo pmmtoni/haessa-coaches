@@ -2633,9 +2633,35 @@ def coach_bom_analytics():
     # ---------------------------------------------------------
     supplier_actual = {
         "labels": monthly_labels,
+        "expected": monthly_expected,
         "supplier": monthly_supplier,
         "actual": monthly_actual,
     }
+
+    # Item-level comparisons catch delays even within the same calendar month.
+    supplier_delay_rows = []
+    for item in items:
+        expected = item.expected_delivery_date
+        supplier = item.supplier_date
+        if not expected or not supplier or supplier <= expected:
+            continue
+        received = bool(item.delivered or item.actual_delivery_date)
+        supplier_delay_rows.append({
+            "coach_number": item.coach.coach_number,
+            "component": item.component,
+            "section": item.section or "—",
+            "expected": expected,
+            "supplier": supplier,
+            "actual": item.actual_delivery_date,
+            "delay_days": (supplier - expected).days,
+            "production_risk": not received,
+        })
+    supplier_delay_rows.sort(key=lambda row: (
+        not row["production_risk"], -row["delay_days"],
+        row["coach_number"], row["component"]
+    ))
+    production_risk_count = sum(row["production_risk"] for row in supplier_delay_rows)
+
 
     # ---------------------------------------------------------
     # FILTER DROPDOWNS
@@ -2720,6 +2746,8 @@ def coach_bom_analytics():
 
         delivery_timeline=delivery_timeline,
         supplier_actual=supplier_actual,
+        supplier_delay_rows=supplier_delay_rows,
+        production_risk_count=production_risk_count,
 
         insights=insights,
 
