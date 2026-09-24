@@ -1,17 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Sep 22 14:03:30 2026
-
-@author: Paul Mmtoni Barasa
-"""
-
+{# Original template editor metadata omitted from rendered output. #}
 {% extends "base.html" %}
 
 {% block title %}Coach BOM Analytics{% endblock %}
 
 {% block content %}
 
-<div class="container-fluid py-3">
+<div id="bom-analytics" class="container-fluid py-3">
 
     <!-- =========================================================
          PAGE HEADER
@@ -38,7 +32,7 @@ Created on Tue Sep 22 14:03:30 2026
             </div>
 
             <button type="button"
-                    class="btn btn-outline-primary btn-sm mt-1"
+                    class="btn btn-outline-primary btn-sm mt-1 no-print"
                     onclick="window.print();">
                 <i class="bi bi-printer me-1"></i>
                 Print / PDF
@@ -361,10 +355,10 @@ Created on Tue Sep 22 14:03:30 2026
     <!-- =========================================================
          FIRST CHART ROW
     ========================================================== -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4 bom-report-row">
 
         <!-- Delivery Status -->
-        <div class="col-xl-4">
+        <div class="col-xl-4 bom-print-chart-column">
 
             <div class="card shadow-sm border-0 rounded-4 h-100">
 
@@ -388,7 +382,7 @@ Created on Tue Sep 22 14:03:30 2026
 
 
         <!-- Coach Performance -->
-        <div class="col-xl-4">
+        <div class="col-xl-4 bom-print-chart-column">
 
             <div class="card shadow-sm border-0 rounded-4 h-100">
 
@@ -416,7 +410,7 @@ Created on Tue Sep 22 14:03:30 2026
 
 
         <!-- Supplier vs Actual -->
-        <div class="col-xl-4">
+        <div class="col-xl-4 bom-print-chart-column">
 
             <div class="card shadow-sm border-0 rounded-4 h-100">
 
@@ -471,7 +465,7 @@ Created on Tue Sep 22 14:03:30 2026
     <!-- =========================================================
          SECOND ROW
     ========================================================== -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4 bom-report-row">
 
         <!-- Top Overdue -->
         <div class="col-xl-6">
@@ -581,7 +575,7 @@ Created on Tue Sep 22 14:03:30 2026
 
 
         <!-- Delivery Timeline -->
-        <div class="col-xl-6">
+        <div class="col-xl-6 bom-print-chart-column">
 
             <div class="card shadow-sm border-0 rounded-4 h-100">
 
@@ -609,10 +603,10 @@ Created on Tue Sep 22 14:03:30 2026
     <!-- =========================================================
          THIRD ROW
     ========================================================== -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4 bom-report-row">
 
         <!-- Section Status -->
-        <div class="col-xl-5">
+        <div class="col-xl-5 bom-print-chart-column">
 
             <div class="card shadow-sm border-0 rounded-4 h-100">
 
@@ -1427,6 +1421,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
+
+    // CSS print layout alone does not resize Chart.js canvas backing stores.
+    const printChartIds = [
+        "deliveryStatusChart", "coachPerformanceChart", "supplierActualChart",
+        "deliveryTimelineChart", "sectionChart"
+    ];
+    window.addEventListener("beforeprint", function () {
+        printChartIds.forEach(function (id) {
+            const chart = Chart.getChart(id);
+            if (!chart) return;
+            chart.stop();
+            chart.resize(1000, 460);
+            chart.update("none");
+        });
+    });
+    window.addEventListener("afterprint", function () {
+        // Wait for screen media styles to return, including the coach height.
+        window.requestAnimationFrame(function () {
+            printChartIds.forEach(function (id) {
+                const chart = Chart.getChart(id);
+                if (chart) {
+                    chart.resize();
+                    chart.update("none");
+                }
+            });
+        });
+    });
+
 });
 
 </script>
@@ -1686,68 +1708,48 @@ document.addEventListener("DOMContentLoaded", function () {
 ============================================================= */
 
 @media print {
-
-    @page {
-
-        size: A4 landscape;
-
-        margin: 8mm;
-
+    @page { size: A4 landscape; margin: 10mm; }
+    .no-print, nav, .navbar, footer { display: none !important; }
+    body { background: white !important; }
+    #bom-analytics {
+        width: 100% !important; max-width: none !important; padding: 0 !important;
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
     }
-
-
-    .no-print,
-    nav,
-    .navbar,
-    footer {
-
-        display: none !important;
-
+    /* Block flow lets pages split normally; flex rows and h-100 cause overlaps. */
+    #bom-analytics .bom-report-row {
+        display: block !important; margin: 0 !important;
     }
-
-
-    body {
-
-        background: #ffffff !important;
-
+    #bom-analytics .bom-report-row > [class*="col-"] {
+        display: block !important; width: 100% !important; max-width: 100% !important;
+        padding: 0 !important; margin: 0 0 6mm !important; flex: none !important;
     }
-
-
-    .container-fluid {
-
-        width: 100% !important;
-
-        max-width: none !important;
-
-        padding: 0 !important;
-
+    #bom-analytics .card {
+        display: block !important; height: auto !important;
+        box-shadow: none !important; break-inside: auto;
     }
-
-
-    .card {
-
-        box-shadow: none !important;
-
-        break-inside: avoid;
-
+    #bom-analytics .bom-print-chart-column {
+        break-before: page; page-break-before: always;
+        break-after: page; page-break-after: always;
+        break-inside: avoid; page-break-inside: avoid;
     }
-
-
-    .chart-container {
-
-        height: 260px;
-
+    #bom-analytics .bom-print-chart-column .card { break-inside: avoid; }
+    #bom-analytics .chart-container,
+    #bom-analytics .coach-chart-container {
+        position: relative !important; height: 125mm !important;
+        min-height: 0 !important; max-height: 125mm !important;
+        width: 100% !important; overflow: hidden !important;
     }
-
-
-    .coach-chart-container {
-
-        max-height: none;
-
-        overflow: visible;
-
+    #bom-analytics canvas {
+        display: block !important; position: relative !important;
+        width: 100% !important; height: 100% !important; max-width: 100% !important;
     }
-
+    #bom-analytics .table-responsive,
+    #bom-analytics .coach-performance-table {
+        max-height: none !important; height: auto !important; overflow: visible !important;
+    }
+    #bom-analytics table { width: 100% !important; font-size: 9pt; }
+    #bom-analytics thead { display: table-header-group; }
+    #bom-analytics tr { break-inside: avoid; page-break-inside: avoid; }
 }
 
 </style>
