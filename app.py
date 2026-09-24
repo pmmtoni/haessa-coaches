@@ -4182,6 +4182,34 @@ def coach_audits():
         query = query.filter(CoachAudit.created_at >= bounds['date_from'] - timedelta(hours=2))
     if 'date_to' in bounds:
         query = query.filter(CoachAudit.created_at < bounds['date_to'] + timedelta(days=1, hours=-2))
+    if request.args.get('format') == 'csv':
+        output = io.StringIO(newline='')
+        writer = csv.writer(output)
+        writer.writerow(['Audit ID', 'Date (SAST / UTC+2)', 'Area',
+                         'Coach ID', 'Coach Number', 'Action', 'Changed By', 'Details'])
+
+        def csv_cell(value):
+            text = '' if value is None else str(value)
+            # Keep user-entered values as text when opened in a spreadsheet.
+            if text.lstrip().startswith(('=', '+', '-', '@')) or text.startswith(('\t', '\r', '\n')):
+                return "'" + text
+            return text
+
+        rows = query.order_by(CoachAudit.created_at.desc(), CoachAudit.id.desc())
+        for entry in rows.yield_per(500):
+            writer.writerow([csv_cell(value) for value in (
+                entry.id, audit_sa_time(entry.created_at), audit_area(entry.action),
+                entry.coach_id, entry.coach_number, audit_label(entry.action),
+                entry.changed_by, entry.details)])
+        return Response(
+            '\ufeff' + output.getvalue(),
+            content_type='text/csv; charset=utf-8',
+            headers={
+                'Content-Disposition': 'attachment; filename=consolidated_app_actions.csv',
+                'Cache-Control': 'no-store',
+            },
+        )
+
     audits = query.order_by(CoachAudit.created_at.desc(), CoachAudit.id.desc()).paginate(
         page=page, per_page=per_page, error_out=False)
     return render_template('coach_audits.html', audits=audits, q=q, action=action,
