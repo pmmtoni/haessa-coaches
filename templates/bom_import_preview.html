@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Review BOM import — {{ coach.coach_number }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Review BOM import — {{ coach.coach_number }}</h2>
+  <p>No records have been saved. Check the values below before confirming.</p>
+  <div class="alert alert-info">
+    <strong>{{ plan.ready }}</strong> new · <strong>{{ plan.duplicates }}</strong> duplicates ·
+    <strong>{{ plan.invalid }}</strong> invalid · <strong>{{ plan.blank }}</strong> blank rows ·
+    <strong>{{ plan.corrected }}</strong> section corrections on new rows
+  </div>
+  {% for error in plan.errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+  {% if plan.invalid %}<div class="alert alert-danger">Correct the invalid rows in your CSV and upload it again. Nothing will be imported until all errors are resolved.</div>{% endif %}
+  <div class="d-flex gap-2 mb-3">
+    {% if token %}
+    <form method="post" action="{{ url_for('coach_bom_import', id=coach.id) }}">
+      <input type="hidden" name="action" value="confirm_import">
+      <input type="hidden" name="preview_token" value="{{ token }}">
+      <button class="btn btn-success" type="submit">Confirm import of {{ plan.ready }} new items</button>
+    </form>
+    {% endif %}
+    <a class="btn btn-outline-secondary" href="{{ url_for('coach_bom', id=coach.id) }}">Cancel / choose another CSV</a>
+  </div>
+  {% if token %}<p class="text-muted">This preview is valid for 30 minutes in this browser session. A newer preview replaces it. Duplicates are rechecked when you confirm.</p>{% endif %}
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered align-middle">
+      <thead><tr><th>CSV row</th><th>Result</th><th>Component</th><th>Section</th><th>Qty / UOM</th><th>Delivered</th><th>Expected</th><th>Supplier</th><th>Actual</th><th>Notes</th><th>Review details</th></tr></thead>
+      <tbody>
+      {% for row in plan.rows %}
+        {% set v = row['values'] %}
+        <tr class="{{ 'table-danger' if row.status == 'invalid' else ('table-secondary' if row.status in ['duplicate', 'blank'] else '') }}">
+          <td>{{ row.line }}</td><td>{{ row.status|title }}</td><td>{{ v.component }}</td>
+          <td>{{ v.section or '—' }}</td><td>{{ v.get('quantity', '—') }} {{ v.get('uom') or '' }}</td>
+          <td>{{ 'Yes' if v.get('delivered') else ('No' if 'delivered' in v else '—') }}</td>
+          <td>{{ v.get('expected_delivery_date') or '—' }}</td><td>{{ v.get('supplier_date') or '—' }}</td>
+          <td>{{ v.get('actual_delivery_date') or '—' }}</td><td style="white-space: pre-wrap">{{ v.get('notes') or '' }}</td>
+          <td>{% if row.correction %}<div>{{ row.correction }}</div>{% endif %}
+              {% if row.default_note %}<div>{{ row.default_note }}</div>{% endif %}
+              {% for message in row.messages %}<div>{{ message }}</div>{% endfor %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

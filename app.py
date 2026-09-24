@@ -1974,6 +1974,14 @@ def coach_bom(id):
         # ---------------------------------------------------------
         # ADD BOM ITEM
         # ---------------------------------------------------------
+        if action in {"add", "update"}:
+            from bom_csv import canonical_section
+            try:
+                selected_section = canonical_section(request.form.get("section"), bom_section_catalog())
+            except ValueError as exc:
+                flash(str(exc), "danger")
+                return redirect(url_for("coach_bom", id=coach.id))
+
         if action == "add":
             component = (request.form.get("component") or "").strip()
 
@@ -1983,7 +1991,7 @@ def coach_bom(id):
                 item = CoachBOMItem(
                     coach_id=coach.id,
                     component=component,
-                    section=(request.form.get("section") or "").strip() or None,
+                    section=selected_section,
                     quantity=request.form.get("quantity", type=int) or 1,
                     uom=(request.form.get("uom") or "").strip() or None,
                     delivered="delivered" in request.form,
@@ -2030,9 +2038,7 @@ def coach_bom(id):
                 request.form.get("component") or item.component
             ).strip()
 
-            item.section = (
-                request.form.get("section") or ""
-            ).strip() or None
+            item.section = selected_section
 
             item.quantity = (
                 request.form.get("quantity", type=int)
@@ -2109,8 +2115,12 @@ def coach_bom(id):
             "flags": get_bom_item_flags(item, today)
         })
 
+    from bom_csv import section_key
+    catalog = bom_section_catalog()
     return render_template(
         "coach_bom.html",
+        bom_sections=sorted(catalog.values(), key=str.casefold),
+        bom_section_name=lambda value: catalog.get(section_key(value), value or ''),
         coach=coach,
         rows=rows,
         counts=summary["counts"],
@@ -2123,185 +2133,160 @@ def _parse_bom_bool(value):
     return str(value).strip().lower() in {"1", "true", "yes", "y", "delivered"}
 
 
+def bom_section_catalog():
+    from bom_csv import section_catalog
+    return section_catalog(row[0] for row in
+        db.session.query(CoachBOMItem.section).distinct().all())
+
+
+def _prepare_bom_plan(raw, coach=None, as_of=None):
+    from bom_csv import build_plan, section_key
+    coaches = {c.coach_number: c.id for c in Coach.query.all()} if coach is None else {}
+    ids = sorted(set(coaches.values())) if coach is None else [coach.id]
+    existing = {
+        (r.coach_id, (r.component or '').strip().lower(), section_key(r.section))
+        for r in db.session.query(CoachBOMItem.coach_id, CoachBOMItem.component,
+                                  CoachBOMItem.section).filter(CoachBOMItem.coach_id.in_(ids)).all()
+    }
+    return build_plan(raw, bom_section_catalog(), existing,
+                      coach_id=coach.id if coach else None, coaches=coaches, as_of=as_of)
+
+
+def _save_bom_plan(plan):
+    from datetime import date
+    if plan['errors'] or plan['invalid']:
+        raise ValueError('Correct the invalid CSV rows before importing.')
+    pending = []
+    for row in plan['rows']:
+        if row['status'] != 'ready':
+            continue
+        values = dict(row['values'])
+        for name in ('expected_delivery_date', 'supplier_date', 'actual_delivery_date'):
+            values[name] = date.fromisoformat(values[name]) if values[name] else None
+        pending.append((CoachBOMItem(**values), row['line']))
+    if not pending:
+        return 0
+    # Resolve coaches before adding pending objects, avoiding query autoflushes.
+    targets = {c.id: c for c in Coach.query.filter(Coach.id.in_(
+        sorted({item.coach_id for item, _ in pending}))).all()}
+    try:
+        db.session.add_all([item for item, _ in pending])
+        db.session.flush()
+        with db.session.no_autoflush:
+            for item, line in pending:
+                audit_record(targets[item.coach_id], 'bom_item_imported', item,
+                             context=f'CSV row {line}')
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+    return len(pending)
+
+
 def import_bom_from_csv_file(file_storage, coach=None):
-    """
-    Import BOM rows from uploaded CSV.
-    Skips duplicates: same coach + component (+ section if provided).
-    Returns (imported_count, skipped_count, errors_list).
-    """
-    import io
+    """Validated programmatic import; the web route requires preview confirmation."""
+    from bom_csv import read_csv_upload
+    raw = read_csv_upload(file_storage)
+    try:
+        # Serialize imports for a coach on PostgreSQL; SQLite ignores this clause.
+        lock = Coach.query.order_by(Coach.id)
+        if coach is not None:
+            lock = lock.filter(Coach.id == coach.id)
+        lock.with_for_update().all()
+        plan = _prepare_bom_plan(raw, coach)
+        errors = list(plan['errors']) + [f"Row {r['line']}: {'; '.join(r['messages'])}"
+                    for r in plan['rows'] if r['status'] == 'invalid']
+        if errors:
+            db.session.rollback()
+            return 0, len(plan['rows']), errors
+        imported = _save_bom_plan(plan)
+        if not imported:
+            db.session.rollback()
+        return imported, plan['duplicates'] + plan['blank'], []
+    except Exception:
+        db.session.rollback()
+        raise
 
-    imported = 0
-    skipped = 0
-    errors = []
 
-    raw = file_storage.read()
-    if isinstance(raw, bytes):
-        raw = raw.decode("utf-8-sig")
-    reader = csv.DictReader(io.StringIO(raw))
+def _bom_plan_digest(plan):
+    import hashlib
+    import json
+    return hashlib.sha256(json.dumps(plan, sort_keys=True).encode('utf-8')).hexdigest()
 
-    if not reader.fieldnames:
-        return 0, 0, ["CSV has no header row."]
 
-    field_map = {(h or "").strip().lower(): h for h in reader.fieldnames}
+def _bom_preview_response(raw, coach, plan, as_of):
+    import secrets
+    from flask import session
+    from itsdangerous import URLSafeTimedSerializer
+    token = None
+    if plan['ready'] and not plan['errors'] and not plan['invalid']:
+        nonce = secrets.token_urlsafe(32)
+        session['bom_preview_nonce'] = nonce
+        token = URLSafeTimedSerializer(app.secret_key, salt='bom-csv-preview-v1').dumps({
+            'raw': raw, 'coach_id': coach.id, 'user_id': str(current_user.get_id()),
+            'nonce': nonce, 'as_of': as_of.isoformat(), 'digest': _bom_plan_digest(plan),
+        })
+    response = app.make_response(render_template('bom_import_preview.html',
+        coach=coach, plan=plan, token=token))
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
-    def col(*names):
-        for n in names:
-            if n in field_map:
-                return field_map[n]
-        return None
 
-    c_coach = col("coach_number", "coach_no", "coach")
-    c_comp = col("component", "material", "item")
-    c_section = col("section")
-    c_qty = col("quantity", "qty")
-    c_uom = col("uom", "unit", "unit_of_measure")
-    c_del = col("delivered", "status")
-    c_exp = col("expected_delivery_date", "expected_date", "expected")
-    c_supplier = col(
-        "supplier_date",
-        "supplier date",
-        "supplierdate"
-    )
-    c_act = col("actual_delivery_date", "actual_date", "actual")
-    c_notes = col("notes", "note", "comment")
-
-    if not c_comp:
-        return 0, 0, ["CSV must include a 'component' column."]
-
-    # Keep new objects outside the session while resolving CSV rows.
-    # Coach lookups must not autoflush partially collected imports.
-    pending_items = []
-    coach_cache = {}
-    # Track keys already seen in this file + existing DB rows per coach
-    existing_keys = set()
-    loaded_coach_ids = set()
-
-    def load_existing_for_coach(c):
-        if c.id in loaded_coach_ids:
-            return
-        for item in CoachBOMItem.query.filter_by(coach_id=c.id).all():
-            key = (
-                c.id,
-                (item.component or "").strip().lower(),
-                (item.section or "").strip().lower(),
-            )
-            existing_keys.add(key)
-        loaded_coach_ids.add(c.id)
-
-    if coach is not None:
-        load_existing_for_coach(coach)
-
-    for idx, row in enumerate(reader, start=2):
-        component = (row.get(c_comp) or "").strip()
-        if not component:
-            skipped += 1
-            continue
-
-        target = coach
-        if target is None:
-            if not c_coach:
-                errors.append(f"Row {idx}: missing coach_number column.")
-                skipped += 1
-                continue
-            number = (row.get(c_coach) or "").strip()
-            if not number:
-                errors.append(f"Row {idx}: empty coach_number.")
-                skipped += 1
-                continue
-            if number not in coach_cache:
-                coach_cache[number] = Coach.query.filter_by(coach_number=number).first()
-            target = coach_cache[number]
-            if not target:
-                errors.append(f"Row {idx}: coach '{number}' not found.")
-                skipped += 1
-                continue
-            load_existing_for_coach(target)
-
-        section = (row.get(c_section) or "").strip() if c_section else ""
-        dup_key = (
-            target.id,
-            component.lower(),
-            section.lower(),
-        )
-        if dup_key in existing_keys:
-            skipped += 1
-            continue
-
-        qty_raw = row.get(c_qty) if c_qty else 1
+@app.route('/coaches/<int:id>/bom/import', methods=['POST'])
+@login_required
+@role_required('admin', 'editor')
+def coach_bom_import(id):
+    from datetime import date
+    import secrets
+    from flask import session
+    from itsdangerous import URLSafeTimedSerializer, BadData
+    from bom_csv import read_csv_upload, MAX_CSV_BYTES
+    coach = Coach.query.get_or_404(id)
+    token = request.form.get('preview_token')
+    if request.form.get('action') == 'confirm_import':
         try:
-            quantity = int(float(qty_raw)) if qty_raw not in (None, "") else 1
-        except (TypeError, ValueError):
-            quantity = 1
-
-        delivered = _parse_bom_bool(row.get(c_del) if c_del else None)
-        expected = parse_date(row.get(c_exp) if c_exp else None)
-
-        supplier_date = parse_date(
-            row.get(c_supplier) if c_supplier else None
-        )
-
-
-        actual = parse_date(row.get(c_act) if c_act else None)
-        if delivered and not actual:
-            actual = datetime.now().date()
-
-        item = CoachBOMItem(
-                coach_id=target.id,
-                component=component,
-                section=section or None,
-                quantity=quantity,
-                uom=(row.get(c_uom) or "").strip() or None if c_uom else None,
-                delivered=delivered,
-                expected_delivery_date=expected,
-                supplier_date=supplier_date,
-
-                actual_delivery_date=actual,
-                notes=(row.get(c_notes) or "").strip() or None if c_notes else None,
-            )
-        pending_items.append((target, item, idx))
-        existing_keys.add(dup_key)  # prevent duplicates within same CSV
-        imported += 1
-
-    if imported:
+            if not token or len(token) > MAX_CSV_BYTES * 2:
+                raise ValueError('Invalid preview.')
+            payload = URLSafeTimedSerializer(app.secret_key, salt='bom-csv-preview-v1').loads(token, max_age=1800)
+            if (payload['coach_id'] != id or payload['user_id'] != str(current_user.get_id())
+                    or not secrets.compare_digest(payload['nonce'], session.get('bom_preview_nonce', ''))):
+                raise ValueError('Preview does not match this session.')
+            raw = read_csv_upload(io.StringIO(payload['raw']))
+            as_of = date.fromisoformat(payload['as_of'])
+        except (BadData, ValueError, KeyError, TypeError):
+            flash('This preview expired or is no longer valid. Upload the CSV again.', 'warning')
+            return redirect(url_for('coach_bom', id=id))
         try:
-            db.session.add_all([item for _, item, _ in pending_items])
-            # Populate IDs/defaults for audit snapshots in one ORM flush.
-            db.session.flush()
-            with db.session.no_autoflush:
-                for target, item, idx in pending_items:
-                    audit_record(target, "bom_item_imported", item, context=f"CSV row {idx}")
-            # BOM rows and their audits succeed or roll back together.
-            db.session.commit()
+            Coach.query.filter_by(id=id).with_for_update().one()
+            plan = _prepare_bom_plan(raw, coach, as_of)
+            if _bom_plan_digest(plan) != payload['digest']:
+                db.session.rollback()
+                flash('The BOM changed since your preview. Review these updated results before confirming.', 'warning')
+                return _bom_preview_response(raw, coach, plan, as_of)
+            imported = _save_bom_plan(plan)
+            session.pop('bom_preview_nonce', None)
+            flash(f"BOM import: {imported} added, {plan['duplicates']} duplicates and {plan['blank']} blank rows skipped.", 'success')
         except Exception:
             db.session.rollback()
-            raise
-    return imported, skipped, errors
+            flash('Import could not be saved. No rows from this import were committed. Please upload and try again.', 'danger')
+        return redirect(url_for('coach_bom', id=id))
 
-    
-@app.route("/coaches/<int:id>/bom/import", methods=["POST"])
-@login_required
-@role_required("admin", "editor")
-def coach_bom_import(id):    
-    
-    
-    coach = Coach.query.get_or_404(id)
-    file = request.files.get("bom_csv")
+    file = request.files.get('bom_csv')
     if not file or not file.filename:
-        flash("Choose a CSV file to import.", "warning")
-        return redirect(url_for("coach_bom", id=coach.id))
-
+        flash('Choose a CSV file to preview.', 'warning')
+        return redirect(url_for('coach_bom', id=id))
     try:
-        imported, skipped, errors = import_bom_from_csv_file(file, coach=coach)
-    except Exception as e:
+        raw = read_csv_upload(file)
+        as_of = date.today()
+        plan = _prepare_bom_plan(raw, coach, as_of)
+        return _bom_preview_response(raw, coach, plan, as_of)
+    except ValueError as exc:
+        flash(str(exc), 'danger')
+    except Exception:
         db.session.rollback()
-        flash(f"Import failed: {e}", "danger")
-        return redirect(url_for("coach_bom", id=coach.id))
+        flash('The CSV preview could not be prepared. No BOM records were changed.', 'danger')
+    return redirect(url_for('coach_bom', id=id))
 
-    flash(f"BOM import: {imported} added, {skipped} skipped.", "success" if imported else "warning")
-    for err in errors[:8]:
-        flash(err, "warning")
-    return redirect(url_for("coach_bom", id=coach.id))
 
 @app.route("/coach-bom-analytics")
 @login_required
