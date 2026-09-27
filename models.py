@@ -603,3 +603,11 @@ class TaskTemplate(db.Model):
 
     def __repr__(self):
         return f"<TaskTemplate {self.coach_type} | {self.phase} | {self.section} | {self.task}>"    
+
+class TaskBOMDependency(db.Model):
+    """Explicit user-selected material dependencies; never inferred from names."""
+    __tablename__ = "task_bom_dependency"
+    task_id = db.Column(db.Integer, db.ForeignKey("completion_task.id", ondelete="CASCADE"), primary_key=True)
+    bom_item_id = db.Column(db.Integer, db.ForeignKey("coach_bom_item.id", ondelete="CASCADE"), primary_key=True, index=True)
+    task = db.relationship("CompletionTask", backref=db.backref("bom_dependencies", cascade="all, delete-orphan"))
+    bom_item = db.relationship("CoachBOMItem", backref=db.backref("task_dependencies", cascade="all, delete-orphan"))
