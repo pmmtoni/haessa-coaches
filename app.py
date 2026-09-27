@@ -3,6 +3,8 @@ import io
 import csv
 import math
 import calendar
+import secrets
+import hmac
 
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
@@ -15,7 +17,7 @@ from io import StringIO
 from flask import Response
 
 
-from flask import Flask, render_template, request, redirect, url_for, flash, abort
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, session
 from flask_login import (
     LoginManager,
     login_user,
@@ -40,6 +42,7 @@ from models import (
     CoachComponentInstallation,
     ProductionWorkLog,
     CoachBOMItem,
+    TaskBOMDependency,
 )
 
 #from production_engine import generate_completion_tasks
@@ -5401,6 +5404,106 @@ def workshop_station_add():
 #         total_hours=total_hours
 #     )
 
+def build_dependency_gantt(tasks, bom_items, selected, today=None):
+    """Read-only calendar-day scenario. Existing workflow dates remain authoritative."""
+    today = today or datetime.now().date()
+    items = {item.id: item for item in bom_items}
+    rows = []
+    dates = [today]
+    for task in tasks:
+        materials = []
+        for item_id in selected.get(task.id, []):
+            item = items.get(item_id)
+            if item is None or item.coach_id != task.coach_id:
+                continue
+            expected = item.expected_delivery_date
+            actual = item.actual_delivery_date
+            # Actual delivery is authoritative, not the legacy delivered checkbox.
+            delay = max(((actual or today) - expected).days, 0) if expected else None
+            materials.append(dict(item=item, expected=expected, actual=actual,
+                                  delay=delay, pending=actual is None))
+        delay = max((m['delay'] or 0 for m in materials), default=0)
+        pending = any(m['pending'] for m in materials)
+        unknown = any(m['expected'] is None for m in materials)
+        start = task.assigned_date or task.started_date
+        duration = task.expected_days if task.expected_days and task.expected_days > 0 else None
+        # Start Activity rewrites due_date, so reconstruct original due from assigned + duration.
+        due = start + timedelta(days=duration - 1) if start and duration else task.due_date
+        if not start and due and duration:
+            start = due - timedelta(days=duration - 1)
+        if not duration and start and due and due >= start:
+            duration = (due - start).days + 1
+        valid = start is not None and due is not None and due >= start
+        shifted_start = start + timedelta(days=delay) if valid else None
+        shifted_due = due + timedelta(days=delay) if valid else None
+        bars = []
+        if valid:
+            bars.append(dict(label='Original plan', start=start, end=due, kind='plan'))
+            if materials:
+                bars.append(dict(label='BOM scenario' + (' (provisional)' if pending or unknown else ''),
+                                 start=shifted_start, end=shifted_due, kind='shift' if delay else 'ontime'))
+        actual_start = task.started_date
+        actual_end = task.completed_date if task.completed else today
+        if actual_start and actual_end and actual_end >= actual_start:
+            bars.append(dict(label='Completed actual' if task.completed else 'Actual work to date',
+                             start=actual_start, end=actual_end, kind='complete' if task.completed else 'actual'))
+        for m in materials:
+            if m['expected']:
+                end = m['actual'] or max(today, m['expected'])
+                bars.append(dict(label=m['item'].component + (' · expected → actual' if m['actual'] else ' · awaiting actual'),
+                                 start=min(m['expected'], end), end=max(m['expected'], end),
+                                 kind='late' if m['delay'] else 'ontime'))
+        for bar in bars:
+            dates.extend([bar['start'], bar['end']])
+        rows.append(dict(task=task, materials=materials, delay=delay, pending=pending,
+                         unknown=unknown, duration=duration, start=start, due=due,
+                         shifted_start=shifted_start, shifted_due=shifted_due, bars=bars))
+    first, last = min(dates), max(dates)
+    span = (last - first).days + 1
+    for row in rows:
+        for bar in row['bars']:
+            bar['left'] = round(100 * (bar['start'] - first).days / span, 4)
+            bar['width'] = round(100 * ((bar['end'] - bar['start']).days + 1) / span, 4)
+    ticks = [dict(date=first + timedelta(days=offset), left=100 * offset / span)
+             for offset in sorted({round(i * (span - 1) / 4) for i in range(5)})]
+    return dict(rows=rows, first=first, last=last, ticks=ticks,
+                today_left=100 * (today - first).days / span,
+                delayed=sum(row['delay'] > 0 for row in rows),
+                unmapped=sum(not row['materials'] for row in rows))
+
+
+@app.route('/coach/<int:coach_id>/tasks/<int:task_id>/bom-dependencies', methods=['POST'])
+@login_required
+@role_required('admin', 'editor')
+def update_task_bom_dependencies(coach_id, task_id):
+    token = session.get('bom_dependency_csrf', '')
+    if not token or not hmac.compare_digest(token, request.form.get('dependency_csrf', '')):
+        abort(400, description='Expired dependency form. Reload Production Execution and try again.')
+    coach = Coach.query.get_or_404(coach_id)
+    task = CompletionTask.query.filter_by(id=task_id, coach_id=coach.id).first_or_404()
+    try:
+        requested = {int(value) for value in request.form.getlist('bom_item_ids')}
+    except (ValueError, TypeError):
+        abort(400, description='Invalid material selection.')
+    valid = {item.id for item in CoachBOMItem.query.filter_by(coach_id=coach.id).all()}
+    if not requested.issubset(valid):
+        abort(400, description='Every selected material must belong to this coach.')
+    before = {link.bom_item_id for link in task.bom_dependencies}
+    for link in list(task.bom_dependencies):
+        if link.bom_item_id not in requested:
+            db.session.delete(link)
+    for item_id in requested - before:
+        db.session.add(TaskBOMDependency(task_id=task.id, bom_item_id=item_id))
+    if before != requested:
+        log_coach_audit(coach, 'task_bom_dependencies_updated',
+                        changed_by=current_user.username,
+                        details=f'Task #{task.id}: BOM IDs {sorted(before)} -> {sorted(requested)}')
+    db.session.commit()
+    flash('Material dependencies saved. The Gantt has been recalculated.', 'success')
+    return redirect(url_for('production_tasks', coach_id=coach.id, _anchor='dependency-gantt'))
+
+
+
 @app.route("/coach/<int:coach_id>/production-tasks")
 @login_required
 def production_tasks(coach_id):
@@ -5439,11 +5542,23 @@ def production_tasks(coach_id):
         if task.completed
     )
 
+    bom_items = CoachBOMItem.query.filter_by(coach_id=coach.id).order_by(CoachBOMItem.section, CoachBOMItem.component, CoachBOMItem.id).all()
+    dependencies = TaskBOMDependency.query.join(CompletionTask).filter(CompletionTask.coach_id == coach.id).all()
+    selected = {task.id: [] for task in production_tasks}
+    for dependency in dependencies:
+        selected[dependency.task_id].append(dependency.bom_item_id)
+    gantt = build_dependency_gantt(production_tasks, bom_items, selected)
+    session.setdefault("bom_dependency_csrf", secrets.token_urlsafe(32))
+
     return render_template(
         "production_tasks.html",
         coach=coach,
         production_tasks=production_tasks,
         task_timing=task_timing,
+        gantt=gantt,
+        bom_items=bom_items,
+        selected_dependencies=selected,
+        dependency_csrf=session["bom_dependency_csrf"],
         total_count=len(production_tasks),
         completed_count=completed_count,
         in_progress_count=in_progress_count,

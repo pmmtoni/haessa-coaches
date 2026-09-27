@@ -54,6 +54,78 @@
         Dates and duration are recorded automatically.
     </div>
 
+    <style>
+        .bom-gantt { --grid: #e6eaf0; }
+        .bom-gantt .timeline { position: relative; height: 25px; background: repeating-linear-gradient(90deg,#f5f7fa 0,#f5f7fa calc(25% - 1px),var(--grid) calc(25% - 1px),var(--grid) 25%); border-radius: 4px; }
+        .bom-gantt .bar { position:absolute; top:5px; height:15px; min-width:3px; border-radius:4px; }
+        .bom-gantt .plan { background:#94a3b8; }
+        .bom-gantt .shift { background:#d97706; }
+        .bom-gantt .late { background:#dc3545; }
+        .bom-gantt .ontime { background:#0891b2; }
+        .bom-gantt .complete { background:#198754; }
+        .bom-gantt .actual { background:#6f42c1; }
+        .bom-gantt .today { position:absolute; top:0; bottom:0; border-left:2px dashed #334155; z-index:2; }
+        .bom-gantt .gantt-table { min-width:880px; width:100%; table-layout:fixed; }
+        .bom-gantt .gantt-table th:first-child { width:42%; }
+        .bom-gantt .gantt-table td { vertical-align:middle; padding:.25rem .8rem; }
+        .bom-gantt .axis { position:relative; height:35px; }
+        .bom-gantt .axis span { position:absolute; white-space:nowrap; font-size:.75rem; }
+        .bom-gantt .axis span:last-child:not(:first-child) { transform:translateX(-100%); }
+        .bom-gantt .material-picker { max-height:220px; overflow:auto; }
+        @media print { .bom-gantt details { display:none; } .bom-gantt .table-responsive { overflow:visible; } }
+    </style>
+    <section id="dependency-gantt" class="card shadow-sm mb-4 bom-gantt" aria-labelledby="gantt-heading">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div><h3 id="gantt-heading" class="h5 mb-1">BOM → Production Dependency Gantt</h3>
+                <span class="small text-muted">{{ gantt.delayed }} tasks affected · {{ gantt.unmapped }} tasks without linked materials</span></div>
+            <a href="{{ url_for('coach_bom', id=coach.id) }}" class="btn btn-sm btn-outline-primary">Manage BOM delivery dates</a>
+        </div>
+        <div class="card-body">
+            <p class="small text-muted">Calendar days, inclusive duration. Task shift = largest linked material delay (never the sum).
+                Undelivered materials use today for a provisional delay; missing expected dates leave the impact unknown.
+                The scenario does not change recorded dates or block work. Actual work is shown separately, including completed tasks.</p>
+            <div class="d-flex flex-wrap gap-2 small mb-3" aria-label="Chart legend">
+                <span class="badge plan">Original plan</span><span class="badge shift">Shifted scenario</span>
+                <span class="badge ontime">On-time / expected material</span><span class="badge late">Late material</span>
+                <span class="badge actual">Actual work</span><span class="badge complete">Completed actual</span>
+                <span>Dashed line: today</span>
+            </div>
+            {% if not gantt.rows %}<p class="text-muted">Add production tasks to begin linking materials.</p>{% endif %}
+            {% for row in gantt.rows %}
+            <article class="border rounded mb-3 p-3">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                    <div><strong>{{ row.task.task }}</strong><div class="small text-muted">#{{ row.task.id }} · {{ row.task.phase }} / {{ row.task.section }} · {{ row.duration or 'Unknown' }} days</div></div>
+                    <div>{% if not row.materials %}<span class="badge bg-secondary">No linked materials</span>
+                    {% else %}<span class="badge {{ 'bg-warning text-dark' if row.delay else 'bg-info text-dark' }}">+{{ row.delay }} days{% if row.pending or row.unknown %} · provisional{% endif %}</span>{% endif %}</div>
+                </div>
+                {% if row.unknown %}<p class="small text-danger mt-2 mb-1">Some materials have no expected date. The full delay cannot be calculated.</p>{% endif %}
+                {% if row.pending %}<p class="small text-muted mt-2 mb-1">Awaiting actual delivery: the scenario can move further as material remains outstanding.</p>{% endif %}
+                {% if row.shifted_due %}
+                <p class="small my-2">Original: {{ row.start }} → {{ row.due }} · BOM scenario: {{ row.shifted_start }} → {{ row.shifted_due }} · Recorded due: {{ row.task.due_date or '—' }}</p>
+                {% else %}<p class="small my-2 text-muted">Assign a start and duration (or valid due date) to display the task schedule.</p>{% endif %}
+                <div class="table-responsive" tabindex="0" aria-label="Timeline for task {{ row.task.id }}; scroll horizontally on small screens">
+                    <table class="gantt-table"><thead><tr><th class="small fw-normal">Activity / material · date range</th><th><div class="axis">{% for tick in gantt.ticks %}<span style="left:{{ tick.left }}%">{{ tick.date.strftime('%d %b %y') }}</span>{% endfor %}</div></th></tr></thead>
+                    <tbody>{% for bar in row.bars %}<tr><td class="small">{{ bar.label }}<div class="text-muted">{{ bar.start }} → {{ bar.end }}</div></td><td><div class="timeline" role="img" aria-label="{{ bar.label }}: {{ bar.start }} to {{ bar.end }}"><span class="today" style="left:{{ gantt.today_left }}%"></span><span class="bar {{ bar.kind }}" style="left:{{ bar.left }}%;width:{{ bar.width }}%"></span></div></td></tr>{% endfor %}</tbody></table>
+                </div>
+                {% if row.materials %}<ul class="small mt-2 mb-1">{% for m in row.materials %}<li>{{ m.item.component }} (#{{ m.item.id }}) · expected {{ m.expected or 'unknown' }} · actual {{ m.actual or 'pending' }} · {{ m.delay if m.delay is not none else 'unknown' }} delay days{% if m.pending %} so far{% endif %}</li>{% endfor %}</ul>{% endif %}
+                {% if (current_user.role or '')|trim|lower in ['admin', 'editor'] %}
+                <details class="mt-3"><summary class="text-primary">Edit linked materials ({{ row.materials|length }})</summary>
+                    <form method="post" action="{{ url_for('update_task_bom_dependencies', coach_id=coach.id, task_id=row.task.id) }}" class="mt-2">
+                        <input type="hidden" name="dependency_csrf" value="{{ dependency_csrf }}">
+                        <p class="small text-muted">Select every required component. Section names guide selection; no relationship is assumed. Clear all selections to remove dependencies.</p>
+                        <div class="material-picker border rounded p-2 mb-2">
+                        {% for item in bom_items %}<div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="bom_item_ids" value="{{ item.id }}" id="material-{{ row.task.id }}-{{ item.id }}" {% if item.id in selected_dependencies[row.task.id] %}checked{% endif %}>
+                            <label class="form-check-label small" for="material-{{ row.task.id }}-{{ item.id }}">{{ item.section or 'No section' }} / {{ item.component }} (#{{ item.id }}){% if item.section == row.task.section %} · same section{% endif %}</label>
+                        </div>{% else %}<span class="small text-muted">Add materials in the coach BOM first.</span>{% endfor %}
+                        </div><button class="btn btn-sm btn-primary" type="submit">Save dependencies</button>
+                    </form>
+                </details>{% endif %}
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
     <div class="card shadow-sm">
         <div class="card-header">
             <strong>Production Activities</strong>
