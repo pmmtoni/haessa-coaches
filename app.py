@@ -173,10 +173,12 @@ def audit_label(value):
 
 def audit_area(action):
     action = action or ''
-    if action.startswith('bom_'):
+    if action.startswith(('bom_', 'task_bom_')):
         return 'BOM'
     if action.startswith(('coach_task_', 'production_', 'coach_activity_')):
         return 'Production'
+    if action.startswith('user_'):
+        return 'Users'
     if action.startswith('coach_map_'):
         return 'Location'
     if action.startswith('coach_'):
@@ -213,10 +215,10 @@ def audit_record(coach, action, record, before=None, context=''):
                     f'{context} || {changes}' if context else changes)
 
 
-def log_system_audit(action, changed_by=None, details=None):
+def log_system_audit(action, changed_by=None, details=None, subject="TASK TEMPLATE"):
     audit = CoachAudit(
         coach_id=None,
-        coach_number="TASK TEMPLATE",
+        coach_number=subject,
         action=action,
         changed_by=changed_by,
         details=details,
@@ -522,7 +524,7 @@ def load_task_templates(coach_type):
     print(f"Loaded {len(tasks)} DB task templates for coach type '{coach_type}'")
     return tasks
 
-def import_task_templates_from_csv(csv_path=None, replace_existing=False):
+def import_task_templates_from_csv(csv_path=None, replace_existing=False, commit=True):
     """
     Fast CSV import into TaskTemplate table.
     Avoids per-row database queries.
@@ -611,7 +613,8 @@ def import_task_templates_from_csv(csv_path=None, replace_existing=False):
     if new_rows:
         db.session.bulk_save_objects(new_rows)
 
-    db.session.commit()
+    if commit:
+        db.session.commit()
 
     print(f"CSV import complete: imported={imported_count}, skipped={skipped_count}")
     return imported_count
@@ -729,6 +732,9 @@ def add_user():
         new_user.set_password(password)
 
         db.session.add(new_user)
+        db.session.flush()
+        log_system_audit("user_created", current_user.username,
+                         f"User #{new_user.id}: {username}; role={role}; active=True", subject="USER")
         db.session.commit()
 
         flash("User added successfully.", "success")
@@ -772,6 +778,7 @@ def edit_user(id):
             flash("You cannot remove your own admin role.", "danger")
             return render_template("edit_user.html", user=user)
 
+        before = {"username": user.username, "role": user.role, "active": user.is_active_user}
         user.username = username
         user.role = role
         user.is_active_user = is_active_user
@@ -782,6 +789,13 @@ def edit_user(id):
         user.updated_at = datetime.utcnow()
         user.updated_by = current_user.username
 
+        changes = audit_changes(before, {"username": user.username, "role": user.role,
+                                         "active": user.is_active_user})
+        if password:
+            changes = (changes + " | " if changes else "") + "Password reset"
+        if changes:
+            log_system_audit("user_updated", current_user.username,
+                             f"User #{user.id}: {changes}", subject="USER")
         db.session.commit()
 
         flash("User updated successfully.", "success")
@@ -812,6 +826,8 @@ def deactivate_user(id):
     user.updated_at = datetime.utcnow()
     user.updated_by = current_user.username
 
+    log_system_audit("user_deactivated", current_user.username,
+                     f"User #{user.id}: {user.username}", subject="USER")
     db.session.commit()
 
     flash("User deactivated successfully.", "info")
@@ -832,6 +848,8 @@ def reactivate_user(id):
     user.updated_at = datetime.utcnow()
     user.updated_by = current_user.username
 
+    log_system_audit("user_reactivated", current_user.username,
+                     f"User #{user.id}: {user.username}", subject="USER")
     db.session.commit()
 
     flash("User reactivated successfully.", "success")
@@ -952,6 +970,9 @@ def task_templates_add():
                 is_active=is_active,
             )
         )
+        log_system_audit("task_template_created", current_user.username,
+                         f"{coach_type} | {phase} | {section} | {task}; hours={hours}; "
+                         f"sort_order={sort_order}; active={is_active}")
         db.session.commit()
 
         flash("Task template added successfully.", "success")
@@ -1060,6 +1081,8 @@ def task_templates_edit(id):
 @role_required("admin")
 def task_templates_delete(id):
     template = TaskTemplate.query.get_or_404(id)
+    log_system_audit("task_template_deleted", current_user.username,
+                     f"Template #{template.id}: {audit_changes({}, audit_snapshot(template))}")
     db.session.delete(template)
     db.session.commit()
     flash("Task template deleted successfully.", "info")
@@ -1073,7 +1096,7 @@ def task_templates_import_csv():
     replace_existing = "replace_existing" in request.form
 
     try:
-        count = import_task_templates_from_csv(replace_existing=replace_existing)
+        count = import_task_templates_from_csv(replace_existing=replace_existing, commit=False)
         
         log_system_audit(
             action="task_templates_imported",
@@ -1084,6 +1107,7 @@ def task_templates_import_csv():
                 
         flash(f"Imported {count} task template row(s) from CSV.", "success")
     except Exception as exc:
+        db.session.rollback()
         flash(f"CSV import failed: {exc}", "danger")
 
     return redirect(url_for("task_templates_list"))
@@ -5319,6 +5343,10 @@ def workshop_station_add():
         )
 
         db.session.add(ws)
+        db.session.flush()
+        log_system_audit("production_workshop_station_created", current_user.username,
+                         f"Station #{ws.id}: {audit_changes({}, audit_snapshot(ws))}",
+                         subject="WORKSHOP STATION")
         db.session.commit()
 
         flash(
