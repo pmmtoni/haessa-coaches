@@ -439,7 +439,7 @@
         <div class="card-body">
             <h5 class="fw-bold">Supplier commitments after Expected Delivery</h5>
             <p class="mb-2"><strong>{{ production_risk_count }}</strong> outstanding BOM item(s) have supplier commitments later than expected and may delay production activities.</p>
-            <p class="text-muted small">The chart compares monthly BOM item counts. Below, delay days compare each item's Supplier Date with its Expected Date, including delays within the same month. Missing dates cannot be compared. Production task dates are not automatically changed.</p>
+            <p class="text-muted small">The chart compares monthly percentages of the total filtered BOM records; each date series uses the same denominator. Below, delay days compare each item's Supplier Date with its Expected Date, including delays within the same month. Missing dates cannot be compared. Production task dates are not automatically changed.</p>
             <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
                 <table class="table table-sm table-hover align-middle">
                     <thead><tr><th>Coach</th><th>Component</th><th>Section</th><th>Expected</th><th>Supplier</th><th>Actual</th><th>Supplier delay</th><th>Production impact</th></tr></thead>
@@ -613,7 +613,7 @@
                 <div class="card-header bg-white border-bottom">
 
                     <h5 class="mb-0 fw-bold">
-                        BOM Items by Section
+                        BOM Distribution by Section (%)
                     </h5>
 
                 </div>
@@ -789,6 +789,15 @@ document.addEventListener("DOMContentLoaded", function () {
     Chart.defaults.color = "#334155";
 
 
+    // Use one filtered BOM total for monthly and section comparisons.
+    const bomTotal = Number({{ kpis.total }});
+    const toPercent = (value, total = bomTotal) =>
+        total > 0 ? (Number(value) / total) * 100 : 0;
+    const percentTicks = value => value + "%";
+    const percentTooltip = context =>
+        (context.dataset.label || context.label) + ": " +
+        Number(context.raw || 0).toFixed(1) + "%";
+
     const COLORS = {
 
         delivered: "#28a745",
@@ -832,9 +841,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [{
 
                     data: [
-                        {{ kpis.delivered }},
-                        {{ kpis.outstanding }},
-                        {{ kpis.overdue }}
+                        {{ kpis.delivered_percent }},
+                        {{ kpis.outstanding_percent }},
+                        {{ kpis.overdue_percent }}
                     ],
 
                     backgroundColor: [
@@ -876,27 +885,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         callbacks: {
 
-                            label: function(context) {
-
-                                const value = context.raw || 0;
-
-                                const total =
-                                    {{ kpis.total }} || 1;
-
-                                const percent =
-                                    ((value / total) * 100)
-                                    .toFixed(1);
-
-                                return (
-                                    context.label +
-                                    ": " +
-                                    value.toLocaleString() +
-                                    " (" +
-                                    percent +
-                                    "%)"
-                                );
-
-                            }
+                            label: percentTooltip
 
                         }
 
@@ -927,7 +916,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const coachDelivered = [
 
         {% for row in coach_performance %}
-            {{ row.delivered }},
+            {{ (row.delivered / row.total * 100) if row.total else 0 }},
         {% endfor %}
 
     ];
@@ -936,7 +925,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const coachOutstanding = [
 
         {% for row in coach_performance %}
-            {{ row.outstanding }},
+            {{ (row.outstanding / row.total * 100) if row.total else 0 }},
         {% endfor %}
 
     ];
@@ -945,7 +934,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const coachOverdue = [
 
         {% for row in coach_performance %}
-            {{ row.overdue }},
+            {{ (row.overdue / row.total * 100) if row.total else 0 }},
         {% endfor %}
 
     ];
@@ -983,7 +972,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     {
 
-                        label: "Delivered",
+                        label: "Delivered %",
 
                         data: coachDelivered,
 
@@ -994,7 +983,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     {
 
-                        label: "Outstanding",
+                        label: "Outstanding %",
 
                         data: coachOutstanding,
 
@@ -1005,7 +994,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     {
 
-                        label: "Overdue",
+                        label: "Overdue %",
 
                         data: coachOverdue,
 
@@ -1033,10 +1022,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         stacked: true,
 
                         beginAtZero: true,
+                        min: 0,
+                        max: 100,
+                        ticks: { callback: percentTicks },
 
                         title: {
                             display: true,
-                            text: "BOM Items"
+                            text: "BOM Records (%)"
                         }
 
                     },
@@ -1054,6 +1046,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
 
                 plugins: {
+
+                    tooltip: { callbacks: { label: percentTooltip } },
 
                     legend: {
 
@@ -1095,7 +1089,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [
                     {
                         label: "Expected Delivery",
-                        data: {{ supplier_actual.expected|tojson }},
+                        data: {{ supplier_actual.expected|tojson }}.map(value => toPercent(value)),
                         backgroundColor: COLORS.expected
                     },
                     {
@@ -1103,7 +1097,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         label: "Supplier Date",
 
                         data:
-                            {{ supplier_actual.supplier|tojson }},
+                            {{ supplier_actual.supplier|tojson }}.map(value => toPercent(value)),
 
                         backgroundColor:
                             COLORS.supplier
@@ -1115,7 +1109,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         label: "Actual Delivery",
 
                         data:
-                            {{ supplier_actual.actual|tojson }},
+                            {{ supplier_actual.actual|tojson }}.map(value => toPercent(value)),
 
                         backgroundColor:
                             COLORS.actual
@@ -1137,10 +1131,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     y: {
 
                         beginAtZero: true,
+                        min: 0,
+                        max: 100,
+                        ticks: { callback: percentTicks },
 
                         title: {
                             display: true,
-                            text: "BOM Items"
+                            text: "BOM Records (%)"
                         }
 
                     }
@@ -1148,6 +1145,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
 
                 plugins: {
+
+                    tooltip: { callbacks: { label: percentTooltip } },
 
                     legend: {
 
@@ -1193,7 +1192,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         label: "Expected Delivery",
 
                         data:
-                            {{ delivery_timeline.expected|tojson }},
+                            {{ delivery_timeline.expected|tojson }}.map(value => toPercent(value)),
 
                         borderColor:
                             COLORS.expected,
@@ -1214,7 +1213,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         label: "Supplier Date",
 
                         data:
-                            {{ delivery_timeline.supplier|tojson }},
+                            {{ delivery_timeline.supplier|tojson }}.map(value => toPercent(value)),
 
                         borderColor:
                             COLORS.supplier,
@@ -1235,7 +1234,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         label: "Actual Delivery",
 
                         data:
-                            {{ delivery_timeline.actual|tojson }},
+                            {{ delivery_timeline.actual|tojson }}.map(value => toPercent(value)),
 
                         borderColor:
                             COLORS.actual,
@@ -1274,10 +1273,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     y: {
 
                         beginAtZero: true,
+                        min: 0,
+                        max: 100,
+                        ticks: { callback: percentTicks },
 
                         title: {
                             display: true,
-                            text: "BOM Items"
+                            text: "BOM Records (%)"
                         }
 
                     }
@@ -1285,6 +1287,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
 
                 plugins: {
+
+                    tooltip: { callbacks: { label: percentTooltip } },
 
                     legend: {
 
@@ -1342,7 +1346,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 datasets: [{
 
-                    data: sectionTotals,
+                    data: sectionTotals.map(value => toPercent(value)),
 
                     backgroundColor: [
 
@@ -1397,17 +1401,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         callbacks: {
 
-                            label: function(context) {
-
-                                return (
-                                    context.label +
-                                    ": " +
-                                    Number(
-                                        context.raw || 0
-                                    ).toLocaleString()
-                                );
-
-                            }
+                            label: percentTooltip
 
                         }
 
