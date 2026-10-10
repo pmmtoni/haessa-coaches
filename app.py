@@ -5556,7 +5556,7 @@ def build_dependency_gantt(tasks, bom_items, selected, today=None):
 def update_task_bom_dependencies(coach_id, task_id):
     token = session.get('bom_dependency_csrf', '')
     if not token or not hmac.compare_digest(token, request.form.get('dependency_csrf', '')):
-        abort(400, description='Expired dependency form. Reload Production Execution and try again.')
+        abort(400, description='Expired dependency form. Reload the Dependency Gantt and try again.')
     coach = Coach.query.get_or_404(coach_id)
     task = CompletionTask.query.filter_by(id=task_id, coach_id=coach.id).first_or_404()
     try:
@@ -5578,7 +5578,8 @@ def update_task_bom_dependencies(coach_id, task_id):
                         details=f'Task #{task.id}: BOM IDs {sorted(before)} -> {sorted(requested)}')
     db.session.commit()
     flash('Material dependencies saved. The Gantt has been recalculated.', 'success')
-    return redirect(url_for('production_tasks', coach_id=coach.id, _anchor='dependency-gantt'))
+    return redirect(url_for('production_dependency_gantt', coach_id=coach.id,
+                            page=max(1, request.form.get('page', 1, type=int))))
 
 
 
@@ -5620,23 +5621,11 @@ def production_tasks(coach_id):
         if task.completed
     )
 
-    bom_items = CoachBOMItem.query.filter_by(coach_id=coach.id).order_by(CoachBOMItem.section, CoachBOMItem.component, CoachBOMItem.id).all()
-    dependencies = TaskBOMDependency.query.join(CompletionTask).filter(CompletionTask.coach_id == coach.id).all()
-    selected = {task.id: [] for task in production_tasks}
-    for dependency in dependencies:
-        selected[dependency.task_id].append(dependency.bom_item_id)
-    gantt = build_dependency_gantt(production_tasks, bom_items, selected)
-    session.setdefault("bom_dependency_csrf", secrets.token_urlsafe(32))
-
     return render_template(
         "production_tasks.html",
         coach=coach,
         production_tasks=production_tasks,
         task_timing=task_timing,
-        gantt=gantt,
-        bom_items=bom_items,
-        selected_dependencies=selected,
-        dependency_csrf=session["bom_dependency_csrf"],
         total_count=len(production_tasks),
         completed_count=completed_count,
         in_progress_count=in_progress_count,
@@ -5644,6 +5633,33 @@ def production_tasks(coach_id):
         overdue_count=overdue_count,
         total_duration=total_duration,
     )
+
+
+@app.route("/coach/<int:coach_id>/production-dependency-gantt")
+@login_required
+def production_dependency_gantt(coach_id):
+    """Load only one page of dependency charts and material selectors."""
+    coach = Coach.query.get_or_404(coach_id)
+    page = max(1, request.args.get("page", 1, type=int))
+    pagination = (CompletionTask.query.filter_by(coach_id=coach.id)
+                  .order_by(CompletionTask.phase.asc(), CompletionTask.section.asc(), CompletionTask.id.asc())
+                  .paginate(page=page, per_page=20, error_out=False))
+    if page > max(1, pagination.pages):
+        return redirect(url_for('production_dependency_gantt', coach_id=coach.id,
+                                page=max(1, pagination.pages)))
+    production_tasks = pagination.items
+    bom_items = CoachBOMItem.query.filter_by(coach_id=coach.id).order_by(CoachBOMItem.section, CoachBOMItem.component, CoachBOMItem.id).all()
+    dependencies = TaskBOMDependency.query.join(CompletionTask).filter(CompletionTask.coach_id == coach.id, CompletionTask.id.in_([task.id for task in production_tasks])).all()
+    selected = {task.id: [] for task in production_tasks}
+    for dependency in dependencies:
+        selected[dependency.task_id].append(dependency.bom_item_id)
+    gantt = build_dependency_gantt(production_tasks, bom_items, selected)
+    session.setdefault("bom_dependency_csrf", secrets.token_urlsafe(32))
+
+    return render_template("production_dependency_gantt.html", coach=coach,
+                           pagination=pagination, gantt=gantt, bom_items=bom_items,
+                           selected_dependencies=selected,
+                           dependency_csrf=session["bom_dependency_csrf"])
 
 
 @app.route("/production-tasks")

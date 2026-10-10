@@ -8,6 +8,7 @@ import ast
 import hmac
 import secrets
 import unittest
+from unittest.mock import patch
 from datetime import date, datetime, timedelta
 from functools import wraps
 from pathlib import Path
@@ -26,10 +27,11 @@ app.config.update(TESTING=True, SECRET_KEY='test-only', SQLALCHEMY_DATABASE_URI=
 db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.user_loader(lambda user_id: db.session.get(User, int(user_id)))
-app.jinja_loader = ChoiceLoader([app.jinja_loader, DictLoader({'base.html': '{% block content %}{% endblock %}'})])
+app.jinja_loader = ChoiceLoader([DictLoader({'base.html': '{% block content %}{% endblock %}'}), app.jinja_loader])
 
 names = {'role_required', 'enforce_record_permissions', 'log_coach_audit',
-         'get_task_timing', 'build_dependency_gantt', 'update_task_bom_dependencies', 'production_tasks'}
+         'get_task_timing', 'build_dependency_gantt', 'update_task_bom_dependencies', 'production_tasks',
+         'production_dependency_gantt'}
 tree = ast.parse((ROOT / 'app.py').read_text(encoding='utf-8'))
 functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
 assert len(functions) == len(names)
@@ -177,11 +179,52 @@ class RouteTests(unittest.TestCase):
         response = self.client.get('/coach/1/production-tasks')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Production Activities', response.data)
+        self.assertNotIn(b'id="dependency-gantt"', response.data)
+        self.assertIn(b'coach_task_workflow', response.data)
+        response = self.client.get('/coach/1/production-dependency-gantt')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(b'coach_task_workflow', response.data)
         self.assertIn(b'BOM', response.data)
         self.assertIn(b'&lt;script&gt;', response.data)
         self.assertNotIn(b'<script>alert(1)</script>', response.data)
         self.login(2)
-        self.assertNotIn(b'Save dependencies', self.client.get('/coach/1/production-tasks').data)
+        self.assertNotIn(b'Save dependencies', self.client.get('/coach/1/production-dependency-gantt').data)
+
+    def test_activities_skip_gantt_calculation_and_material_queries(self):
+        from sqlalchemy import event
+        queries = []
+        def record(conn, cursor, statement, parameters, context, executemany):
+            queries.append(statement.lower())
+        event.listen(db.engine, 'before_cursor_execute', record)
+        try:
+            with patch.dict(globals(), build_dependency_gantt=lambda *a: self.fail('Gantt calculated on activities page')):
+                self.assertEqual(self.client.get('/coach/1/production-tasks').status_code, 200)
+        finally:
+            event.remove(db.engine, 'before_cursor_execute', record)
+        self.assertFalse(any('coach_bom_item' in q or 'task_bom_dependency' in q for q in queries))
+
+    def test_gantt_pagination_save_return_and_empty_coach(self):
+        db.session.add_all([CompletionTask(id=i, coach_id=1, coach_no='C1', coach_type='Test',
+            phase='Completion', section='Interior', task=f'Activity {i}') for i in range(2, 26)])
+        db.session.commit()
+        first = self.client.get('/coach/1/production-dependency-gantt').data
+        second = self.client.get('/coach/1/production-dependency-gantt?page=2').data
+        self.assertEqual(first.count(b'<article '), 20)
+        self.assertEqual(second.count(b'<article '), 5)
+        self.assertNotIn(b'Install windows', second)
+        self.assertNotIn(b'Other coach', first)
+        response = self.client.post('/coach/1/tasks/21/bom-dependencies', data={
+            'dependency_csrf': 'test-token', 'bom_item_ids': '1', 'page': '2'})
+        self.assertIn('/production-dependency-gantt?page=2', response.location)
+        self.assertIn(b'checked', self.client.get(response.location).data)
+        self.assertEqual(self.client.get('/coach/1/production-dependency-gantt?page=999').status_code, 302)
+        self.assertEqual(self.client.get('/coach/1/production-dependency-gantt?page=bad').status_code, 200)
+        self.assertIn(b'Add production tasks', self.client.get('/coach/2/production-dependency-gantt').data)
+        self.assertEqual(self.client.get('/coach/999/production-dependency-gantt').status_code, 404)
+        with self.client.session_transaction() as sess:
+            sess.clear()
+        g.pop('_login_user', None)
+        self.assertEqual(self.client.get('/coach/1/production-dependency-gantt').status_code, 401)
 
     def test_parent_delete_cascades_only_dependency(self):
         self.post(['1'])

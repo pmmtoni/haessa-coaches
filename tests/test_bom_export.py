@@ -33,7 +33,7 @@ tree = ast.parse((ROOT / 'app.py').read_text(encoding='utf-8'))
 functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
 assert len(functions) == len(names)
 exec(compile(ast.Module(body=functions, type_ignores=[]), str(ROOT / 'app.py'), 'exec'), globals())
-for endpoint in ['production_tasks', 'coaches_edit', 'coaches_list', 'coach_bom_import']:
+for endpoint in ['production_tasks', 'production_dependency_gantt', 'coaches_edit', 'coaches_list', 'coach_bom_import']:
     app.add_url_rule('/stub/' + endpoint, endpoint, lambda: '')
 
 
