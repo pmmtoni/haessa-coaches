@@ -1,0 +1,71 @@
+<style>
+    .register-print { display: none; }
+    @media print {
+        @page { size: A4 portrait; margin: 12mm; }
+        .register-screen, main > .mt-2, main > footer, main > hr { display: none !important; }
+        html, body, main.container-fluid {
+            width: auto !important; min-width: 0 !important; max-width: none !important;
+            margin: 0 !important; padding: 0 !important; background: white !important;
+        }
+        .register-print { display: block; font: 10pt/1.35 Arial, sans-serif; color: #111; }
+        .register-print * { box-sizing: border-box; overflow-wrap: anywhere; }
+        .register-print-record + .register-print-record { break-before: page; page-break-before: always; }
+        .register-print h1 { font-size: 18pt; margin: 0 0 4mm; }
+        .register-print h2 { font-size: 14pt; margin: 4mm 0 2mm; }
+        .register-print h3 { font-size: 10pt; margin: 0 0 2mm; }
+        .register-print-meta { font-size: 9pt; margin-bottom: 3mm; }
+        .register-print-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2mm 5mm; margin: 3mm 0; }
+        .register-print-fields > div { break-inside: avoid; }
+        .register-print dt { font-weight: bold; }
+        .register-print dd { margin: 0; }
+        .register-print-notes { white-space: pre-wrap; margin: 2mm 0 4mm; }
+        .register-print-phases { columns: 2; column-gap: 6mm; }
+        .register-print-phase { break-inside: avoid; page-break-inside: avoid; margin: 0 0 4mm; padding-top: 2mm; border-top: 1px solid #aaa; }
+        .register-print-phase ul { list-style: none; padding: 0; margin: 0; }
+        .register-print-phase li { margin-bottom: 1mm; break-inside: avoid; }
+    }
+</style>
+<section class="register-print" aria-label="Coach register print report">
+    {% for row in coach_progress_data %}
+    {% set coach = coaches[loop.index0] %}
+    {% set progress = row.progress %}
+    <article class="register-print-record">
+        <h1>CTE Durban Coaches Register</h1>
+        <div class="register-print-meta">
+            Printed by {{ current_user.username }} · Register page {{ page }} of {{ total_pages }} · {{ coaches|length }} of {{ total }} matching coaches<br>
+            Search: {{ search_query or 'All' }} · Type: {{ coach_type_filter or 'All' }} · Status: {{ status_filter or 'All' }} · {{ 'Including archived' if show_archived else 'Active only' }}
+        </div>
+        <h2>{{ coach.coach_number }} · {{ coach.coach_type }}</h2>
+        <div><strong>Overall progress: {{ progress.overall_percent }}%</strong>
+            · {% if coach.complete %}Complete{% elif coach.due_date and coach.due_date < today %}Overdue{% elif coach.due_date and (coach.due_date - today).days <= 7 %}Due Soon{% elif not coach.stripping %}Not Started{% else %}In Progress{% endif %}
+            {% if coach.archived %} · Archived{% endif %}
+        </div>
+        <dl class="register-print-fields">
+            {% for label, complete, completed_date in [
+                ('Stripping', coach.stripping, coach.stripping_date),
+                ('Completion', coach.complete, coach.completion_date),
+                ('Serviceworthy', coach.serviceworthy, coach.serviceworthy_date),
+                ('Retention', coach.retention, coach.retention_date)] %}
+            <div><dt>{{ label }}</dt><dd>{{ 'Yes' if complete else 'No' }} · {{ completed_date.strftime('%d %b %Y') if completed_date else '—' }}</dd></div>
+            {% endfor %}
+            <div><dt>Current Phase</dt><dd>{{ row.current_phase }}</dd></div>
+            <div><dt>Days in Phase</dt><dd>{{ row.days_in_phase ~ ' day(s)' if row.days_in_phase is not none else 'Date Missing' }} · {{ row.phase_risk_label }}</dd></div>
+            <div><dt>Delay Risk</dt><dd>{{ row.risk_score }}/100 · {{ row.risk_label }}<br>{{ row.risk_reasons|join('; ') }}</dd></div>
+            <div><dt>Due Date</dt><dd>{{ coach.due_date.strftime('%d %b %Y') if coach.due_date else '—' }}</dd></div>
+        </dl>
+        <strong>Notes</strong>
+        <p class="register-print-notes">{{ coach.notes or '—' }}</p>
+        <h2>Phase and subsection completion</h2>
+        <div class="register-print-phases">
+            {% for phase in progress.phases %}
+            <section class="register-print-phase">
+                <h3>{{ phase.name }}: {{ phase.completed }}/{{ phase.total }} ({{ phase.progress }}%)</h3>
+                <ul>{% for section in phase.sections %}
+                    <li>{{ section.name }}: {{ section.completed }}/{{ section.total }} ({{ section.progress }}%)</li>
+                {% endfor %}</ul>
+            </section>
+            {% else %}<p>No production tasks recorded.</p>{% endfor %}
+        </div>
+    </article>
+    {% else %}<h1>CTE Durban Coaches Register</h1><p>No coaches found for the current filter.</p>{% endfor %}
+</section>
