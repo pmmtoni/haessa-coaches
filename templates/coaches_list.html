@@ -328,7 +328,16 @@
                                     {% if progress.phases %}
                                     <div class="mt-2 small text-muted">
                                         {% for phase in progress.phases %}
-                                            <div>{{ phase.name }}: {{ phase.completed }}/{{ phase.total }} ({{ phase.progress }}%)</div>
+                                            <div class="mb-2">
+                                                <div class="fw-semibold">{{ phase.name }}: {{ phase.completed }}/{{ phase.total }} ({{ phase.progress }}%)</div>
+                                                {% if phase.sections %}
+                                                <ul class="list-unstyled ps-3 mb-0" aria-label="{{ phase.name }} subsection completion">
+                                                    {% for section in phase.sections %}
+                                                    <li>{{ section.name }}: {{ section.completed }}/{{ section.total }} ({{ section.progress }}%)</li>
+                                                    {% endfor %}
+                                                </ul>
+                                                {% endif %}
+                                            </div>
                                         {% endfor %}
                                     </div>
                                     {% endif %}

@@ -2134,13 +2134,7 @@ def coach_bom(id):
     # -------------------------------------------------------------
     summary = bom_summary_for_coach(coach, today)
 
-    rows = []
-
-    for item in summary["items"]:
-        rows.append({
-            "item": item,
-            "flags": get_bom_item_flags(item, today)
-        })
+    rows = coach_bom_rows(summary, today)
 
     from bom_csv import section_key
     catalog = bom_section_catalog()
@@ -2153,6 +2147,63 @@ def coach_bom(id):
         counts=summary["counts"],
         today=today,
     )
+
+def coach_bom_rows(summary, today):
+    """Share saved values, status and search text between the page and export."""
+    return [{
+        "item": item,
+        "flags": get_bom_item_flags(item, today),
+        "search": " ".join(value or "" for value in
+                           (item.component, item.section, item.notes, item.uom)),
+    } for item in summary["items"]]
+
+
+def bom_csv_text(value):
+    """Keep untrusted text literal when a spreadsheet opens the CSV."""
+    value = str(value or "")
+    if value.lstrip().startswith(("=", "+", "-", "@")) or value.startswith(("\t", "\r", "\n")):
+        return "'" + value
+    return value
+
+
+@app.route("/coaches/<int:id>/bom/export.csv")
+@login_required
+def coach_bom_export_csv(id):
+    # Match the BOM page's read permissions and never accept a client row list.
+    from werkzeug.utils import secure_filename
+
+    coach = Coach.query.get_or_404(id)
+    today = datetime.now().date()
+    rows = coach_bom_rows(bom_summary_for_coach(coach, today), today)
+    query = request.args.get("q", "").strip().lower()
+    output = io.StringIO(newline="")
+    writer = csv.writer(output)
+    writer.writerow([
+        "component", "section", "quantity", "uom", "expected_delivery_date",
+        "supplier_date", "actual_delivery_date", "countdown", "delivered", "notes",
+    ])
+    for row in rows:
+        if query and query not in row["search"].lower():
+            continue
+        item, flags = row["item"], row["flags"]
+        writer.writerow([
+            bom_csv_text(item.component), bom_csv_text(item.section), item.quantity,
+            bom_csv_text(item.uom),
+            item.expected_delivery_date.isoformat() if item.expected_delivery_date else "",
+            item.supplier_date.isoformat() if item.supplier_date else "",
+            item.actual_delivery_date.isoformat() if item.actual_delivery_date else "",
+            flags["countdown_label"], "1" if flags["delivered"] else "0",
+            bom_csv_text(item.notes),
+        ])
+    coach_name = secure_filename(coach.coach_number or "coach")[:80] or "coach"
+    filename = f"BOM_{coach_name}_{coach.id}_{today:%Y%m%d}.csv"
+    response = Response(output.getvalue().encode("utf-8-sig"),
+                        content_type="text/csv; charset=utf-8")
+    response.headers.set("Content-Disposition", "attachment", filename=filename)
+    response.headers["Cache-Control"] = "private, no-store"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+
 
 def _parse_bom_bool(value):
     if value is None:

@@ -28,6 +28,13 @@
                 Download PDF
             </button>
 
+            <a href="{{ url_for('coach_bom_export_csv', id=coach.id) }}"
+               class="btn btn-outline-success"
+               id="bomCsvBtn"
+               title="Download saved BOM lines matching the current filter">
+                Download CSV
+            </a>
+
             <a href="{{ url_for('coaches_edit', id=coach.id) }}"
                class="btn btn-outline-secondary">
                 Back to Coach
@@ -431,10 +438,7 @@
                             data-countdown="{{ flags.days_remaining if flags.days_remaining is not none else 99999 }}"
                             data-delivered="{{ 1 if flags.delivered else 0 }}"
                             data-notes="{{ item.notes or '' }}"
-                            data-search="{{ (item.component or '') ~ ' ' ~
-                                           (item.section or '') ~ ' ' ~
-                                           (item.notes or '') ~ ' ' ~
-                                           (item.uom or '') }}">
+                            data-search="{{ row.search }}">
 
 
                             <!-- =================================================
@@ -801,6 +805,8 @@
 
         var tbody = table.querySelector("tbody");
         var filterInput = document.getElementById("bomFilter");
+        var csvLink = document.getElementById("bomCsvBtn");
+        var csvBaseUrl = csvLink ? csvLink.href : "";
 
         var sortKey = "component";
         var sortDir = 1;
@@ -822,6 +828,14 @@
                 filterInput.value ||
                 ""
             ).trim().toLowerCase();
+
+            if (csvLink) {
+                var csvUrl = new URL(csvBaseUrl, window.location.href);
+                if (q) {
+                    csvUrl.searchParams.set("q", q);
+                }
+                csvLink.href = csvUrl.toString();
+            }
 
 
             dataRows().forEach(function (tr) {
@@ -957,6 +971,7 @@
         });
 
 
+        applyFilter();
         applySort();
 
     }
