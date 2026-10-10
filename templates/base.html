@@ -60,6 +60,16 @@
             color:#777;
         }
 
+        /* Let page wrappers fill the display; keep their responsive gutters
+           and each page's existing form grids and scrollable tables. */
+        @media screen {
+            main.container-fluid > .container,
+            main.container-fluid > .container-fluid {
+                width:100%;
+                max-width:none;
+            }
+        }
+
         @media print{
 
             .navbar,
