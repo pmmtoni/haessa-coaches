@@ -1,0 +1,26 @@
+<script>
+(function () {
+    const coachNumber = {{ (coach.coach_number if coach is defined and coach else none) | tojson }};
+    const username = {{ (current_user.username if current_user.is_authenticated else 'user') | tojson }};
+    const report = {{ (request.endpoint or 'coaches-overview') | tojson }};
+    let originalTitle = null;
+
+    function safePart(value, fallback) {
+        return String(value || '').replace(/[^a-zA-Z0-9._-]+/g, '_')
+            .replace(/^[._-]+|[._-]+$/g, '').slice(0, 80) || fallback;
+    }
+
+    window.addEventListener('beforeprint', function () {
+        if (originalTitle === null) originalTitle = document.title;
+        // SAST is UTC+2 all year, independent of the workstation's timezone.
+        const sast = new Date(Date.now() + 2 * 60 * 60 * 1000);
+        const stamp = sast.toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '_');
+        document.title = [safePart(report, 'report'), safePart(coachNumber, 'all-coaches'),
+            stamp, 'SAST', safePart(username, 'user')].join('_');
+    });
+    window.addEventListener('afterprint', function () {
+        if (originalTitle !== null) document.title = originalTitle;
+        originalTitle = null;
+    });
+})();
+</script>

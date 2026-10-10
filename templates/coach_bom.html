@@ -981,80 +981,11 @@
        PDF
        --------------------------------------------------------- */
 
-    var coachNo =
-        {{ (coach.coach_number or "coach") | tojson }};
-
-    var originalTitle =
-        document.title;
-
-
-    function buildPdfName() {
-
-        var safe =
-            String(coachNo)
-                .replace(
-                    /[^a-zA-Z0-9._-]+/g,
-                    "_"
-                ) ||
-            "coach";
-
-
-        var n =
-            new Date();
-
-
-        function p(x) {
-
-            return String(x)
-                .padStart(2, "0");
-
-        }
-
-
-        return safe +
-            "_" +
-            n.getFullYear() +
-            p(n.getMonth() + 1) +
-            p(n.getDate()) +
-            "_" +
-            p(n.getHours()) +
-            p(n.getMinutes()) +
-            p(n.getSeconds());
-
-    }
-
-
-    var pdfBtn =
-        document.getElementById(
-            "bomPdfBtn"
-        );
-
-
+    var pdfBtn = document.getElementById("bomPdfBtn");
     if (pdfBtn) {
-
-        pdfBtn.addEventListener(
-            "click",
-            function () {
-
-                document.title =
-                    buildPdfName();
-
-                window.print();
-
-
-                setTimeout(
-                    function () {
-
-                        document.title =
-                            originalTitle;
-
-                    },
-                    2000
-                );
-
-            }
-        );
-
+        pdfBtn.addEventListener("click", function () {
+            window.print();
+        });
     }
 
 })();

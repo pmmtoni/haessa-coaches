@@ -6,6 +6,8 @@ import calendar
 import secrets
 import hmac
 
+from download_names import download_filename
+
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from functools import wraps
@@ -1151,7 +1153,7 @@ def task_templates_export_csv():
     return Response(
         output.getvalue(),
         mimetype="text/csv",
-        headers={"Content-Disposition": "attachment; filename=coach_tasks_export.csv"},
+        headers={"Content-Disposition": 'attachment; filename=' + download_filename('task-templates', None, current_user.username, 'csv')},
     )
 
 
@@ -2170,8 +2172,6 @@ def bom_csv_text(value):
 @login_required
 def coach_bom_export_csv(id):
     # Match the BOM page's read permissions and never accept a client row list.
-    from werkzeug.utils import secure_filename
-
     coach = Coach.query.get_or_404(id)
     today = datetime.now().date()
     rows = coach_bom_rows(bom_summary_for_coach(coach, today), today)
@@ -2195,8 +2195,7 @@ def coach_bom_export_csv(id):
             flags["countdown_label"], "1" if flags["delivered"] else "0",
             bom_csv_text(item.notes),
         ])
-    coach_name = secure_filename(coach.coach_number or "coach")[:80] or "coach"
-    filename = f"BOM_{coach_name}_{coach.id}_{today:%Y%m%d}.csv"
+    filename = download_filename("BOM", coach.coach_number, current_user.username, "csv")
     response = Response(output.getvalue().encode("utf-8-sig"),
                         content_type="text/csv; charset=utf-8")
     response.headers.set("Content-Disposition", "attachment", filename=filename)
@@ -3784,7 +3783,7 @@ def production_bottlenecks_export():
         output.getvalue(),
         mimetype="text/csv",
         headers={
-            "Content-Disposition": "attachment; filename=production_bottlenecks.csv"
+            "Content-Disposition": 'attachment; filename=' + download_filename('production-bottlenecks', None, current_user.username, 'csv')
         },
     )
 
@@ -4268,7 +4267,7 @@ def coach_audits():
             '\ufeff' + output.getvalue(),
             content_type='text/csv; charset=utf-8',
             headers={
-                'Content-Disposition': 'attachment; filename=consolidated_app_actions.csv',
+                'Content-Disposition': 'attachment; filename=' + download_filename('consolidated-actions', None, current_user.username, 'csv'),
                 'Cache-Control': 'no-store',
             },
         )
@@ -4472,7 +4471,7 @@ def export_task_templates_csv():
         csv_data,
         mimetype="text/csv",
         headers={
-            "Content-Disposition": "attachment; filename=coach_tasks_export.csv"
+            "Content-Disposition": 'attachment; filename=' + download_filename('task-templates', None, current_user.username, 'csv')
         },
     )
 
@@ -5303,7 +5302,7 @@ def export_database_csv():
         output.getvalue(),
         mimetype="text/csv",
         headers={
-            "Content-Disposition": "attachment; filename=cte_durban_coaches_backup.csv"
+            "Content-Disposition": 'attachment; filename=' + download_filename('database-backup', None, current_user.username, 'csv')
         },
     )
 
