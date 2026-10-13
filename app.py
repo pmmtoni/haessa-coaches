@@ -424,22 +424,24 @@ def format_display_date(value):
 def get_bom_item_flags(item, today=None):
     """Status flags + countdown for one BOM line."""
     today = today or datetime.now().date()
-    delivered = bool(item.delivered)
+    from bom_stock import available
+    is_available = available(item)
+    delivered = bool(item.delivered or item.actual_delivery_date)
     expected = item.expected_delivery_date
 
     days_remaining = None
     is_delayed = False
     is_approaching = False
 
-    if delivered:
+    if is_available:
         days_remaining = 0
     elif expected:
         days_remaining = (expected - today).days
         is_delayed = days_remaining < 0
         is_approaching = 0 <= days_remaining <= 7
 
-    if delivered:
-        countdown_label = "Delivered"
+    if is_available:
+        countdown_label = "Delivered" if delivered else "In Stock"
     elif is_delayed:
         countdown_label = f"{abs(days_remaining)} day(s) overdue"
     elif days_remaining is not None:
@@ -449,6 +451,7 @@ def get_bom_item_flags(item, today=None):
 
     return {
         "delivered": delivered,
+        "available": is_available,
         "days_remaining": days_remaining,
         "is_delayed": is_delayed,
         "is_approaching": is_approaching,
@@ -467,7 +470,7 @@ def bom_summary_for_coach(coach, today=None):
     for item in items:
         flags = get_bom_item_flags(item, today)
         row = {"item": item, "flags": flags}
-        if flags["delivered"]:
+        if flags["available"]:
             delivered_list.append(row)
         else:
             if flags["is_delayed"]:
@@ -478,10 +481,12 @@ def bom_summary_for_coach(coach, today=None):
         "items": items,
         "delayed": delayed,
         "approaching": approaching,
-        "delivered": delivered_list,
+        "available": delivered_list,
+        "delivered": [row for row in delivered_list if row["flags"]["delivered"]],
         "counts": {
             "total": len(items),
-            "delivered": len(delivered_list),
+            "available": len(delivered_list),
+            "delivered": sum(row["flags"]["delivered"] for row in delivered_list),
             "delayed": len(delayed),
             "approaching": len(approaching),
             "outstanding": len(items) - len(delivered_list),
@@ -2005,7 +2010,13 @@ def coach_bom(id):
         # ---------------------------------------------------------
         if action in {"add", "update"}:
             from bom_csv import canonical_section
+            from bom_stock import form_values
+            existing_item = None
+            if action == "update":
+                existing_item = CoachBOMItem.query.filter_by(
+                    id=request.form.get("item_id", type=int), coach_id=coach.id).first_or_404()
             try:
+                stock_values = form_values(request.form, existing_item)
                 selected_section = canonical_section(request.form.get("section"), bom_section_catalog())
             except ValueError as exc:
                 flash(str(exc), "danger")
@@ -2023,25 +2034,10 @@ def coach_bom(id):
                     section=selected_section,
                     quantity=request.form.get("quantity", type=int) or 1,
                     uom=(request.form.get("uom") or "").strip() or None,
-                    delivered="delivered" in request.form,
-
-                    expected_delivery_date=parse_date(
-                        request.form.get("expected_delivery_date")
-                    ),
-
-                    supplier_date=parse_date(
-                        request.form.get("supplier_date")
-                    ),
-
-                    actual_delivery_date=parse_date(
-                        request.form.get("actual_delivery_date")
-                    ),
+                    **stock_values,
 
                     notes=(request.form.get("notes") or "").strip() or None,
                 )
-
-                if item.delivered and not item.actual_delivery_date:
-                    item.actual_delivery_date = today
 
                 db.session.add(item)
                 db.session.flush()
@@ -2079,26 +2075,12 @@ def coach_bom(id):
                 request.form.get("uom") or ""
             ).strip() or None
 
-            item.delivered = "delivered" in request.form
-
-            item.expected_delivery_date = parse_date(
-                request.form.get("expected_delivery_date")
-            )
-
-            item.supplier_date = parse_date(
-                request.form.get("supplier_date")
-            )
-
-            item.actual_delivery_date = parse_date(
-                request.form.get("actual_delivery_date")
-            )
+            for name, value in stock_values.items():
+                setattr(item, name, value)
 
             item.notes = (
                 request.form.get("notes") or ""
             ).strip() or None
-
-            if item.delivered and not item.actual_delivery_date:
-                item.actual_delivery_date = today
 
             audit_record(coach, "bom_item_updated", item, before, f"BOM item #{item.id}: {item.component}")
             item.updated_at = datetime.utcnow()
@@ -2180,7 +2162,7 @@ def coach_bom_export_csv(id):
     writer = csv.writer(output)
     writer.writerow([
         "component", "section", "quantity", "uom", "expected_delivery_date",
-        "supplier_date", "actual_delivery_date", "countdown", "delivered", "notes",
+        "supplier_date", "actual_delivery_date", "countdown", "delivered", "notes", "stock_status",
     ])
     for row in rows:
         if query and query not in row["search"].lower():
@@ -2193,7 +2175,7 @@ def coach_bom_export_csv(id):
             item.supplier_date.isoformat() if item.supplier_date else "",
             item.actual_delivery_date.isoformat() if item.actual_delivery_date else "",
             flags["countdown_label"], "1" if flags["delivered"] else "0",
-            bom_csv_text(item.notes),
+            bom_csv_text(item.notes), item.stock_status,
         ])
     filename = download_filename("BOM", coach.coach_number, current_user.username, "csv")
     response = Response(output.getvalue().encode("utf-8-sig"),
@@ -2372,11 +2354,13 @@ def coach_bom_analytics():
     Dynamic BOM delivery analytics across all coaches.
 
     Status rules:
-      Delivered   = delivered is True
-      Overdue     = not delivered and expected delivery date < today
-      Outstanding = not delivered and not overdue
+      In Stock    = available stock with no recorded delivery
+      Delivered   = available stock with Delivered checked or an Actual date
+      Overdue     = not available and expected delivery date < today
+      Outstanding = not available and not overdue
 
-    Component totals use BOM records rather than BOM row count.
+    Totals count BOM component records, not quantities across mixed units.
+    The four status buckets are mutually exclusive and cover every filtered record.
     """
     from datetime import date
     from sqlalchemy import func
@@ -2418,8 +2402,9 @@ def coach_bom_analytics():
         return 1
 
     def item_status(item):
-        if item.delivered:
-            return "delivered"
+        from bom_stock import available
+        if available(item):
+            return "delivered" if item.delivered or item.actual_delivery_date else "in_stock"
 
         if (
             item.expected_delivery_date
@@ -2431,17 +2416,19 @@ def coach_bom_analytics():
 
     # Apply derived status filter after loading because Overdue is
     # calculated dynamically from today's date.
-    if status_filter in {"delivered", "overdue", "outstanding"}:
+    if status_filter in {"in_stock", "delivered", "overdue", "outstanding", "available"}:
         items = [
             item
             for item in items
-            if item_status(item) == status_filter
+            if (item_status(item) in {"in_stock", "delivered"} if status_filter == "available"
+                else item_status(item) == status_filter)
         ]
 
     # ---------------------------------------------------------
     # KPI TOTALS
     # ---------------------------------------------------------
     total_components = 0
+    in_stock_components = 0
     delivered_components = 0
     overdue_components = 0
     outstanding_components = 0
@@ -2455,7 +2442,10 @@ def coach_bom_analytics():
         total_components += qty
         coach_ids_with_bom.add(item.coach_id)
 
-        if status == "delivered":
+        if status == "in_stock":
+            in_stock_components += qty
+
+        elif status == "delivered":
             delivered_components += qty
 
         elif status == "overdue":
@@ -2482,7 +2472,15 @@ def coach_bom_analytics():
         else 0
     )
 
+    in_stock_percent = round(in_stock_components / total_components * 100, 1) if total_components else 0
+    available_components = in_stock_components + delivered_components
+    available_percent = round(available_components / total_components * 100, 1) if total_components else 0
+
     kpis = {
+        "in_stock": in_stock_components,
+        "in_stock_percent": in_stock_percent,
+        "available": available_components,
+        "available_percent": available_percent,
         "total": total_components,
         "delivered": delivered_components,
         "delivered_percent": delivered_percent,
@@ -2506,6 +2504,7 @@ def coach_bom_analytics():
 
         if coach_number not in coach_performance:
             coach_performance[coach_number] = {
+                "in_stock": 0,
                 "delivered": 0,
                 "outstanding": 0,
                 "overdue": 0,
@@ -2520,6 +2519,8 @@ def coach_bom_analytics():
     for coach_number, values in coach_performance.items():
         total = values["total"]
 
+        values["available"] = values["in_stock"] + values["delivered"]
+        values["available_percent"] = round(values["available"] / total * 100, 1) if total else 0
         values["coach_number"] = coach_number
         values["delivered_percent"] = (
             round((values["delivered"] / total) * 100, 1)
@@ -2580,6 +2581,7 @@ def coach_bom_analytics():
 
         if section not in section_status:
             section_status[section] = {
+                "in_stock": 0,
                 "delivered": 0,
                 "outstanding": 0,
                 "overdue": 0,
@@ -2595,6 +2597,8 @@ def coach_bom_analytics():
         section_rows.append({
             "section": section,
             "total": values["total"],
+            "in_stock": values["in_stock"],
+            "available": values["in_stock"] + values["delivered"],
             "delivered": values["delivered"],
             "outstanding": values["outstanding"],
             "overdue": values["overdue"],
@@ -2707,7 +2711,7 @@ def coach_bom_analytics():
         supplier = item.supplier_date
         if not expected or not supplier or supplier <= expected:
             continue
-        received = bool(item.delivered or item.actual_delivery_date)
+        received = item.available_for_production
         supplier_delay_rows.append({
             "coach_number": item.coach.coach_number,
             "component": item.component,
@@ -2756,7 +2760,8 @@ def coach_bom_analytics():
 
     if total_components:
         insights.append(
-            f"{delivered_percent}% of BOM components have been delivered."
+            f"{available_components} of {total_components} BOM components ({available_percent}%) are available: "
+            f"{in_stock_components} in stock without a recorded delivery and {delivered_components} delivered."
         )
 
         insights.append(
@@ -5496,13 +5501,16 @@ def build_dependency_gantt(tasks, bom_items, selected, today=None):
                 continue
             expected = item.expected_delivery_date
             actual = item.actual_delivery_date
-            # Actual delivery is authoritative, not the legacy delivered checkbox.
-            delay = max(((actual or today) - expected).days, 0) if expected else None
+            from bom_stock import available
+            stocked_without_date = available(item) and actual is None
+            # Keep actual receipt delays as history; pre-existing stock has no delivery delay.
+            delay = 0 if stocked_without_date else (max(((actual or today) - expected).days, 0) if expected else None)
             materials.append(dict(item=item, expected=expected, actual=actual,
-                                  delay=delay, pending=actual is None))
+                                  stocked_without_date=stocked_without_date,
+                                  delay=delay, pending=not available(item)))
         delay = max((m['delay'] or 0 for m in materials), default=0)
         pending = any(m['pending'] for m in materials)
-        unknown = any(m['expected'] is None for m in materials)
+        unknown = any(m['expected'] is None and not m['stocked_without_date'] for m in materials)
         start = task.assigned_date or task.started_date
         duration = task.expected_days if task.expected_days and task.expected_days > 0 else None
         # Start Activity rewrites due_date, so reconstruct original due from assigned + duration.
@@ -5526,7 +5534,7 @@ def build_dependency_gantt(tasks, bom_items, selected, today=None):
             bars.append(dict(label='Completed actual' if task.completed else 'Actual work to date',
                              start=actual_start, end=actual_end, kind='complete' if task.completed else 'actual'))
         for m in materials:
-            if m['expected']:
+            if m['expected'] and not m['stocked_without_date']:
                 end = m['actual'] or max(today, m['expected'])
                 bars.append(dict(label=m['item'].component + (' · expected → actual' if m['actual'] else ' · awaiting actual'),
                                  start=min(m['expected'], end), end=max(m['expected'], end),

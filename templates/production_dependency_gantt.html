@@ -40,7 +40,7 @@
         </div>
         <div class="card-body">
             <p class="small text-muted">Calendar days, inclusive duration. Task shift = largest linked material delay (never the sum).
-                Undelivered materials use today for a provisional delay; missing expected dates leave the impact unknown.
+                In-stock materials without delivery dates are available with zero delivery delay. Out-of-stock materials use today for a provisional delay; missing expected dates leave the impact unknown.
                 The scenario does not change recorded dates or block work. Actual work is shown separately, including completed tasks.</p>
             <div class="d-flex flex-wrap gap-2 small mb-3" aria-label="Chart legend">
                 <span class="badge plan">Original plan</span><span class="badge shift">Shifted scenario</span>
@@ -65,7 +65,7 @@
                     <table class="gantt-table"><thead><tr><th class="small fw-normal">Activity / material · date range</th><th><div class="axis">{% for tick in gantt.ticks %}<span style="left:{{ tick.left }}%">{{ tick.date.strftime('%d %b %y') }}</span>{% endfor %}</div></th></tr></thead>
                     <tbody>{% for bar in row.bars %}<tr><td class="small">{{ bar.label }}<div class="text-muted">{{ bar.start }} → {{ bar.end }}</div></td><td><div class="timeline" role="img" aria-label="{{ bar.label }}: {{ bar.start }} to {{ bar.end }}"><span class="today" style="left:{{ gantt.today_left }}%"></span><span class="bar {{ bar.kind }}" style="left:{{ bar.left }}%;width:{{ bar.width }}%"></span></div></td></tr>{% endfor %}</tbody></table>
                 </div>
-                {% if row.materials %}<ul class="small mt-2 mb-1">{% for m in row.materials %}<li>{{ m.item.component }} (#{{ m.item.id }}) · expected {{ m.expected or 'unknown' }} · actual {{ m.actual or 'pending' }} · {{ m.delay if m.delay is not none else 'unknown' }} delay days{% if m.pending %} so far{% endif %}</li>{% endfor %}</ul>{% endif %}
+                {% if row.materials %}<ul class="small mt-2 mb-1">{% for m in row.materials %}<li>{{ m.item.component }} (#{{ m.item.id }}) · expected {{ m.expected or 'unknown' }} · actual {{ m.actual or ('In Stock — no receipt date required' if m.stocked_without_date else 'pending') }} · {{ m.delay if m.delay is not none else 'unknown' }} delay days{% if m.pending %} so far{% endif %}</li>{% endfor %}</ul>{% endif %}
                 {% if (current_user.role or '')|trim|lower in ['admin', 'editor'] %}
                 <details class="mt-3"><summary class="text-primary">Edit linked materials ({{ row.materials|length }})</summary>
                     <form method="post" action="{{ url_for('update_task_bom_dependencies', coach_id=coach.id, task_id=row.task.id) }}" class="mt-2">

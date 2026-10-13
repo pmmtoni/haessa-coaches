@@ -69,7 +69,7 @@
                         {% if counts.delayed == 0 %}opacity-50{% endif %}">
                 <div class="fw-bold">Delayed</div>
                 <div class="fs-3 fw-bold">{{ counts.delayed }}</div>
-                <div class="small">Expected date passed · not delivered</div>
+                <div class="small">Expected date passed · out of stock</div>
             </div>
         </div>
 
@@ -84,9 +84,9 @@
 
         <div class="col-md-4">
             <div class="alert alert-success border-0 shadow-sm rounded-4 mb-0
-                        {% if counts.delivered == 0 %}opacity-50{% endif %}">
-                <div class="fw-bold">Delivered</div>
-                <div class="fs-3 fw-bold">{{ counts.delivered }}</div>
+                        {% if counts.available == 0 %}opacity-50{% endif %}">
+                <div class="fw-bold">Available / In Stock</div>
+                <div class="fs-3 fw-bold">{{ counts.available }}</div>
                 <div class="small">of {{ counts.total }} BOM line(s)</div>
             </div>
         </div>
@@ -116,6 +116,12 @@
                        value="add">
 
 
+                <div class="col-md-2">
+                    <label class="form-label" for="add-stock">Stock availability</label>
+                    <select id="add-stock" name="stock_status" class="form-select" required>
+                        <option>Out of Stock</option><option>In Stock</option>
+                    </select>
+                </div>
                 <div class="col-md-3">
                     <label class="form-label fw-bold">
                         Component / Material
@@ -271,7 +277,7 @@
 
                     <small class="text-muted">
                         Columns: component, section, quantity, uom,
-                        delivered, expected_delivery_date, supplier_date,
+                        stock_status (In Stock / Out of Stock), delivered, expected_delivery_date, supplier_date,
                         actual_delivery_date, notes.<br>
                         UTF-8 CSV · up to 256 KB / 2,000 rows. Dates: YYYY-MM-DD; quantities: positive whole numbers.
                         Section names must match the dropdown; spelling case and extra spaces are corrected.
@@ -311,7 +317,7 @@
                 <h5 class="mb-0">BOM lines</h5>
 
                 <span class="text-muted small">
-                    Countdown stops when Delivered is checked
+                    In Stock stops the countdown. Saved dates remain in history. Choose Out of Stock to edit dates.
                     · Click headers to sort
                 </span>
             </div>
@@ -366,6 +372,7 @@
                                 <span class="sort-ind text-muted small"></span>
                             </th>
 
+                            <th data-sort="stock">Stock availability</th>
                             <th data-sort="expected"
                                 style="cursor:pointer; user-select:none;">
                                 Expected
@@ -425,7 +432,7 @@
                                        table-danger
                                    {% elif flags.is_approaching %}
                                        table-warning
-                                   {% elif flags.delivered %}
+                                   {% elif flags.available %}
                                        table-success
                                    {% endif %}"
 
@@ -433,6 +440,7 @@
                             data-section="{{ item.section or '' }}"
                             data-qty="{{ item.quantity or 0 }}"
                             data-uom="{{ item.uom or '' }}"
+                            data-stock="{{ item.stock_status }}"
                             data-expected="{{ item.expected_delivery_date.isoformat() if item.expected_delivery_date else '' }}"
                             data-supplier="{{ item.supplier_date.isoformat() if item.supplier_date else '' }}"
                             data-actual="{{ item.actual_delivery_date.isoformat() if item.actual_delivery_date else '' }}"
@@ -514,12 +522,22 @@
                             </td>
 
 
+                            <td>
+                                <select form="update-bom-{{ item.id }}" name="stock_status"
+                                        aria-label="Stock availability for {{ item.component }}" class="form-select form-select-sm" required>
+                                    {% for status in ['Out of Stock', 'In Stock'] %}
+                                    <option {% if item.stock_status == status %}selected{% endif %}>{{ status }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+
                             <!-- EXPECTED DELIVERY -->
                             <td>
 
                                 <input form="update-bom-{{ item.id }}"
                                        type="date"
                                        name="expected_delivery_date"
+                                       {% if item.stock_status == "In Stock" %}disabled{% endif %}
                                        class="form-control form-control-sm"
                                        value="{{ item.expected_delivery_date.isoformat()
                                                   if item.expected_delivery_date
@@ -534,6 +552,7 @@
                                 <input form="update-bom-{{ item.id }}"
                                        type="date"
                                        name="supplier_date"
+                                       {% if item.stock_status == "In Stock" %}disabled{% endif %}
                                        class="form-control form-control-sm"
                                        value="{{ item.supplier_date.isoformat()
                                                   if item.supplier_date
@@ -548,6 +567,7 @@
                                 <input form="update-bom-{{ item.id }}"
                                        type="date"
                                        name="actual_delivery_date"
+                                       {% if item.stock_status == "In Stock" %}disabled{% endif %}
                                        class="form-control form-control-sm"
                                        value="{{ item.actual_delivery_date.isoformat()
                                                   if item.actual_delivery_date
@@ -560,7 +580,7 @@
                             <td>
 
                                 <span class="badge
-                                    {% if flags.delivered %}
+                                    {% if flags.available %}
                                         bg-success
                                     {% elif flags.is_delayed %}
                                         bg-danger
@@ -680,6 +700,7 @@
                             </td>
 
 
+                            <td>{{ item.stock_status }}</td>
                             <td>
                                 {% if item.expected_delivery_date %}
                                     {{ item.expected_delivery_date.strftime('%d %b %Y') }}
@@ -710,7 +731,7 @@
                             <td>
 
                                 <span class="badge
-                                    {% if flags.delivered %}
+                                    {% if flags.available %}
                                         bg-success
                                     {% elif flags.is_delayed %}
                                         bg-danger
@@ -762,7 +783,7 @@
 
                         <tr id="bomEmptyRow">
 
-                            <td colspan="{% if can_edit %}11{% else %}10{% endif %}"
+                            <td colspan="{% if can_edit %}12{% else %}11{% endif %}"
                                 class="text-center text-muted py-4">
 
                                 {% if can_edit %}
@@ -793,6 +814,7 @@
 <!-- =============================================================
      JAVASCRIPT
      ============================================================= -->
+{% include "_bom_stock.html" %}
 <script>
 (function () {
 
@@ -1148,7 +1170,7 @@
     #bomLinesTable th:nth-child(1),
     #bomLinesTable td:nth-child(1) {
 
-        width: 14% !important;
+        width: 11% !important;
 
     }
 
@@ -1180,16 +1202,11 @@
     }
 
 
-    /* Expected */
+    /* Stock availability */
     #bomLinesTable th:nth-child(5),
-    #bomLinesTable td:nth-child(5) {
+    #bomLinesTable td:nth-child(5) { width: 8% !important; }
 
-        width: 9% !important;
-
-    }
-
-
-    /* Supplier Date */
+    /* Expected */
     #bomLinesTable th:nth-child(6),
     #bomLinesTable td:nth-child(6) {
 
@@ -1198,7 +1215,7 @@
     }
 
 
-    /* Actual */
+    /* Supplier Date */
     #bomLinesTable th:nth-child(7),
     #bomLinesTable td:nth-child(7) {
 
@@ -1207,9 +1224,18 @@
     }
 
 
-    /* Countdown */
+    /* Actual */
     #bomLinesTable th:nth-child(8),
     #bomLinesTable td:nth-child(8) {
+
+        width: 9% !important;
+
+    }
+
+
+    /* Countdown */
+    #bomLinesTable th:nth-child(9),
+    #bomLinesTable td:nth-child(9) {
 
         width: 10% !important;
 
@@ -1217,8 +1243,8 @@
 
 
     /* Delivered */
-    #bomLinesTable th:nth-child(9),
-    #bomLinesTable td:nth-child(9) {
+    #bomLinesTable th:nth-child(10),
+    #bomLinesTable td:nth-child(10) {
 
         width: 7% !important;
 
@@ -1226,10 +1252,10 @@
 
 
     /* Notes gets the largest remaining space */
-    #bomLinesTable th:nth-child(10),
-    #bomLinesTable td:nth-child(10) {
+    #bomLinesTable th:nth-child(11),
+    #bomLinesTable td:nth-child(11) {
 
-        width: 25% !important;
+        width: 20% !important;
 
     }
 

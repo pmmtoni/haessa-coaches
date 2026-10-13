@@ -157,6 +157,8 @@
                             All Statuses
                         </option>
 
+                        <option value="in_stock" {% if status_filter == 'in_stock' %}selected{% endif %}>In Stock (no delivery recorded)</option>
+                        <option value="available" {% if status_filter == 'available' %}selected{% endif %}>All Available (In Stock + Delivered)</option>
                         <option value="delivered"
                                 {% if status_filter == 'delivered' %}
                                     selected
@@ -220,6 +222,12 @@
     ========================================================== -->
     <div class="row g-3 mb-4">
 
+        <div class="col-12"><p class="small text-muted mb-2">
+            Total = In Stock (no delivery recorded) + Delivered + Outstanding + Overdue.
+            Available for production: <strong>{{ kpis.available }}</strong> ({{ kpis.available_percent }}%).
+            Counts use BOM component records; quantities with different units are not added together.
+            Components without dates are included. Monthly charts show dated records only.
+        </p></div>
         <!-- Total -->
         <div class="col-xl col-md-6">
 
@@ -239,6 +247,33 @@
                         BOM Records
                     </div>
 
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- In Stock -->
+        <div class="col-xl col-md-6">
+
+            <div class="card analytics-kpi kpi-in-stock shadow-sm border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <div class="kpi-title">
+                        In Stock
+                    </div>
+
+                    <div class="kpi-value">
+                        {{ "{:,}".format(kpis.in_stock) }}
+                    </div>
+
+                    <div class="kpi-percent">
+                        {{ kpis.in_stock_percent }}%
+                    </div>
+
+                    <div class="small text-muted">No delivery recorded</div>
                 </div>
 
             </div>
@@ -365,7 +400,7 @@
                 <div class="card-header bg-white border-bottom">
 
                     <h5 class="mb-0 fw-bold">
-                        Component Delivery Status
+                        Component Availability
                     </h5>
 
                 </div>
@@ -451,7 +486,7 @@
                         <td class="text-nowrap">{{ row.supplier.strftime('%d %b %Y') }}</td>
                         <td class="text-nowrap">{{ row.actual.strftime('%d %b %Y') if row.actual else '—' }}</td>
                         <td class="text-danger fw-semibold">{{ row.delay_days }} day(s)</td>
-                        <td>{% if row.production_risk %}<span class="badge bg-danger">At risk — outstanding</span>{% else %}<span class="badge bg-secondary">Delivered — review history</span>{% endif %}</td>
+                        <td>{% if row.production_risk %}<span class="badge bg-danger">At risk — outstanding</span>{% else %}<span class="badge bg-secondary">Available — review history</span>{% endif %}</td>
                     </tr>
                     {% else %}
                     <tr><td colspan="8" class="text-center text-muted">No supplier commitments later than expected in the selected records.</td></tr>
@@ -550,7 +585,7 @@
 
                                 <tr>
 
-                                    <td colspan="7"
+                                    <td colspan="6"
                                         class="text-center text-muted py-4">
 
                                         No overdue BOM components found.
@@ -653,10 +688,11 @@
                                 <tr>
                                     <th>Coach</th>
                                     <th class="text-end">Total</th>
+                                    <th class="text-end">In Stock</th>
                                     <th class="text-end">Delivered</th>
                                     <th class="text-end">Outstanding</th>
                                     <th class="text-end">Overdue</th>
-                                    <th class="text-end">Delivery %</th>
+                                    <th class="text-end">Available %</th>
                                 </tr>
 
                             </thead>
@@ -675,6 +711,7 @@
                                         {{ row.total }}
                                     </td>
 
+                                    <td class="text-end text-info fw-semibold">{{ row.in_stock }}</td>
                                     <td class="text-end text-success fw-semibold">
                                         {{ row.delivered }}
                                     </td>
@@ -688,7 +725,7 @@
                                     </td>
 
                                     <td class="text-end fw-bold">
-                                        {{ row.delivered_percent }}%
+                                        {{ row.available_percent }}%
                                     </td>
 
                                 </tr>
@@ -697,7 +734,7 @@
 
                                 <tr>
 
-                                    <td colspan="6"
+                                    <td colspan="7"
                                         class="text-center text-muted py-4">
 
                                         No BOM information available.
@@ -800,6 +837,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const COLORS = {
 
+        in_stock: "#0891b2",
         delivered: "#28a745",
 
         outstanding: "#f4b400",
@@ -833,6 +871,7 @@ document.addEventListener("DOMContentLoaded", function () {
             data: {
 
                 labels: [
+                    "In Stock (no delivery recorded)",
                     "Delivered",
                     "Outstanding / On Order",
                     "Overdue"
@@ -841,12 +880,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [{
 
                     data: [
+                        {{ kpis.in_stock_percent }},
                         {{ kpis.delivered_percent }},
                         {{ kpis.outstanding_percent }},
                         {{ kpis.overdue_percent }}
                     ],
 
                     backgroundColor: [
+                        COLORS.in_stock,
                         COLORS.delivered,
                         COLORS.outstanding,
                         COLORS.overdue
@@ -913,6 +954,8 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
 
 
+    const coachInStock = [{% for row in coach_performance %}{{ (row.in_stock / row.total * 100) if row.total else 0 }},{% endfor %}];
+
     const coachDelivered = [
 
         {% for row in coach_performance %}
@@ -969,7 +1012,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: coachLabels,
 
                 datasets: [
-
+                    {label: "In Stock (no delivery recorded) %", data: coachInStock, backgroundColor: COLORS.in_stock},
                     {
 
                         label: "Delivered %",
@@ -1535,6 +1578,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 }
 
+
+.kpi-in-stock { border-top: 4px solid #0891b2 !important; }
 
 .kpi-delivered {
 

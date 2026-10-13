@@ -94,7 +94,7 @@ class ExportTests(unittest.TestCase):
         rows = self.rows(response)
         self.assertEqual(len(rows), 2)
         self.assertEqual(list(rows[0]), ['component', 'section', 'quantity', 'uom',
-            'expected_delivery_date', 'supplier_date', 'actual_delivery_date', 'countdown', 'delivered', 'notes'])
+            'expected_delivery_date', 'supplier_date', 'actual_delivery_date', 'countdown', 'delivered', 'notes', 'stock_status'])
         self.assertEqual(rows[0]['component'], 'Café, "seat"')
         self.assertEqual(rows[0]['notes'], 'First line\nSecond line')
         self.assertEqual(rows[0]['quantity'], '2')

@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
@@ -399,6 +400,16 @@ class CoachBOMItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
     uom = db.Column(db.String(50), nullable=True)  # e.g. EA, KG, M, SET
 
+    stock_status = db.Column(db.String(12), nullable=False, default="Out of Stock",
+                             server_default="Out of Stock")
+    __table_args__ = (db.CheckConstraint(
+        "stock_status IN ('In Stock', 'Out of Stock')", name="ck_bom_stock_status"),)
+
+    @property
+    def available_for_production(self):
+        from bom_stock import available
+        return available(self)
+
     delivered = db.Column(db.Boolean, nullable=False, default=False)
     expected_delivery_date = db.Column(db.Date, nullable=True)
     supplier_date = db.Column(db.Date, nullable=True)
@@ -611,3 +622,17 @@ class TaskBOMDependency(db.Model):
     bom_item_id = db.Column(db.Integer, db.ForeignKey("coach_bom_item.id", ondelete="CASCADE"), primary_key=True, index=True)
     task = db.relationship("CompletionTask", backref=db.backref("bom_dependencies", cascade="all, delete-orphan"))
     bom_item = db.relationship("CoachBOMItem", backref=db.backref("task_dependencies", cascade="all, delete-orphan"))
+
+
+# Apply the delivery invariant to normal ORM inserts/updates, including non-form callers.
+@event.listens_for(CoachBOMItem, 'before_insert')
+@event.listens_for(CoachBOMItem, 'before_update')
+def enforce_bom_stock(mapper, connection, item):
+    from bom_stock import IN_STOCK, OUT_OF_STOCK, stock_status
+    item.stock_status = stock_status(item.stock_status or
+                                    (IN_STOCK if item.delivered else OUT_OF_STOCK))
+    if item.actual_delivery_date:
+        item.stock_status = IN_STOCK
+        item.delivered = True
+    elif item.delivered and item.stock_status == OUT_OF_STOCK:
+        raise ValueError('Delivered items must be In Stock.')

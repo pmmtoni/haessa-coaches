@@ -1,0 +1,35 @@
+<script>
+(() => {
+    document.querySelectorAll('select[name="stock_status"]').forEach(stock => {
+        const form = stock.form;
+        const fields = ['expected_delivery_date', 'supplier_date', 'actual_delivery_date']
+            .map(name => form.elements.namedItem(name));
+        const actual = fields[2];
+        const delivered = form.elements.namedItem('delivered');
+        // Disabled controls are omitted by browsers; mirror them so a newly
+        // entered receipt date survives its automatic transition to In Stock.
+        const mirrors = fields.map(field => {
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = field.name;
+            hidden.disabled = true;
+            form.appendChild(hidden);
+            return hidden;
+        });
+        function sync(receiptChanged = false) {
+            if (actual.value && receiptChanged) stock.value = 'In Stock';
+            if (actual.value) delivered.checked = true;
+            fields.forEach((field, index) => {
+                field.disabled = stock.value === 'In Stock';
+                mirrors[index].disabled = !field.disabled;
+                mirrors[index].value = field.value;
+            });
+        }
+        stock.addEventListener('change', () => sync());
+        fields.forEach(field => field.addEventListener('change', () => sync(field === actual)));
+        delivered.addEventListener('change', () => sync());
+        form.addEventListener('submit', () => sync(true));
+        sync();
+    });
+})();
+</script>

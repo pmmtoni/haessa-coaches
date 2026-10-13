@@ -18,6 +18,7 @@ ALIASES = {
     'section': ('section',), 'quantity': ('quantity', 'qty'),
     'uom': ('uom', 'unit', 'unit_of_measure'),
     'delivered': ('delivered', 'status'),
+    'stock_status': ('stock_status', 'stock availability', 'availability'),
     'expected_delivery_date': ('expected_delivery_date', 'expected_date', 'expected'),
     'supplier_date': ('supplier_date', 'supplier date', 'supplierdate'),
     'actual_delivery_date': ('actual_delivery_date', 'actual_date', 'actual'),
@@ -146,9 +147,16 @@ def build_plan(raw, catalog, existing_keys=(), coach_id=None, coaches=None, as_o
                         values[field] = date.fromisoformat(text).isoformat()
                     except ValueError:
                         row['messages'].append(f"{field} '{text}': use a valid YYYY-MM-DD date.")
-            if values.get('delivered') and not get('actual_delivery_date'):
-                values['actual_delivery_date'] = as_of.isoformat()
-                row['default_note'] = 'Actual delivery defaults to the preview date for a delivered item.'
+            from bom_stock import stock_status, IN_STOCK, OUT_OF_STOCK
+            try:
+                values['stock_status'] = stock_status(get('stock_status') or
+                    (IN_STOCK if values.get('delivered') else OUT_OF_STOCK))
+                if values.get('actual_delivery_date'):
+                    values.update(stock_status=IN_STOCK, delivered=True)
+                elif values.get('delivered') and values['stock_status'] == OUT_OF_STOCK:
+                    raise ValueError('A delivered item must be In Stock.')
+            except ValueError as exc:
+                row['messages'].append(str(exc))
             values['uom'] = get('uom') or None
             values['notes'] = get('notes') or None
             for field, limit in (('component', 200), ('section', 120), ('uom', 50)):
