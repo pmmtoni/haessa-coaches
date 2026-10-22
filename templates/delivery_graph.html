@@ -305,8 +305,11 @@
         <div class="card-header bg-white border-bottom">
             <h5 class="mb-0">Delivery Performance Over Time</h5>
         </div>
-        <div class="card-body main-chart-box">
-            <canvas id="deliveryChart"></canvas>
+        <div class="card-body">
+            <div class="chart-box">
+                <canvas id="deliveryChart"></canvas>
+                <img id="deliveryChartPrint" alt="Delivery performance over time" style="display: none;">
+            </div>
         </div>
     </div>
 
@@ -411,7 +414,10 @@
         </div>
         <div class="card-body">
             <div class="row g-3">
+                {# The server classifies months before the current month as Past.
+                   Keep original indices so each tile retains its own load and risk. #}
                 {% for label in labels %}
+                {% if capacity_heat_labels[loop.index0] != 'Past' %}
                 <div class="col-md-3 col-lg-2">
                     <div class="capacity-tile text-white rounded-4 p-3 h-100" style="background-color: {{ capacity_heat_colors[loop.index0] }};">
                         <div class="fw-bold">{{ label }}</div>
@@ -419,10 +425,11 @@
                         <div class="small">{{ capacity_heat_labels[loop.index0] }}</div>
                     </div>
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
             <div class="mt-3 small text-muted">
-                Green = manageable monthly load, orange = near capacity pressure, red = overloaded delivery month.
+                Current month onward. Green = manageable monthly load, orange = near capacity pressure, red = overloaded delivery month.
             </div>
         </div>
     </div>
@@ -611,7 +618,7 @@ const commonOptions = {
             labels: labels,
             datasets: [
                 {
-                    label: "Actual Completed Coaches",
+                    label: "Completed",
                     data: actualCompleted,
                     borderColor: "#198754",
                     borderWidth: 3,
@@ -619,7 +626,7 @@ const commonOptions = {
                     yAxisID: "y"
                 },
                 {
-                    label: "Remaining Coaches",
+                    label: "Remaining",
                     data: remainingCoaches,
                     borderColor: "#6c757d",
                     borderWidth: 2,
@@ -627,7 +634,7 @@ const commonOptions = {
                     yAxisID: "y"
                 },
                 {
-                    label: "Actual Rate (" + aRate + "/mo)",
+                    label: "Actual (" + Number(aRate.toFixed(1)) + "/mo)",
                     data: aLine,
                     borderColor: "#20c997",
                     borderWidth: 2,
@@ -637,7 +644,7 @@ const commonOptions = {
                     yAxisID: "yRate"
                 },
                 {
-                    label: "Desired Rate (" + dRate + "/mo)",
+                    label: "Desired (" + Number(dRate.toFixed(1)) + "/mo)",
                     data: dLine,
                     borderColor: "#0d6efd",
                     borderWidth: 2,
@@ -647,7 +654,7 @@ const commonOptions = {
                     yAxisID: "yRate"
                 },
                 {
-                    label: "Required Rate (" + rRate + "/mo)",
+                    label: "Required (" + Number(rRate.toFixed(1)) + "/mo)",
                     data: rLine,
                     borderColor: "#dc3545",
                     borderWidth: 2,
@@ -659,28 +666,22 @@ const commonOptions = {
             ]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: false,
+            ...commonOptions,
             interaction: { mode: "index", intersect: false },
             plugins: {
-                legend: { position: "bottom" },
-                title: {
-                    display: true,
-                    text: "Left = cumulative coaches | Right = rates/month",
-                    font: { size: 12 }
-                }
+                legend: { position: "bottom" }
             },
             scales: {
                 x: {
-                    title: { display: true, text: "Month" }
+                    ticks: { autoSkip: true, minRotation: 0, maxRotation: 0 },
+                    title: { display: false }
                 },
                 y: {
                     type: "linear",
                     position: "left",
                     display: true,
                     beginAtZero: true,
-                    title: { display: true, text: "Coaches (cumulative)" }
+                    title: { display: true, text: "Coach Count" }
                 },
                 yRate: {
                     type: "linear",
@@ -690,7 +691,7 @@ const commonOptions = {
                     min: 0,
                     suggestedMax: rateMax,
                     grid: { drawOnChartArea: false },
-                    title: { display: true, text: "Rate (coaches / month)" }
+                    title: { display: true, text: "Coaches / Month" }
                 }
             }
         }
@@ -965,40 +966,99 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 </script>
 
 <script>
-/* Resize Chart.js canvases before browser print / Save as PDF */
+/* Render at print dimensions before the browser captures the canvas. */
 (function () {
-    function resizeAllCharts() {
-        if (typeof Chart === "undefined" || !Chart.instances) return;
-        // Chart.js v3+: Chart.instances may be object; also check canvas _chartInstance
-        try {
-            Object.values(Chart.instances || {}).forEach(function (ch) {
-                try { ch.resize(); } catch (e) {}
-            });
-        } catch (e) {}
-        document.querySelectorAll("canvas").forEach(function (cv) {
-            if (cv._chartInstance) {
-                try { cv._chartInstance.resize(); } catch (e) {}
+    var savedOptions = new Map();
+
+    function prepareCharts() {
+        if (typeof Chart === "undefined") return;
+        var charts = new Set(Object.values(Chart.instances || {}));
+        document.querySelectorAll("canvas").forEach(function (canvas) {
+            if (canvas._chartInstance) charts.add(canvas._chartInstance);
+        });
+        charts.forEach(function (chart) {
+            if (chart.canvas.id === "deliveryChart") {
+                renderPerformancePrint(chart);
+                return;
             }
+            var box = chart.canvas.parentElement;
+            var bounds = box.getBoundingClientRect();
+            if (!bounds.width || !bounds.height) return;
+            if (!savedOptions.has(chart)) {
+                savedOptions.set(chart, {
+                    responsive: chart.options.responsive,
+                    devicePixelRatio: chart.options.devicePixelRatio,
+                    resizeDelay: chart.options.resizeDelay,
+                    animation: chart.options.animation
+                });
+            }
+            chart.stop();
+            chart.options.responsive = false;
+            chart.options.resizeDelay = 0;
+            chart.options.animation = false;
+            chart.options.devicePixelRatio = Math.max(3, window.devicePixelRatio || 1);
+            // Apply the zero delay before resize: Chart.js builds its resize
+            // debounce during update. A timer may run after PDF capture.
+            chart.update("none");
+            chart.resize(Math.round(bounds.width), Math.round(bounds.height));
+            chart.update("none");
         });
     }
 
-    window.addEventListener("beforeprint", function () {
-        resizeAllCharts();
-        // small delay helps some browsers reflow fixed-height chart boxes
-        setTimeout(resizeAllCharts, 50);
-    });
+    function renderPerformancePrint(chart) {
+        var image = document.getElementById("deliveryChartPrint");
+        if (!image) return;
+        // A detached canvas has no percentage CSS dimensions. Chart.js can
+        // apply retina scaling without Chrome scaling the chart layout too.
+        var canvas = document.createElement("canvas");
+        canvas.width = 1000;
+        canvas.height = 300;
+        var printChart = new Chart(canvas, {
+            type: chart.config.type,
+            data: chart.config.data,
+            options: Object.assign({}, chart.config.options, {
+                responsive: false,
+                maintainAspectRatio: false,
+                animation: false,
+                resizeDelay: 0,
+                devicePixelRatio: 3
+            }),
+            plugins: chart.config.plugins || []
+        });
+        try {
+            printChart.update("none");
+            image.src = canvas.toDataURL("image/png");
+        } finally {
+            printChart.destroy();
+        }
+    }
 
-    window.addEventListener("afterprint", function () {
-        resizeAllCharts();
-    });
+    function restoreCharts() {
+        savedOptions.forEach(function (options, chart) {
+            if (!chart.canvas) return;
+            Object.assign(chart.options, options);
+            chart.update("none");
+            chart.resize();
+        });
+        savedOptions.clear();
+    }
 
-    // Chrome sometimes needs matchMedia
+    function primePerformancePrint() {
+        if (typeof Chart === "undefined") return;
+        var chart = Object.values(Chart.instances || {}).find(function (entry) {
+            return entry.canvas && entry.canvas.id === "deliveryChart";
+        });
+        if (chart) renderPerformancePrint(chart);
+    }
+    primePerformancePrint();
+    window.addEventListener("beforeprint", prepareCharts);
+    window.addEventListener("afterprint", restoreCharts);
     if (window.matchMedia) {
-        var mql = window.matchMedia("print");
-        if (mql.addEventListener) {
-            mql.addEventListener("change", function (e) {
-                if (e.matches) resizeAllCharts();
-                else setTimeout(resizeAllCharts, 100);
+        var media = window.matchMedia("print");
+        if (media.addEventListener) {
+            media.addEventListener("change", function (event) {
+                if (event.matches) prepareCharts();
+                else restoreCharts();
             });
         }
     }
@@ -1045,6 +1105,18 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 }
 
 @media print {
+    #deliveryChart { display: none !important; }
+    #deliveryChartPrint {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+    #deliveryChartPrint:not([src]) { display: none !important; }
+    .chart-box:has(> #deliveryChartPrint) {
+        height: auto !important;
+        aspect-ratio: 10 / 3;
+    }
     @page {
         size: A4 landscape;
         margin: 12mm 10mm;
@@ -1165,7 +1237,11 @@ new Chart(document.getElementById('sectionBottleneckChart'), {
 
     /* Chart heights for print */
     .main-chart-box {
-        height: 260px !important;
+        /* Two axes and five legend entries need room below the plot. */
+        height: 360px !important;
+        min-height: 360px !important;
+        width: 100%;
+        flex-shrink: 0;
         page-break-inside: avoid;
         break-inside: avoid;
     }

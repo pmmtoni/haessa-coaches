@@ -2,7 +2,73 @@
 {% block title %}Delivery Schedule{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+
+<style>
+    @page { size: A4 landscape; margin: 10mm; }
+
+    @media print {
+        main.container-fluid { padding: 0 !important; }
+        main > hr, main > footer { display: none !important; }
+        .delivery-schedule {
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 8pt;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        /* Bootstrap cards are flex containers and responsive tables scroll.
+           Use normal, unclipped block flow so tables can span printed pages. */
+        .delivery-schedule .card,
+        .delivery-schedule .card-body,
+        .delivery-schedule .table-responsive {
+            display: block !important;
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+            break-inside: auto;
+            page-break-inside: auto;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+        .delivery-schedule .card-header {
+            break-inside: avoid;
+            break-after: avoid;
+            page-break-after: avoid;
+            padding: 2mm 0 !important;
+        }
+        .delivery-schedule .card-header h5 { font-size: 11pt; }
+        .delivery-schedule table {
+            width: 100% !important;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: 7pt;
+        }
+        .delivery-schedule thead { display: table-header-group; }
+        .delivery-schedule tbody { break-inside: auto; }
+        .delivery-schedule tr {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+        .delivery-schedule th,
+        .delivery-schedule td {
+            min-width: 0 !important;
+            white-space: normal !important;
+            overflow-wrap: anywhere;
+            padding: 1.5mm 1mm !important;
+            vertical-align: top;
+        }
+        .delivery-schedule th:nth-child(10) { width: 17%; }
+        .delivery-schedule th:last-child { width: 15%; }
+        .delivery-schedule .badge { white-space: normal; font-size: inherit; }
+        .delivery-schedule .small { font-size: inherit; }
+        .delivery-schedule .progress { min-width: 0; }
+        .delivery-schedule .no-print { display: none !important; }
+    }
+</style>
+
+<div class="container mt-4 delivery-schedule">
 
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4">
         <div>
@@ -27,7 +93,7 @@
     {% endif %}
 
     <!-- Quick Status Filters -->
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-4 no-print">
         <div class="col-md-6 col-xl-2">
             <a href="{{ url_for('delivery_schedule', status='all') }}" class="text-decoration-none">
                 <div class="card border-0 shadow-sm rounded-4 h-100 {% if status_filter == 'all' %}border border-2 border-dark{% endif %}">
@@ -98,7 +164,7 @@
     </div>
 
     <!-- Dropdown Filter -->
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card shadow-sm border-0 rounded-4 mb-4 no-print">
         <div class="card-body">
             <form method="GET" action="{{ url_for('delivery_schedule') }}" class="row g-3 align-items-end">
                 <div class="col-md-10">
@@ -121,7 +187,7 @@
     </div>
 
     {% macro schedule_table(title, items, badge_class, row_class, empty_text) %}
-    <div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="schedule-section card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-header bg-white py-3 border-bottom">
             <h5 class="mb-0">{{ title }}</h5>
         </div>
@@ -180,7 +246,7 @@
                                 <span class="badge {{ badge_class }}">{{ item.status }}</span>
                             </td>
 
-                            <td style="min-width: 240px;">
+                            <td class="schedule-progress" style="min-width: 240px;">
                                 <div class="small fw-semibold mb-1">{{ progress_percent }}%</div>
                                 <div class="progress" style="height: 10px;">
                                     <div
